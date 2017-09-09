@@ -244,6 +244,8 @@ function Display:OnEnable()
 	self:RegisterEvent("SKILL_LINES_CHANGED")
 	self:RegisterEvent("MINIMAP_UPDATE_TRACKING")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD","UpdateMaps")
+	self:RegisterEvent("ARCHAEOLOGY_SURVEY_CAST","UpdateMaps")		--added by Derangement
+	self:RegisterEvent("ARCHAEOLOGY_FIND_COMPLETE","UpdateMaps")	--added by Derangement
 	GatherMate.HBD.RegisterCallback(self, "PlayerZoneChanged")
 	self:SKILL_LINES_CHANGED()
 	self:MINIMAP_UPDATE_TRACKING()
@@ -359,8 +361,9 @@ function Display:DigsitesChanged()
 end
 
 local function IsActiveDigSite()
-	local showDig = _G.GetCVarBool("digSites")
-	return digSites[(GetMapInfo())] and showDig
+	return ArcheologyDigsiteProgressBar and ArcheologyDigsiteProgressBar:IsShown();		--new logic by Derangement
+	--local showDig = _G.GetCVarBool("digSites")
+	--return digSites[(GetMapInfo())] and showDig
 end
 
 function Display:UpdateVisibility()
