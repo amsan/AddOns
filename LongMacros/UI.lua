@@ -108,7 +108,7 @@ StaticPopupDialogs["LONG_MACRO_CONFIRM_DELETE"] = {
 	noCancelOnReuse = true,
 	notClosableByLogout = true,
 	
-	sound = "igMainMenuOptionCheckBoxOn",
+	sound = SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON,
 	showAlert = true,
 	preferredIndex = STATICPOPUPS_NUMDIALOGS,
 	timeout = 0,
@@ -137,7 +137,7 @@ StaticPopupDialogs["LONG_MACRO_CONFIRM_DELETE_BLIZZ"] = {
 	noCancelOnReuse = true,
 	notClosableByLogout = true,
 	
-	sound = "igMainMenuOptionCheckBoxOn",
+	sound = SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON,
 	showAlert = true,
 	preferredIndex = STATICPOPUPS_NUMDIALOGS,
 	timeout = 0,
@@ -166,7 +166,7 @@ StaticPopupDialogs["LONG_MACRO_CONFIRM_RENAME"] = {
 	noCancelOnReuse = true,
 	notClosableByLogout = true,
 	
-	sound = "igMainMenuOptionCheckBoxOn",
+	sound = SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON,
 	preferredIndex = STATICPOPUPS_NUMDIALOGS,
 	timeout = 0,
 	whileDead = true
@@ -193,7 +193,7 @@ StaticPopupDialogs["LONG_MACRO_CONFIRM_CREATE_BLIZZ"] = {
 	noCancelOnReuse = true,
 	notClosableByLogout = true,
 	
-	sound = "igMainMenuOptionCheckBoxOn",
+	sound = SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON,
 	preferredIndex = STATICPOPUPS_NUMDIALOGS,
 	timeout = 0,
 	whileDead = true
@@ -206,7 +206,7 @@ StaticPopupDialogs["LONG_MACRO_FAIL_FEEDBACK"] = {
 	
 	hideOnEscape = true,
 	
-	sound = "igMainMenuOptionCheckBoxOn",
+	sound = SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON,
 	showAlert = true,
 	preferredIndex = STATICPOPUPS_NUMDIALOGS,
 	timeout = 4,
@@ -457,14 +457,14 @@ end
 
 LongMacroFrame_onShow = function(self)
 	LongMacroFrame_update();
-	PlaySound("igCharacterInfoOpen");
+	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN);
 end
 
 
 LongMacroFrame_onHide = function(self)
 	LongMacroPopupFrame:Hide();
 	LongMacroFrame_saveMacro();
-	PlaySound("igCharacterInfoClose");
+	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE);
 end
 
 
@@ -766,7 +766,7 @@ LongMacroDeleteButton_onClick = function(self, button)
 end
 
 LongMacroFrameSaveButton_onClick = function()
-	PlaySound("igMainMenuOptionCheckBoxOn");
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 	LongMacroFrame_saveMacro();
 	LongMacroFrame_update();
 	LongMacroPopupFrame:Hide();
@@ -774,7 +774,7 @@ LongMacroFrameSaveButton_onClick = function()
 end
 
 LongMacroFrameCancelButton_onClick = function()
-	PlaySound("igMainMenuOptionCheckBoxOn");
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 	LongMacroFrame_update();
 	LongMacroPopupFrame:Hide();
 	LongMacroFrameText:ClearFocus();
@@ -936,7 +936,7 @@ end
 LongMacroPopupFrame_onShow = function(self)
 	LongMacroPopupEditBox:SetFocus();
 
-	PlaySound("igCharacterInfoOpen");
+	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN);
 		
 	if ( self.mode == "new" ) then
 		LongMacroPopupEditBox:SetText("");

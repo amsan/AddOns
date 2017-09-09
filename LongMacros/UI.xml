@@ -244,7 +244,7 @@
 						_G[self:GetName().."HighlightTexture"]:SetWidth(self:GetTextWidth() + 31);
 					</OnLoad>
 					<OnClick>
-						PlaySound("igMainMenuOptionCheckBoxOn");
+						PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 						PanelTemplates_SetTab(LongMacroFrame, self:GetID());
 						LongMacroFrame_saveMacro();
 						LongMacroFrame_setIsPerCharacter(false);
@@ -272,7 +272,7 @@
 						PanelTemplates_TabResize(self, -15, nil, nil, 150);
 					</OnLoad>
 					<OnClick>
-						PlaySound("igMainMenuOptionCheckBoxOn");
+						PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 						PanelTemplates_SetTab(LongMacroFrame, self:GetID());
 						LongMacroFrame_saveMacro();
 						LongMacroFrame_setIsPerCharacter(true);
@@ -418,7 +418,7 @@
 					<OnLoad function="LongMacroPanelButton_paintGold"/>
 					<OnClick>
 						LongMacroPopupFrame_cancelEdit();
-						PlaySound("gsTitleOptionOK");
+						PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK);
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -431,7 +431,7 @@
 					<OnLoad function="LongMacroPanelButton_paintGold"/>
 					<OnClick>
 						LongMacroPopupOkayButton_onClick();
-						PlaySound("gsTitleOptionOK");
+						PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK);
 					</OnClick>
 				</Scripts>
 			</Button>
