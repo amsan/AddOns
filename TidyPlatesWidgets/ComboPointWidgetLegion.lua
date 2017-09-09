@@ -10,89 +10,121 @@
 --]]
 local comboWidgetPath = "Interface\\Addons\\TidyPlatesWidgets\\ComboWidget\\"
 local artpath = "Interface\\Addons\\TidyPlatesWidgets\\ComboWidget\\"
-local artfile = artpath.."RogueLegion.tga"
-local grid = .0625
+local artfile = artpath.."RogueMax8.tga"
+local grid = .125 --.0625
+local monkOffset = 10
 
 local WidgetList = {}
 
+local function GetDruidPoints()
+	local points = GetComboPoints("player", "target")
 
-
--- Placeholder for function
-local math_floor = math.floor;
-
-local function GetSoulShardsTarget() 		--added by Derangement
-	if UnitCanAttack("player", "target") then
-		local modifier = UnitPowerDisplayMod(SPELL_POWER_SOUL_SHARDS);
-		local points = math_floor( UnitPower("player", SPELL_POWER_SOUL_SHARDS) / modifier )
-		local maxPoints = UnitPowerMax("player", SPELL_POWER_SOUL_SHARDS) / modifier
-		
-		return points, maxPoints
-	end
+	return points
 end
 
 
-local function GetComboPointTarget()
-	if UnitCanAttack("player", "target") then
-		local points = GetComboPoints("player", "target")
-		local maxPoints = UnitPowerMax("player", 4)
-
-		return points, maxPoints
-	end
-end
-
-local function GetChiTarget()
-	if UnitCanAttack("player", "target") then
-
-		if SPEC_MONK_BREWMASTER == GetSpecialization() then return end
-
-		local points = UnitPower("player", SPELL_POWER_CHI)
-		local maxPoints = UnitPowerMax("player", SPELL_POWER_CHI)
-
-		return points, maxPoints
+local function UpdateArt()
+	for guid,frame in pairs(WidgetList) do
 
 	end
 end
 
+local function GetRoguePoints()
+
+	-- artfile = artpath.."RogueMax8.tga"
+	-- artfile = artpath.."RogueMax6.tga"
+	-- artfile = artpath.."Druid.tga"
 
 
-local GetResourceOnTarget
-local LocalName, PlayerClass = UnitClass("player")
 
-if PlayerClass == "MONK" then
-	GetResourceOnTarget = GetChiTarget
-elseif PlayerClass == "ROGUE" then
-	GetResourceOnTarget = GetComboPointTarget
+	local points = GetComboPoints("player", "target")
+
+--[[
+	if points and points > 0 then
+
+		-- Anticipation
+		if points > 4 then
+			local name, _, _, count = UnitAura("player", Anticipation)
+
+			if name and count > 0 then
+				points = points + count
+			end
+		end
+	end
+	--]]
+
+	return points
+end
+
+local function GetPaladinPoints()
+	local points = UnitPower("player", SPELL_POWER_HOLY_POWER)
+
+	if points > 0 then points = points + monkOffset end
+	return points
+end
+
+local function GetMonkPoints()		-- 0 to 4
+	local points = UnitPower("player", SPELL_POWER_CHI)
+	local maxPoints = UnitPowerMax("player", SPELL_POWER_CHI)
+
+	if points > 0 and maxPoints == 4 then
+		points = points + monkOffset
+	end
+
+	return points
+end
+
+
+local function GetWarlockPoints()
+	local points = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
+
+	return points
+end
+
+
+
+local function DummyFunction()
+	return nil
+end
+
+
+local GetPoints
+local PlayerClass = select(2,UnitClassBase("player"))
+
+if PlayerClass == "ROGUE" then
+	GetPoints = GetRoguePoints
+
 elseif PlayerClass == "DRUID" then
-	GetResourceOnTarget = GetComboPointTarget
-elseif PlayerClass == "WARLOCK" then			--added by Derangement
-	GetResourceOnTarget = GetSoulShardsTarget
+	GetPoints = GetDruidPoints
+	artfile = artpath.."RogueMax8.tga"
+elseif PlayerClass == "MONK" then
+	GetPoints = GetMonkPoints
+elseif PlayerClass == "PALADIN" then
+	--GetPoints = GetPaladinPoints
+	GetPoints = DummyFunction
+	
+elseif PlayerClass == "WARLOCK" then	--added by Derangement
+	GetPoints = GetWarlockPoints
+	
 else
-	GetResourceOnTarget = function() end
+	GetPoints = DummyFunction
 end
-
 
 -- Update Graphics
 local function UpdateWidgetFrame(frame)
-	local points, maxPoints = GetResourceOnTarget()
-
-	if points and points > 0 then
-		-- At some point, custom art will be made for each class.  Hopefully!
-		--UpdateWidgetArt(frame)
-		--frame.Icon:SetTexture(comboWidgetPath..tostring(points))
-
-		-- SetTexCoord:  First two values define the range of the Horizontal
-		if maxPoints == 6 then
-			frame.Icon:SetTexCoord(0, 1, grid*(points+9), grid *(points+10))
-		else
-			frame.Icon:SetTexCoord(0, 1, grid*(points-1), grid *(points))
+		local points
+		if UnitExists("target") then
+			points = GetPoints()
 		end
 
-		frame:Show()
+		if points and points > 0 then
+			--frame.Icon:SetTexture(comboWidgetPath..tostring(points))
+			frame.Icon:SetTexCoord(0, 1, grid*(points-1), grid *(points))
 
-		return
-	end
+			--object:SetTexCoord(objectstyle.left or 0, objectstyle.right or 1, objectstyle.top or 0, objectstyle.bottom or 1)
 
-	frame:_Hide()
+			frame:Show()
+		else frame:_Hide() end
 end
 
 -- Context
@@ -146,7 +178,8 @@ local function EnableWatcherFrame(arg)
 end
 
 -- Widget Creation
-local function CreateWidgetFrame(parent)
+local function CreateWidgetFrame(extended)
+	local parent = extended.widgetFrame
 	-- Required Widget Code
 	local frame = CreateFrame("Frame", nil, parent)
 	frame:Hide()

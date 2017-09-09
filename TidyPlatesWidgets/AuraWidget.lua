@@ -409,6 +409,7 @@ local function CreateAuraIcon(parent)
 	frame.Cooldown:SetReverse(true)
 	frame.Cooldown:SetHideCountdownNumbers(true)
 	frame.Cooldown:SetDrawEdge(true)
+	frame.Cooldown:SetSwipeColor(0,0,0,1);		--Added by Derangement
 
 	-- Text
 	--frame.TimeLeft = frame:CreateFontString(nil, "OVERLAY")
