@@ -4,6 +4,7 @@ local Mana = Grid2.statusPrototype:new("mana",false)
 local LowMana = Grid2.statusPrototype:new("lowmana",false)
 local Power = Grid2.statusPrototype:new("power",false)
 local PowerAlt = Grid2.statusPrototype:new("poweralt",false)
+local PowerAltAbsent = Grid2.statusPrototype:new("poweralt-absent",false)	--added by Derangement
 
 local max = math.max
 local fmt = string.format
@@ -16,6 +17,8 @@ local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
 local UnitIsPlayer = UnitIsPlayer
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
+local SPELL_POWER_MANA = SPELL_POWER_MANA
+local SPELL_POWER_ALTERNATE_POWER = SPELL_POWER_ALTERNATE_POWER
 
 local statuses = {}  -- Enabled statuses
 
@@ -67,11 +70,11 @@ function Mana:UpdateUnitPowerHealer(unit, powerType)
 end
 
 function Mana:IsActiveStandard(unit)
-	return UnitPowerType(unit) == 0
+	return UnitPowerType(unit) == SPELL_POWER_MANA
 end
 
 function Mana:IsActiveHealer(unit)
-	return UnitPowerType(unit) == 0  and (unit=="player" or UnitGroupRolesAssigned(unit) == "HEALER")
+	return UnitPowerType(unit) == SPELL_POWER_MANA  and (unit=="player" or UnitGroupRolesAssigned(unit) == "HEALER")
 end
 
 function Mana:GetPercent(unit)
@@ -107,7 +110,7 @@ function LowMana:UpdateUnitPower(unit, powerType)
 end
 
 function LowMana:IsActive(unit)
-	return (UnitPowerType(unit) == 0) and (Mana:GetPercent(unit) < self.dbx.threshold)
+	return (UnitPowerType(unit) == SPELL_POWER_MANA) and (Mana:GetPercent(unit) < self.dbx.threshold)
 end
 
 Grid2.setupFunc["lowmana"] = function(baseKey, dbx)
@@ -119,25 +122,36 @@ Grid2:DbSetStatusDefaultValue( "lowmana", {type = "lowmana", threshold = 0.75, c
 
 -- Alternative power status
 PowerAlt.GetColor = Grid2.statusLibrary.GetColor
+PowerAltAbsent.GetColor = Grid2.statusLibrary.GetColor
 PowerAlt.OnEnable = status_OnEnable
+PowerAltAbsent.OnEnable = status_OnEnable
 PowerAlt.OnDisable= status_OnDisable
+PowerAltAbsent.OnDisable= status_OnDisable
 
 function PowerAlt:UpdateUnitPower(unit, powerType)
 	if powerType=="ALTERNATE" then
 		self:UpdateIndicators(unit)
 	end
 end
+PowerAltAbsent.UpdateUnitPower = PowerAlt.UpdateUnitPower;
+
 
 function PowerAlt:IsActive(unit)
-	return UnitPowerMax(unit,10)>0
+	return UnitPowerMax(unit,SPELL_POWER_ALTERNATE_POWER)>0
+end
+function PowerAltAbsent:IsActive(unit)
+	return UnitPowerMax(unit,SPELL_POWER_ALTERNATE_POWER)<=0
 end
 
 function PowerAlt:GetPercent(unit)
-	return max(UnitPower(unit,10),0) / UnitPowerMax(unit,10)
+	return max(UnitPower(unit,SPELL_POWER_ALTERNATE_POWER),0) / UnitPowerMax(unit,SPELL_POWER_ALTERNATE_POWER)
+end
+function PowerAltAbsent:GetPercent(unit)
+	return 1
 end
 
 function PowerAlt:GetText(unit)
-	local power= UnitPower(unit,10)
+	local power= UnitPower(unit,SPELL_POWER_ALTERNATE_POWER)
 	if power>=1000 then
 		return fmt("%.1fk", power / 1000)
 	else
@@ -149,8 +163,13 @@ Grid2.setupFunc["poweralt"] = function(baseKey, dbx)
 	Grid2:RegisterStatus(PowerAlt, {"percent", "text", "color"}, baseKey, dbx)
 	return PowerAlt
 end
+Grid2.setupFunc["poweralt-absent"] = function(baseKey, dbx)
+	Grid2:RegisterStatus(PowerAltAbsent, {"percent", "color"}, baseKey, dbx)
+	return PowerAlt
+end
 
 Grid2:DbSetStatusDefaultValue( "poweralt", {type = "poweralt", color1= {r=1,g=0,b=0.5,a=1}} )
+Grid2:DbSetStatusDefaultValue( "poweralt-absent", {type = "poweralt-absent", color1= {r=1,g=1,b=1,a=0}} )
 
 -- Power status
 local powerColors= {}
@@ -159,13 +178,14 @@ Power.OnEnable = status_OnEnable
 Power.OnDisable = status_OnDisable
 
 function Power:UpdateUnitPower(unit, powerType)
-   if UnitIsPlayer(unit) and powerColors[ powerType ] then
+	--if UnitIsPlayer(unit) and powerColors[ powerType ] then	--commented by Derangement
 		self:UpdateIndicators(unit)
-	end
+	--end
 end
 
 function Power:IsActive(unit)
-  return UnitIsPlayer(unit)
+	return true;		--modified by Derangement
+  --return UnitIsPlayer(unit)
 end
 
 function Power:GetPercent(unit)
@@ -183,7 +203,7 @@ end
 
 function Power:GetColor(unit)
 	local _,type= UnitPowerType(unit)
-	local c= powerColors[type] or powerColors["MANA"]
+	local c= powerColors[type] or powerColors["UNKNOWN"]
 	return c.r, c.g, c.b, c.a
 end
 
@@ -197,7 +217,8 @@ function Power:UpdateDB()
 	powerColors["MAELSTROM"] = self.dbx.color7
 	powerColors["LUNAR_POWER"] = self.dbx.color8
 	powerColors["FURY"] = self.dbx.color9
-	powerColors["PAIN"] = self.dbx.color10		
+	powerColors["PAIN"] = self.dbx.color10	
+	powerColors["UNKNOWN"] = self.dbx.color11
 end
 
 Grid2.setupFunc["power"] = function(baseKey, dbx)
@@ -206,7 +227,7 @@ Grid2.setupFunc["power"] = function(baseKey, dbx)
 	return Power
 end
 
-Grid2:DbSetStatusDefaultValue( "power", {type = "power", colorCount = 10, 
+Grid2:DbSetStatusDefaultValue( "power", {type = "power", colorCount = 11, 
 	color1 = {r=0,g=0.5,b=1  ,a=1},   -- mana
 	color2 = {r=1,g=0  ,b=0  ,a=1},   -- rage
 	color3 = {r=1,g=0.5,b=0  ,a=1},   -- focus
@@ -216,5 +237,6 @@ Grid2:DbSetStatusDefaultValue( "power", {type = "power", colorCount = 10,
 	color7 = {r=0.00, g=0.50, b=1.00, a=1}, -- maelstrom
 	color8 = {r=0.30, g=0.52, b=0.90, a=1}, -- astral power
 	color9 = {r=0.788, g=0.259, b=0.992, a=1}, -- fury
-	color10 = {r=1.00, g=0.61, b=0.00, a=1} -- pain	
+	color10 = {r=1.00, g=0.61, b=0.00, a=1}, -- pain	
+	color11 = {r=.8, g=0.8, b=0.8, a=1} -- unknown	
 })  

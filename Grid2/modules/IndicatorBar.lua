@@ -108,7 +108,7 @@ end
 
 local function Bar_OnUpdateD(self, parent, unit, status)
 	local bar,value = parent[self.name],0
-	if status then
+	if status and status:IsActive(unit) then
 		local expiration = status:GetExpirationTime(unit)
 		if expiration then
 			local now = GetTime()
@@ -132,11 +132,17 @@ local function Bar_OnUpdateD(self, parent, unit, status)
 end
 
 local function Bar_OnUpdateS(self, parent, unit, status)
-	self:SetValue( parent, status and status:GetCount(unit)/status:GetCountMax(unit) or 0)
+	local value = status and status:IsActive(unit) and status:GetCount(unit)/status:GetCountMax(unit) or 0; 	--Derangement altered to correct but slower way
+	
+	self:SetValue(parent, value)
+	--self:SetValue( parent, status and status:GetCount(unit)/status:GetCountMax(unit) or 0)
 end
 
 local function Bar_OnUpdate(self, parent, unit, status)
-	self:SetValue(parent, status and status:GetPercent(unit) or 0)
+	local value = status and status:IsActive(unit) and status:GetPercent(unit) or 0; 	--Derangement altered to correct but slower way
+	
+	self:SetValue(parent, value)
+	--self:SetValue(parent, status and status:GetPercent(unit) or 0)
 end
 
 --}}}

@@ -6,11 +6,20 @@ local statusTypes = { "color", "icon", "icons", "percent", "text" }
 local myUnits = { player = true, pet = true, vehicle = true }
 
 -- Called from StatusAuras.lua
-local function status_UpdateState(self, unit, texture, count, duration, expiration)
+local function status_UpdateState(self, unit, texture, count, duration, expiration, auraIndex, tooltipFunc)						--auraIndex, tooltipFunc added by Derangement
+	self.seenCount = (self.seenCount or 0) + 1;			--added by Derangement
+	
 	if count==0 then count = 1 end
-	if self.states[unit]==nil or count ~= self.counts[unit] or expiration ~= self.expirations[unit] then 
+	if(
+		self.states[unit]==nil or 
+		count ~= self.counts[unit] or 
+		expiration ~= self.expirations[unit] or
+		auraIndex ~= self.auraIndexes[unit]				--added by Derangement
+	) then 
 		self.states[unit] = true
 		self.textures[unit] = texture
+		self.auraIndexes[unit] = auraIndex				--added by Derangement
+		self.tooltipFuncs[unit] = tooltipFunc			--added by Derangement
 		self.durations[unit] = duration
 		self.expirations[unit] = expiration
 		self.counts[unit] = count
@@ -18,18 +27,18 @@ local function status_UpdateState(self, unit, texture, count, duration, expirati
 		self.seen = 1
 	else
 		self.seen = -1
-	end	
-end
-
-local function status_UpdateStateMine(self, unit, texture, count, duration, expiration, _, isMine)
-	if isMine then
-		status_UpdateState(self, unit, texture, count, duration, expiration)
 	end
 end
 
-local function status_UpdateStateNotMine(self, unit, texture, count, duration, expiration, _, isMine)
+local function status_UpdateStateMine(self, unit, texture, count, duration, expiration, _, isMine, auraIndex, tooltipFunc)			--auraIndex, tooltipFunc added by Derangement
+	if isMine then
+		status_UpdateState(self, unit, texture, count, duration, expiration, auraIndex, tooltipFunc)								--auraIndex, tooltipFunc added by Derangement
+	end
+end
+
+local function status_UpdateStateNotMine(self, unit, texture, count, duration, expiration, _, isMine, auraIndex, tooltipFunc)		--auraIndex, tooltipFunc added by Derangement
 	if not isMine then
-		status_UpdateState(self, unit, texture, count, duration, expiration)
+		status_UpdateState(self, unit, texture, count, duration, expiration, auraIndex, tooltipFunc)								--auraIndex, tooltipFunc added by Derangement
 	end
 end
 
@@ -50,6 +59,7 @@ end
 local status_GetIcons
 do
 	local textures = {}
+	local tooltipFuncs = {}		--added by Derangement
 	local counts = {}
 	local expirations = {}
 	local durations = {}
@@ -60,8 +70,11 @@ do
 		local i, j, spells, filter, name, caster = 1, 1, self.auraNames, self.filterMine
 		while true do
 			name, _, textures[j], counts[j], _, durations[j], expirations[j], caster = UnitBuff(unit, i)
-			if not name then return j-1, textures, counts, expirations, durations, colors end
+			if not name then return j-1, textures, counts, expirations, durations, colors, tooltipFuncs end			--tooltipFuncs added by Derangement
+			
 			if spells[name] and (filter==false or filter==myUnits[caster]) then 
+				tooltipFuncs[j] = Grid2Frame:MakeTooltipBuffFunc(unit, i);		--added by Derangement
+				
 				colors[j] = color
 				j = j + 1 
 			end	

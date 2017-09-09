@@ -26,6 +26,9 @@ end, {
 Grid2Options:RegisterStatusOptions("poweralt", "mana", Grid2Options.MakeStatusColorOptions, {
 	titleIcon = "Interface\\Icons\\Inv_potion_34"
 })
+Grid2Options:RegisterStatusOptions("poweralt-absent", "mana", Grid2Options.MakeStatusColorOptions, {
+	titleIcon = "Interface\\Icons\\Inv_potion_87"
+})
 Grid2Options:RegisterStatusOptions("power",    "mana", Grid2Options.MakeStatusColorOptions, {
 	color1 = L["Mana"],
 	colorDesc1 = L["Mana"],
@@ -47,6 +50,8 @@ Grid2Options:RegisterStatusOptions("power",    "mana", Grid2Options.MakeStatusCo
 	colorDesc9 = L["Fury"],
 	color10 = L["Pain"],
 	colorDesc10 = L["Pain"],
+	color11 = L["Unknown"],
+	colorDesc11 = L["Default for unknown power types"],
 	width = "full",
 	titleIcon = "Interface\\Icons\\Inv_potion_33"
 })

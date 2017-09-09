@@ -46,12 +46,15 @@ frame:SetScript("OnEvent", function (self, event, unit)
 		if not order then
 			order, name = spells_order[id], id
 		end
+		
+		local tooltipFunc = Raid2Frame:MakeTooltipDebuffFunc(unit, index);					--added by Derangement
+		
 		if order then
-			spells_status[name]:AddDebuff(order, te, co, ty, du, ex)
+			spells_status[name]:AddDebuff(order, te, co, ty, du, ex, id, tooltipFunc)		--id and tooltipFunc added by Derangement
 		elseif time_auto and (not spells_known[id]) and (ex<=0 or du<=0 or ex-du>=time_auto) then
 			order = GSRD:RegisterNewDebuff(id, ca, te, co, ty, du, ex, isBoss)
 			if order then
-				status_auto:AddDebuff(order, te, co, ty, du, ex)
+				status_auto:AddDebuff(order, te, co, ty, du, ex, id, tooltipFunc)			--id and tooltipFunc added by Derangement
 			end	
 		end
 		index = index + 1
@@ -259,6 +262,7 @@ local class = {
 	GetColor          = Grid2.statusLibrary.GetColor,
 	IsActive          = function(self, unit) return self.states[unit]      end,
 	GetIcon           = function(self, unit) return self.textures[unit]    end,
+	GetTooltipFunc    = function(self, unit) return self.tooltipFuncs[unit] end,	--added by Derangement
 	GetCount          = function(self, unit) return self.counts[unit]      end,
 	GetDuration       = function(self, unit) return self.durations[unit]   end,
 	GetExpirationTime = function(self, unit) return self.expirations[unit] end,
@@ -312,11 +316,12 @@ function class:OnDisable()
 	end	
 end
 
-function class:AddDebuff(order, te, co, ty, du, ex, id)
+function class:AddDebuff(order, te, co, ty, du, ex, id, tooltipFunc)			--tooltipFunc added by Derangement
 	if order < self.order or ( order == self.order and co > self.count ) then
 		self.order      = order
 		self.count      = co
 		self.texture    = te
+		self.tooltipFunc = tooltipFunc	--added by Derangement
 		self.type       = ty
 		self.duration   = du
 		self.expiration = ex
@@ -336,6 +341,7 @@ function class:UpdateState(unit)
 			self.states[unit]      = true
 			self.counts[unit]      = self.count
 			self.textures[unit]    = self.texture
+			self.tooltipFuncs[unit]= self.tooltipFunc	--added by Derangement
 			self.types[unit]       = self.type
 			self.durations[unit]   = self.duration
 			self.expirations[unit] = self.expiration
@@ -352,6 +358,7 @@ function class:ResetState(unit)
 	self.states[unit]      = nil
 	self.counts[unit]      = nil
 	self.textures[unit]    = nil
+	self.tooltipFuncs[unit]= nil	--added by Derangement
 	self.types[unit]       = nil
 	self.durations[unit]   = nil
 	self.expirations[unit] = nil
@@ -361,6 +368,7 @@ local function Create(baseKey, dbx)
 	local status = Grid2.statusPrototype:new(baseKey, false)
 	status.states      = {}
 	status.textures    = {}
+	status.tooltipFuncs = {}	--added by Derangement
 	status.counts      = {}
 	status.types       = {}
 	status.durations   = {}

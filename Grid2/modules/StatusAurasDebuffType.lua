@@ -4,10 +4,12 @@ local Grid2 = Grid2
 local statusTypesDebuffType = { "color", "icon", "icons", "text" }
 
 -- Called from StatusAuras.lua
-local function status_UpdateState(self, unit, texture, count, duration, expiration, name)
+local function status_UpdateState(self, unit, texture, count, duration, expiration, name, auraIndex, tooltipFunc)		--auraIndex, tooltipFunc added by Derangement
 	if self.debuffFilter and self.debuffFilter[name] then return end
 	self.states[unit] = true
 	self.textures[unit] = texture
+	self.auraIndexes[unit] = auraIndex				--added by Derangement
+	self.tooltipFuncs[unit] = tooltipFunc			--added by Derangement
 	self.durations[unit] = duration
 	self.expirations[unit] = expiration
 	self.counts[unit] = count~=0 and count or 1
@@ -25,6 +27,7 @@ end
 
 local function status_UpdateDB(self)
 	self.subType = self.dbx.subType
+	self.dispellableOnly = self.dbx.dispellableOnly		--added by Derangement
 	self.debuffFilter = self.dbx.debuffFilter
 	Grid2:SetupStatusAura(self)
 	Grid2:SetStatusAuraDebuffTypeColor( self.dbx.subType, self.dbx.color1 )
@@ -43,7 +46,21 @@ Grid2.setupFunc["debuffType"] = function(baseKey, dbx)
 	return status
 end
 
+Grid2.setupFunc["debuffTypeBossBuff"] = function(baseKey, dbx)
+	local status = Grid2.statusPrototype:new(baseKey, false)
+	status.Reset = status_Reset
+	status.UpdateState  = status_UpdateState
+	status.GetBorder = Grid2.statusLibrary.GetBorder	
+	status.OnEnable = status_OnEnable
+	status.OnDisable = status_OnDisable
+	status.UpdateDB = status_UpdateDB	
+	Grid2:RegisterStatus(status, {}, baseKey, dbx)		
+	status:UpdateDB()
+	return status
+end
+
 Grid2:DbSetStatusDefaultValue( "debuff-Magic",   {type = "debuffType", subType = "Magic",   color1 = {r=.2,g=.6,b=1,a=1}} )
 Grid2:DbSetStatusDefaultValue( "debuff-Poison",  {type = "debuffType", subType = "Poison",  color1 = {r=0,g=.6,b=0,a=1 }} )
 Grid2:DbSetStatusDefaultValue( "debuff-Curse",   {type = "debuffType", subType = "Curse",   color1 = {r=.6,g=0,b=1,a=1 }} )
 Grid2:DbSetStatusDefaultValue( "debuff-Disease", {type = "debuffType", subType = "Disease", color1 = {r=.6,g=.4,b=0,a=1}} )
+Grid2:DbSetStatusDefaultValue( "debuff-BossBuff", {type = "debuffTypeBossBuff", subType = "BossBuff", color1 = {r=.8,g=.8,b=.8,a=1}} )	--added by Derangement

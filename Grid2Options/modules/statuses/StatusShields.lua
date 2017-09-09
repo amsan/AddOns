@@ -1,10 +1,12 @@
 local L = Grid2Options.L
 
-Grid2Options:RegisterStatusOptions("shields", "health", function(self, status, options, optionParams)
+
+local RegisterFunc = function(self, status, options, optionParams)
 	self:MakeStatusColorOptions(status, options, {
-		color1 = L["Normal"], colorDesc1 = L["Normal shield color"],
-		color2 = L["Medium"], colorDesc2 = L["Medium shield color"],
-		color3 = L["Low"],    colorDesc3 = L["Low shield color"],
+		color1 = L["Full"], colorDesc1 = L["Full shield color"],
+		color2 = L["Normal"], colorDesc2 = L["Normal shield color"],
+		color3 = L["Medium"], colorDesc3 = L["Medium shield color"],
+		color4 = L["Low"],    colorDesc4 = L["Low shield color"],
 	})
 	self:MakeSpacerOptions(options, 30)
 	options.maxShieldAmount = {
@@ -28,9 +30,9 @@ Grid2Options:RegisterStatusOptions("shields", "health", function(self, status, o
 		name = L["Medium shield threshold"],
 		desc = L["The value below which a shield is considered medium."],
 		min = 0,
-		softMax = 200000,
-		bigStep = 1000,
-		step = 1,
+		softMax = 1,
+		bigStep = .1,
+		step = .01,
 		get = function () return status.dbx.thresholdMedium end,
 		set = function (_, v)
 			   if status.dbx.thresholdLow > v then v = status.dbx.thresholdLow end
@@ -44,9 +46,9 @@ Grid2Options:RegisterStatusOptions("shields", "health", function(self, status, o
 		name = L["Low shield threshold"],
 		desc = L["The value below which a shield is considered low."],
 		min = 0,
-		softMax = 200000,
-		bigStep = 1000,
-		step = 1,
+		softMax = 1,
+		bigStep = .1,
+		step = .01,
 		get = function () return status.dbx.thresholdLow end,
 		set = function (_, v)
 			   if status.dbx.thresholdMedium < v then v = status.dbx.thresholdMedium end
@@ -73,7 +75,25 @@ Grid2Options:RegisterStatusOptions("shields", "health", function(self, status, o
 			end,
 		}
 	end
-end, {
+end
+
+
+Grid2Options:RegisterStatusOptions("shields", "health", RegisterFunc, {
 	title = L["display remaining amount of damage absorb shields"],
 	titleIcon = "Interface\\ICONS\\Spell_Holy_PowerWordShield"
+} )
+
+Grid2Options:RegisterStatusOptions("health-shields", "health", RegisterFunc, {		--added by Derangement
+	title = L["display the total current health and remaining amount of damage absorb shields"],
+	titleIcon = "Interface\\ICONS\\Inv_Potion_115"
+} )
+
+Grid2Options:RegisterStatusOptions("shields-light", "health", RegisterFunc, {			--added by Derangement
+	title = L["display remaining amount of damage absorb shields, but only when that unit doesn't have more shields than missing health"],
+	titleIcon = "Interface\\ICONS\\Spell_Holy_BlessingOfProtection"
+} )
+
+Grid2Options:RegisterStatusOptions("shields-overflowing", "health", RegisterFunc, {		--added by Derangement
+	title = L["display remaining amount of damage absorb shields, but only when that unit has more shields than missing health"],
+	titleIcon = "Interface\\ICONS\\Spell_Holy_PowerWordBarrier"
 } )

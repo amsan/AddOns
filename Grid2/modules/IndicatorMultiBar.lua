@@ -106,15 +106,15 @@ local function Bar_Update(self, parent, unit, status)
 		local values = bar.myValues
 		if status then
 			local index = self.priorities[status]
-			-- local value = status:IsActive(unit) and status:GetPercent(unit) or 0; <- correct but more slow way
-			local value = status:GetPercent(unit) or 0
+ 			local value = status:IsActive(unit) and status:GetPercent(unit) or 0; 	--Derangement altered to correct but slower way
+			--local value = status:GetPercent(unit) or 0
 			values[index] = value
 			-- Optimization to avoid updating bars with zero value
 			if value>0 and index>bar.myMaxIndex then bar.myMaxIndex = index	end
 		else
 			for i, status in ipairs(self.statuses) do
-				-- values[i] = status:IsActive(unit) and status:GetPercent(unit) or 0; <- correct but more slow way
-				values[i] = status:GetPercent(unit) or 0
+				values[i] = status:IsActive(unit) and status:GetPercent(unit) or 0; 	--Derangement altered to correct but slower way
+				--values[i] = status:GetPercent(unit) or 0
 			end
 			bar.myMaxIndex = #self.statuses
 		end

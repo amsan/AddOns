@@ -107,7 +107,7 @@ end
 
 -- Events to track raid type changes
 do
-	local groupType, instType, instMaxPlayers
+	local groupType, instType, instMaxPlayers, instNumGroups		--instNumGroups added by Derangement
 	function Grid2:PLAYER_ENTERING_WORLD()
 		-- this is needed to trigger an update when switching from one BG directly to another
 		groupType = nil
@@ -123,6 +123,9 @@ do
 		local newGroupType
 		local InInstance, newInstType = IsInInstance()
 		local _, _, difficultyID, _, maxPlayers = GetInstanceInfo()
+		local numGroupMembers = GetNumGroupMembers()
+
+		local numGroups = math.ceil(numGroupMembers/5)		--added by Derangement
 
 		if newInstType == "arena" then
 			-- arena@arena instances
@@ -155,17 +158,22 @@ do
 					newInstType = "none"
 					maxPlayers = 40
 				end
-			elseif GetNumGroupMembers()>0 then
+			elseif numGroupMembers > 0 then
 				newGroupType, newInstType, maxPlayers = "party", "other", 5
 			else
 				newGroupType, newInstType, maxPlayers = "solo", "other", 1
 			end
 		end
 		maxPlayers = maxPlayers or 40
-		self:Debug("GroupChanged", groupType, instType, "=>", newGroupType, newInstType, maxPlayers)
-		if groupType ~= newGroupType or instType ~= newInstType or instMaxPlayers ~= maxPlayers then
-			groupType, instType, instMaxPlayers = newGroupType, newInstType, maxPlayers
-			self:SendMessage("Grid_GroupTypeChanged", groupType, instType, maxPlayers)
+		self:Debug("GroupChanged", groupType, instType, "=>", newGroupType, newInstType, maxPlayers, numGroups)
+		if 
+			groupType ~= newGroupType or 
+			instType ~= newInstType or 
+			instMaxPlayers ~= maxPlayers or 
+			instNumGroups ~= numGroups 
+		then
+			groupType, instType, instMaxPlayers, instNumGroups = newGroupType, newInstType, maxPlayers, numGroups
+			self:SendMessage("Grid_GroupTypeChanged", groupType, instType, maxPlayers, numGroups)
 		end
 		self:UpdateRoster()
 	end

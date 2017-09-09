@@ -28,10 +28,13 @@ local function Icon_OnFrameUpdate(f)
 		if status:IsActive(unit) then
 			if status.GetIcons then
 				local auras = f.auras
-				local k, textures, counts, expirations, durations, colors = status:GetIcons(unit)
+				local k, textures, counts, expirations, durations, colors, tooltipFuncs = status:GetIcons(unit)	--tooltipFuncs added by Derangement
+				
 				for j=1,k do
 					local aura = auras[i]
 					aura.icon:SetTexture(textures[j])
+					aura.tooltipFunc = tooltipFuncs and tooltipFuncs[j]				--added by Derangement
+				
 					if showStack then
 						local count = counts[j]
 						aura.text:SetText(count>1 and count or "")
@@ -53,6 +56,9 @@ local function Icon_OnFrameUpdate(f)
 				aura.icon:SetTexture(status:GetIcon(unit))
 				aura.icon:SetTexCoord(status:GetTexCoord(unit))
 				aura.icon:SetVertexColor(status:GetVertexColor(unit))
+				
+				aura.tooltipFunc = status.GetTooltipFunc and status:GetTooltipFunc(unit)	--added by Derangement
+				
 				if showStack then
 					local count = status:GetCount(unit)
 					aura.text:SetText(count>1 and count or "")
@@ -115,6 +121,7 @@ local function Icon_Layout(self, parent)
 			frame.text = frame:CreateFontString(nil, "OVERLAY")
 			frame.cooldown = CreateFrame("Cooldown", nil, frame, "CooldownFrameTemplate")
 			frame.cooldown:SetHideCountdownNumbers(true)
+			frame.cooldown:SetAlpha(.6)	--added by Derangement
 			auras[i] = frame
 		end
 		frame:SetSize( self.iconSize, self.iconSize )
@@ -174,6 +181,57 @@ local function Icon_Disable(self, parent)
 	self.Layout = nil
 	self.Update = nil
 end
+
+
+
+local function Aura_ShouldUpdateTooltip(aura)				--added by Derantement
+	return (
+		aura.tooltipFunc and
+		aura:IsShown() and
+		aura:IsMouseOver(0,0,0,0)
+	);
+end
+
+
+local function Icon_ShouldUpdateTooltip(self, parent, unit)				--added by Derantement
+	local f = parent[self.name];
+	local auras = f.auras
+	
+	if (
+		self.UpdateTooltip and 
+		f:IsShown() and
+		f:IsMouseOver(0,0,0,0)
+	) then
+		
+		for i=1,self.maxIcons do
+			local aura = auras[i]
+			
+			if Aura_ShouldUpdateTooltip(aura) then
+				return true;
+			end
+		end
+		
+	else
+		return false;
+	end
+end
+
+
+local function Icon_UpdateTooltip(self, parent, unit)		--added by Derantement
+	local f = parent[self.name];
+	local auras = f.auras
+	
+	for i=1,self.maxIcons do
+		local aura = auras[i]
+		
+		if Aura_ShouldUpdateTooltip(aura) then
+			aura.tooltipFunc();
+			return;
+		end
+	end
+end
+
+
 
 local pointsX = { TOPLEFT =  1,	TOPRIGHT = -1, BOTTOMLEFT = 1, BOTTOMRIGHT = -1 }
 local pointsY = { TOPLEFT = -1, TOPRIGHT = -1, BOTTOMLEFT = 1, BOTTOMRIGHT =  1 }
@@ -235,6 +293,8 @@ local function Icon_UpdateDB(self, dbx)
 	self.OnUpdate      = Icon_OnUpdate
 	self.Disable       = Icon_Disable
 	self.Update        = Icon_Update
+	self.ShouldUpdateTooltip = Icon_ShouldUpdateTooltip		--added by Derangement
+	self.UpdateTooltip = Icon_UpdateTooltip					--added by Derangement
 	self.UpdateDB      = Icon_UpdateDB
 end
 

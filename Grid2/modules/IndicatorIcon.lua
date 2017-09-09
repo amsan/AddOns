@@ -175,6 +175,38 @@ local function Icon_Disable(self, parent)
 	self.OnUpdate = nil
 end
 
+
+--returns whether the tooltip should be updated using this indicator (and it is possible to do so)
+local function Icon_ShouldUpdateTooltip(self, parent, unit)				--added by Derantement
+	local f = parent[self.name];
+	
+	if (
+		self.UpdateTooltip and 
+		f:IsShown() and
+		f:IsMouseOver(0,0,0,0)
+	) then
+		local status = self:GetCurrentStatus(unit)
+		
+		return (
+			status and 
+			status.GetTooltipFunc and 
+			status:GetTooltipFunc(unit)
+		);
+		
+	else
+		return false;
+	end
+end
+
+
+local function Icon_UpdateTooltip(self, parent, unit)		--added by Derantement
+	local status = self:GetCurrentStatus(unit)
+	local tooltipFunc = status:GetTooltipFunc(unit);
+	
+	tooltipFunc();
+end
+
+
 local function Icon_UpdateDB(self, dbx)
 	dbx = dbx or self.dbx
 	-- location
@@ -215,6 +247,8 @@ local function Icon_UpdateDB(self, dbx)
 	self.Layout        = Icon_Layout
 	self.OnUpdate      = Icon_OnUpdate
 	self.Disable       = Icon_Disable
+	self.ShouldUpdateTooltip = Icon_ShouldUpdateTooltip		--added by Derangement
+	self.UpdateTooltip = Icon_UpdateTooltip					--added by Derangement
 	self.UpdateDB      = Icon_UpdateDB
 	--
 	self.dbx = dbx

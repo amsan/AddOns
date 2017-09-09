@@ -81,6 +81,7 @@ function indicator:GetCurrentStatus(unit)
 	end
 end
 
+
 --{{ Update functions
 function indicator:UpdateBlink(parent, unit)
 	local status, state = self:GetCurrentStatus(unit)

@@ -4,11 +4,19 @@ local Grid2 = Grid2
 local statusTypes = { "color", "icon", "icons", "percent", "text" }
 
 -- Called from StatusAuras.lua
-local function status_UpdateState(self, unit, texture, count, duration, expiration, value)
+local function status_UpdateState(self, unit, texture, count, duration, expiration, value, auraIndex, tooltipFunc)				--auraIndex, tooltipFunc added by Derangement
 	if count==0 then count = 1 end
-	if self.states[unit]==nil or self.counts[unit] ~= count or expiration~=self.expirations[unit] or value~=self.values[unit] then 
+	if(
+		self.states[unit]==nil or 
+		self.counts[unit] ~= count or 
+		expiration~=self.expirations[unit] or 
+		value~=self.values[unit] or
+		auraIndex~=self.auraIndexes[unit]				--added by Derangement
+	) then 
 		self.states[unit] = true
 		self.textures[unit] = texture
+		self.auraIndexes[unit] = auraIndex				--added by Derangement
+		self.tooltipFuncs[unit] = tooltipFunc			--added by Derangement
 		self.counts[unit] = count~=0 and count or 1
 		self.durations[unit] = duration
 		self.expirations[unit] = expiration
@@ -20,15 +28,15 @@ local function status_UpdateState(self, unit, texture, count, duration, expirati
 	end
 end
 
-local function status_UpdateStateMine(self, unit, iconTexture, count, duration, expiration, value, isMine)
+local function status_UpdateStateMine(self, unit, iconTexture, count, duration, expiration, value, isMine, auraIndex, tooltipFunc)		--auraIndex, tooltipFunc added by Derangement
 	if isMine then
-		status_UpdateState(self, unit, iconTexture, count, duration, expiration, value)
+		status_UpdateState(self, unit, iconTexture, count, duration, expiration, value, auraIndex, tooltipFunc)							--auraIndex, tooltipFunc added by Derangement
 	end
 end
 
-local function status_UpdateStateNotMine(self, unit, iconTexture, count, duration, expiration, value, isMine)
+local function status_UpdateStateNotMine(self, unit, iconTexture, count, duration, expiration, value, isMine, auraIndex, tooltipFunc)	--auraIndex, tooltipFunc added by Derangement
 	if not isMine then
-		status_UpdateState(self, unit, iconTexture, count, duration, expiration, value)
+		status_UpdateState(self, unit, iconTexture, count, duration, expiration, value, auraIndex, tooltipFunc)							--auraIndex, tooltipFunc added by Derangement
 	end
 end
 

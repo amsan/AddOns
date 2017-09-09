@@ -207,13 +207,14 @@ function Grid2Layout:PLAYER_REGEN_ENABLED()
 	if updateSizeQueued then return self:UpdateSizeQueued() end
 end
 
-function Grid2Layout:Grid_GroupTypeChanged(_, groupType, instType, maxPlayers)
+function Grid2Layout:Grid_GroupTypeChanged(_, groupType, instType, maxPlayers, instNumGroups)		--instNumGroups added by Derangement
 	Grid2Layout:Debug("GroupTypeChanged", groupType, instType, maxPlayers)
 	local force = (maxPlayers ~= self.instMaxPlayers)
 	self.partyType = groupType
 	self.instType = instType
 	self.instMaxPlayers = maxPlayers
 	self.instMaxGroups = math.floor( (maxPlayers + 4) / 5 )
+	self.instNumGroups = instNumGroups
 	self:ReloadLayout(force)
 end
 
@@ -328,7 +329,16 @@ function Grid2Layout:ReloadLayout(force)
 	local p          = self.db.profile
 	local partyType  = self.partyType or "solo"
 	local instType   = self.instType or ""
-	local layoutName = p.layoutBySize[self.instMaxGroups] or p.layouts[partyType.."@"..instType] or p.layouts[partyType]
+	
+	local layoutName;
+	if( self.instNumGroups and self.instNumGroups > 0 ) then
+		for numPlayers = self.instNumGroups * 5, 40, 5 do
+			layoutName = p.layoutBySize[numPlayers];
+			if( layoutName ) then break end
+		end
+	end	
+	layoutName = layoutName or p.layouts[partyType.."@"..instType] or p.layouts[partyType]
+	
 	if self.layoutName ~= layoutName or force then
 		if InCombatLockdown() then
 			reloadLayoutQueued = true

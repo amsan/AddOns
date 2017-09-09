@@ -6,12 +6,22 @@ local emptyTable = {}
 local myUnits = { player = true, pet = true, vehicle = true }
 local statusTypes = { "color", "icon", "icons", "percent", "text" }
 
+
 -- Called from StatusAuras.lua
-local function status_UpdateState(self, unit, texture, count, duration, expiration, _, _, debuffType)
+local function status_UpdateState(self, unit, texture, count, duration, expiration, _, _, debuffType, auraIndex, tooltipFunc)		--auraIndex, tooltipFunc added by Derangement
+	self.seenCount = (self.seenCount or 0) + 1;			--added by Derangement
+	
 	if count==0 then count = 1 end
-	if self.states[unit]==nil or self.counts[unit] ~= count or expiration~=self.expirations[unit] then 
+	if(
+		self.states[unit]==nil or 
+		self.counts[unit] ~= count or 
+		expiration~=self.expirations[unit] or
+		auraIndex ~= self.auraIndexes[unit]				--added by Derangement
+	)then 
 		self.states[unit] = true
 		self.textures[unit] = texture
+		self.auraIndexes[unit] = auraIndex				--added by Derangement
+		self.tooltipFuncs[unit] = tooltipFunc			--added by Derangement
 		self.durations[unit] = duration
 		self.expirations[unit] = expiration
 		self.counts[unit] = count
@@ -23,11 +33,19 @@ local function status_UpdateState(self, unit, texture, count, duration, expirati
 	end	
 end
 
-local function status_UpdateStateFilter(self, unit, name, texture, count, duration, expiration, caster, isBossDebuff, debuffType)
-	local filtered = self.auraNames[name] or (self.filterLong~=nil and (duration>300)==self.filterLong) or (self.filterBoss~=nil and self.filterBoss == isBossDebuff) or (self.filterCaster and (caster==unit or myUnits[caster]) )
+local function status_UpdateStateFilter(self, unit, name, texture, count, duration, expiration, caster, isBossDebuff, debuffType, auraIndex, tooltipFunc)	--auraIndex, tooltipFunc added by Derangement
+	local filtered = (
+		self.auraNames[name] or 
+		( self.filterLong~=nil and (duration>300)==self.filterLong ) or 
+		( self.filterBoss~=nil and self.filterBoss == isBossDebuff ) or 
+		( self.filterCaster~=nil and (caster==unit or myUnits[caster] or false) == self.filterCaster )
+	);
 	if filtered then return end
+	
 	self.states[unit] = true
 	self.textures[unit] = texture
+	self.auraIndexes[unit] = auraIndex				--added by Derangement
+	self.tooltipFuncs[unit] = tooltipFunc			--added by Derangement
 	self.durations[unit] = duration
 	self.expirations[unit] = expiration
 	self.counts[unit] = count
@@ -39,6 +57,7 @@ end
 local status_GetIconsWhiteList, status_GetIconsFilter
 do
 	local textures = {}
+	local tooltipFuncs = {}		--added by Derangement
 	local counts = {}
 	local expirations = {}
 	local durations = {}
@@ -48,7 +67,9 @@ do
 		local name, _
 		while true do
 			name, _, textures[j], counts[j], debuffType, durations[j], expirations[j] = UnitDebuff(unit, i)
-			if not name then return j-1, textures, counts, expirations, durations, colors end
+			if not name then return j-1, textures, counts, expirations, durations, colors, tooltipFuncs end		--tooltipFuncs added by Derangement
+			
+			tooltipFuncs[j] = Grid2Frame:MakeTooltipBuffFunc(unit, i);		--added by Derangement
 			colors[j] = debuffType and typeColors[debuffType] or self.color
 			if spells[name] then j = j + 1 end
 			i = i + 1
@@ -58,14 +79,54 @@ do
 		local i, j, typeColors = 1, 1, self.typeColors
 		local filterLong, filterBoss, filterCaster, spells = self.filterLong, self.filterBoss, self.filterCaster, self.auraNames
 		local name, caster, isBossDebuff, _
+		
+		local filter = nil;		--added by Derangement
+		if( self.dispellableOnly ) then
+			filter = "RAID";
+		end
+		
+		--go through all applicable debuffs
 		while true do
-			name, _, textures[j], counts[j], debuffType, durations[j], expirations[j], caster, _, _, _, _, isBossDebuff = UnitDebuff(unit, i)
-			if not name then return j-1, textures, counts, expirations, durations, colors end
+			name, _, textures[j], counts[j], debuffType, durations[j], expirations[j], caster, _, _, _, _, isBossDebuff = UnitDebuff(unit, i, filter)
+			if not name then break end
+			
+			tooltipFuncs[j] = Grid2Frame:MakeTooltipDebuffFunc(unit, i, filter);		--added by Derangement
 			colors[j] = debuffType and typeColors[debuffType] or self.color
-			local filtered = spells[name] or (filterLong and (durations[j]>=300)==filterLong) or (filterBoss~=nil and filterBoss==isBossDebuff) or (filterCaster and (caster==unit or myUnits[caster]))
+			
+			local filtered = (
+				spells[name] or 
+				( filterLong~=nil and (durations[j]>=300)==filterLong ) or
+				( filterBoss~=nil and filterBoss==isBossDebuff ) or 
+				( filterCaster~=nil and (caster==unit or myUnits[caster] or false) == filterCaster )
+			);
 			if not filtered then j = j + 1 end	
+			
 			i = i + 1			
 		end
+		
+		
+		if( filterBoss == false ) then		--block added by Derangement
+			i = 1
+			while true do
+				name, _, textures[j], counts[j], debuffType, durations[j], expirations[j], caster, _, _, _, _, isBossDebuff = UnitBuff(unit, i)
+				if not name then break end
+				
+				tooltipFuncs[j] = Grid2Frame:MakeTooltipBuffFunc(unit, i);		--added by Derangement
+				colors[j] = typeColors["BossBuff"] or debuffType and typeColors[debuffType] or self.color
+				
+				local filtered = (
+					spells[name] or 
+					( filterLong~=nil and (durations[j]>=300)==filterLong ) or
+					( filterBoss~=nil and filterBoss==isBossDebuff ) or 
+					( filterCaster~=nil and (caster==unit or myUnits[caster] or false) == filterCaster )
+				);
+				if not filtered then j = j + 1 end	
+				
+				i = i + 1			
+			end
+		end
+		
+		return j-1, textures, counts, expirations, durations, colors, tooltipFuncs;		--tooltipFuncs added by Derangement
 	end
 end
 
@@ -107,10 +168,12 @@ local function status_UpdateDB(self)
 	if self.dbx.useWhiteList then
 		self.GetIcons = status_GetIconsWhiteList
 		self.UpdateState  = status_UpdateState
+		self.dispellableOnly = nil							--added by Derangement
 	else
 		self.filterLong   = self.dbx.filterLongDebuffs
 		self.filterBoss   = self.dbx.filterBossDebuffs
 		self.filterCaster = self.dbx.filterCaster
+		self.dispellableOnly = self.dbx.dispellableOnly		--added by Derangement
 		self.GetIcons     = status_GetIconsFilter
 		self.UpdateState  = status_UpdateStateFilter		
 	end

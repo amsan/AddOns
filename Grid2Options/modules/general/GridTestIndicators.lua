@@ -5,9 +5,18 @@ local Test     -- Test indicator
 local Exclude = { bar = true, multibar = true, alpha = true }
 
 local function InitTestData()
+	
+	local tooltipFunc = function()			--added by Derangement
+		if UnitAura("player",1) then
+			GameTooltip:SetUnitAura("player",1)
+		else
+			GameTooltip:SetSpellBookItem(1, BOOKTYPE_SPELL)
+		end
+	end
+	
 	-- generate test icons
 	local TestIcons = {}
-	local TestAuras = {	textures = {}, counts = {}, expirations = {}, durations = {}, colors = {} }
+	local TestAuras = {	textures = {}, tooltipFuncs = {}, counts = {}, expirations = {}, durations = {}, colors = {} }
 	for _, category in pairs(Grid2Options.categories) do
 		if category.icon then TestIcons[#TestIcons+1] = category.icon end
 	end
@@ -17,6 +26,7 @@ local function InitTestData()
 	local time, color = GetTime(), { r=1,g=1,b=1,a=0.6 }
 	for i=1,#TestIcons do
 		TestAuras.textures[i]    = TestIcons[i]
+		TestAuras.tooltipFuncs[i]= tooltipFunc			--added by Derangement
 		TestAuras.counts[i]      = math.random(1,3)
 		TestAuras.expirations[i] = time+math.random(10,60)
 		TestAuras.durations[i]   = math.random(30) + 3
@@ -29,7 +39,8 @@ local function InitTestData()
 	function Test:GetColor()    return math.random(0,1),math.random(0,1),math.random(0,1),1 end
 	function Test:GetPercent()	return math.random() end
 	function Test:GetIcon()	    return TestIcons[ math.random(#TestIcons) ]	end
-	function Test:GetIcons() 	return #TestIcons, TestAuras.textures, TestAuras.counts, TestAuras.expirations, TestAuras.durations, TestAuras.colors end
+	function Test:GetTooltipFunc() return tooltipFunc end
+	function Test:GetIcons() 	return #TestIcons, TestAuras.textures, TestAuras.counts, TestAuras.expirations, TestAuras.durations, TestAuras.colors, TestAuras.tooltipFuncs end
 	Test.dbx = TestIcons -- Asigned to TestIcons to avoid creating a new table
 	Grid2:RegisterStatus( Test, {"text","color", "percent", "icon"}, "test" )
 	--

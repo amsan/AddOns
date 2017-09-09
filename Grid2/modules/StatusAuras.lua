@@ -4,6 +4,7 @@ local Grid2 = Grid2
 local type = type
 local next = next
 local GetTime = GetTime
+local GameTooltip = GameTooltip
 
 -- Local variables
 local StatusList = {}
@@ -23,7 +24,9 @@ do
 	AuraFrame_OnEvent = function(_, _, unit)
 		local frames = Grid2:GetUnitFrames(unit)
 		if not next(frames) then return end
+		
 		-- Scan Debuffs, Debuff Types, Debuff Groups
+		local foundDispellableOnly = false;											--all mentions to foundDispellableOnly added by Derangement
 		local i = 1
 		while true do
 			local name, texture, count, debuffType, duration, expiration, caster, spellId, isBossDebuff, _
@@ -31,49 +34,134 @@ do
 			if not name then break end
 			local statuses = DebuffHandlers[name] or DebuffHandlers[spellId]
 			if statuses then
+				local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i);		--added by Derangement
+				
 				local isMine = myUnits[caster]
 				for status in next, statuses do
-					status:UpdateState(unit, texture, count, duration, expiration, values[status.valueIndex], isMine )
+					if( status.dispellableOnly ) then
+						foundDispellableOnly = true;
+					else
+						status:UpdateState(unit, texture, count, duration, expiration, values[status.valueIndex], isMine, i, tooltipFunc)	--i, tooltipFunc added by Derangement
+					end
 				end
 			end
 			if debuffType then
 				status = DebuffTypeHandlers[debuffType]
 				if status and (not status.seen) then
-					status:UpdateState(unit, texture, count, duration, expiration, name)
+					if( status.dispellableOnly ) then
+						foundDispellableOnly = true;
+					else
+						local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i);		--added by Derangement
+						status:UpdateState(unit, texture, count, duration, expiration, name, i, tooltipFunc)	--i, tooltipFunc added by Derangement
+					end
 				end
 			end
 			for status in next, DebuffsHandlers do
-				if not status.seen then	
-					status:UpdateState(unit, name, texture, count, duration, expiration, caster, isBossDebuff, debuffType)
+				--if not status.seen then	
+				if status.seen ~= 1 then					--modified by Derangement
+					if( status.dispellableOnly ) then
+						foundDispellableOnly = true;
+					else
+						local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i);		--added by Derangement
+						status:UpdateState(unit, name, texture, count, duration, expiration, caster, isBossDebuff, debuffType, i, tooltipFunc)	--i, tooltipFunc added by Derangement
+					end
 				end	
 			end
 			i = i + 1
 		end
+		
+		-- Scan DISPELLABLE Debuffs, Debuff Types, Debuff Groups		(entire block added by Derangement)
+		if( foundDispellableOnly ) then
+			local filter = "RAID";
+			i = 1
+			while true do
+				local name, texture, count, debuffType, duration, expiration, caster, spellId, isBossDebuff, _
+				name, _, texture, count, debuffType, duration, expiration, caster, _, _, spellId, _, isBossDebuff, _, values[1], values[2], values[3] = UnitDebuff(unit, i, filter)
+				if not name then break end
+				local statuses = DebuffHandlers[name] or DebuffHandlers[spellId]
+				if statuses then
+					local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i, filter);		--added by Derangement
+					
+					local isMine = myUnits[caster]
+					for status in next, statuses do
+						if( status.dispellableOnly ) then
+							status:UpdateState(unit, texture, count, duration, expiration, values[status.valueIndex], isMine, i, tooltipFunc)	--i, tooltipFunc added by Derangement
+						end
+					end
+				end
+				if debuffType then
+					status = DebuffTypeHandlers[debuffType]
+					if status and (not status.seen) then
+						if( status.dispellableOnly ) then
+							local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i, filter);		--added by Derangement
+							status:UpdateState(unit, texture, count, duration, expiration, name, i, tooltipFunc)	--i, tooltipFunc added by Derangement
+						end
+					end
+				end
+				for status in next, DebuffsHandlers do
+					--if not status.seen then	
+					if status.seen ~= 1 then					--modified by Derangement
+						if( status.dispellableOnly ) then
+							local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i, filter);		--added by Derangement
+							status:UpdateState(unit, name, texture, count, duration, expiration, caster, isBossDebuff, debuffType, i, tooltipFunc)	--i, tooltipFunc added by Derangement
+						end
+					end	
+				end
+				i = i + 1
+			end
+		end
+		
 		-- Scan Buffs
 		i = 1
 		while true do
-			local name, texture, count, duration, expiration, caster, spellId, _
-			name, _, texture, count, _, duration, expiration, caster, _, _, spellId, _, _, _, values[1], values[2], values[3] = UnitBuff(unit, i)
+			local name, texture, count, debuffType, duration, expiration, caster, spellId, isBossBuff, _
+			name, _, texture, count, debuffType, duration, expiration, caster, _, _, spellId, _, isBossBuff, _, values[1], values[2], values[3] = UnitBuff(unit, i)
 			if not name then break end
+			
 			local statuses = BuffHandlers[name] or BuffHandlers[spellId]
 			if statuses then
+				local tooltipFunc = Grid2Frame:MakeTooltipBuffFunc(unit, i);		--added by Derangement
+				
 				local isMine = myUnits[caster]
 				for status in next, statuses do
-					status:UpdateState(unit, texture, count, duration, expiration, values[status.valueIndex], isMine)
+					status:UpdateState(unit, texture, count, duration, expiration, values[status.valueIndex], isMine, i, tooltipFunc)	--i, tooltipFunc added by Derangement
 				end
 			end
+			
+			if( isBossBuff ) then			--block added by Derangement
+				for status in next, DebuffsHandlers do
+					if status.seen ~= 1 then
+						if( status.filterBoss == false ) then
+							local tooltipFunc = Grid2Frame:MakeTooltipBuffFunc(unit, i);
+							status:UpdateState(unit, name, texture, count, duration, expiration, caster, isBossBuff, "BossBuff", i, tooltipFunc)
+						end
+					end	
+				end
+			end
+			
 			i = i + 1
 		end
+		
 		-- Mark indicators that need updating
 		for status in next, StatusList do
-			local seen = status.seen
-			if (seen==1) or ((not seen) and status.states[unit] and status:Reset(unit)) then
+			local seen = status.seen;
+			local seenCount = status.seenCount;				--added by Derangement
+			
+			if(
+				(seen==1) or 
+				(seenCount ~= status.oldSeenCount) or		--added by Derangement
+				((not seen) and status.states[unit] and status:Reset(unit))
+			) then
 				for indicator in next, status.indicators do
 					indicators[indicator] = true
 				end
 			end	
-			status.seen = false
+			
+			status.seen = false;
+			status.oldSeenCount = seenCount;			--added by Derangement
+			status.seenCount = nil;						--added by Derangement
 		end
+		
 		-- Update indicators that needs updating only once.
 		for indicator in next, indicators do
 			for frame in next, frames do
@@ -246,6 +334,9 @@ do
 	local function GetIcon(self, unit) return 
 		self.textures[unit] 
 	end
+	local function GetTooltipFunc(self, unit) return 	--added by Derangement
+		self.tooltipFuncs[unit] 
+	end
 	local function GetIconMissing(self) 
 		return self.missingTexture 
 	end
@@ -296,6 +387,8 @@ do
 		local dbx = status.dbx
 		status.states      = status.states      or {}
 		status.textures    = status.textures    or {}
+		status.auraIndexes = status.auraIndexes or {}	--added by Derangement
+		status.tooltipFuncs = status.tooltipFuncs or {}	--added by Derangement
 		status.counts      = status.counts      or {}
 		status.expirations = status.expirations or {}
 		status.durations   = status.durations   or {}
@@ -312,12 +405,14 @@ do
 			local spell = dbx.auras and dbx.auras[1] or dbx.spellName
 			status.missingTexture = spell and select(3,GetSpellInfo(spell)) or "Interface\\ICONS\\Achievement_General"
 			status.GetIcon  = GetIconMissing
+			status.GetTooltipFunc = nil						--added by Derangement
 			status.GetCount = GetCountMissing
 			status.GetExpirationTime = GetExpirationTimeMissing
 			status.thresholds = nil
 			status.IsActive = dbx.blinkThreshold and IsInactiveBlink or IsInactive
 		else
 			status.GetIcon  = GetIcon
+			status.GetTooltipFunc = GetTooltipFunc			--added by Derangement
 			status.GetCount = GetCount
 			status.GetExpirationTime = GetExpirationTime
 			if dbx.blinkThreshold then

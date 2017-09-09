@@ -286,22 +286,81 @@ do
 	end
 end
 
--- shows the default unit tooltip
+-- shows the default unit/aura tooltip
 do
 	local TooltipCheck= {
 		Always = function() return false end,
 		Never  = function() return true end,
 		OOC    = InCombatLockdown,
 	}
+	
+	
+	function Grid2Frame:MakeTooltipBuffFunc( unit, buffIndex, filter )  	--added by Derangement
+		return function()
+			GameTooltip:SetUnitBuff(unit, buffIndex, filter)
+			GameTooltip:SetAnchorType("ANCHOR_BOTTOMRIGHT");
+		end
+	end
+	
+	function Grid2Frame:MakeTooltipDebuffFunc( unit, buffIndex, filter ) 	--added by Derangement
+		return function()
+			GameTooltip:SetUnitDebuff(unit, buffIndex, filter)
+			GameTooltip:SetAnchorType("ANCHOR_BOTTOMRIGHT");
+		end
+	end
+	
+	
+	--finds which indicator we should use to update the tooltip (if any)
+	local FindTooltipIndicator = function(frame)					--added by Derangement
+		for _, indicator in Grid2:IterateIndicators() do
+			if( indicator.ShouldUpdateTooltip and indicator:ShouldUpdateTooltip(frame, frame.unit) ) then
+				return indicator;
+			end
+		end
+		return nil;
+	end
+	
+	
+	local UpdateTooltip = function(frame)							--added by Derangement
+		if ( GameTooltip:IsOwned(frame) ) then
+			local tooltipIndicator = FindTooltipIndicator(frame);
+			
+			if( tooltipIndicator ) then 
+				tooltipIndicator:UpdateTooltip(frame, frame.unit);
+			else
+				UnitFrame_UpdateTooltip(frame);
+			end
+		end
+	end
+	
+	
+	local ShowTooltip = function(frame)								--added by Derangement
+		UnitFrame_OnEnter(frame);
+		UpdateTooltip(frame);
+
+		frame:SetScript("OnUpdate",UpdateTooltip);
+	end
+	
+	
+	local HideTooltip = function(frame)								--added by Derangement
+		frame:SetScript("OnUpdate",nil);
+		UnitFrame_OnLeave(frame)
+	end
+	
+	
+	
 	function Grid2Frame:OnFrameEnter(frame)
 		if TooltipCheck[self.db.profile.showTooltip]() then
-			UnitFrame_OnLeave(frame)
+			--UnitFrame_OnLeave(frame)
+			HideTooltip(frame)										--modified by Derangement
 		else
-			UnitFrame_OnEnter(frame)
+			--UnitFrame_OnEnter(frame)
+			ShowTooltip(frame)										--modified by Derangement
 		end
 	end
 	function Grid2Frame:OnFrameLeave(frame)
-		UnitFrame_OnLeave(frame)
+		--UnitFrame_OnLeave(frame)
+		HideTooltip(frame)											--modified by Derangement
 	end
 end
 

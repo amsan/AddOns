@@ -201,6 +201,22 @@ end
 
 function Grid2Options:MakeStatusDebuffTypeFilterOptions(status, options, optionParams)
 	self:MakeHeaderOptions( options, "DebuffFilter" )
+	options.dispellableOnly = {			--added by Derangement
+		type = "toggle",
+		name = L["Dispellable Only"],
+		desc = L["Display only debuffs you can dispel"],
+		order = 155,
+		get = function () return status.dbx.dispellableOnly==true end,
+		set = function (_, v)
+			if v then
+				status.dbx.dispellableOnly = true
+			else
+				status.dbx.dispellableOnly = nil
+			end
+			status:UpdateDB()
+			Grid2:RefreshAuras()
+		end
+	}
 	options.debuffFilter = {
 		type = "input",
 		order = 180,
@@ -334,7 +350,7 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 	options.showBossDebuffs = {
 		type = "toggle",
 		name = L["Boss Debuffs"],
-		desc = L["Display debuffs direct casted by Bosses"],
+		desc = L["Display debuffs direct casted by Bosses\n(also tracks buffs casted by bosses if 'Non Boss Debuffs' is not selected)"],
 		order = 151.5,
 		get = function () return status.dbx.filterBossDebuffs~=true end,
 		set = function (_, v)
@@ -373,7 +389,7 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 			status:UpdateDB()
 			Grid2:RefreshAuras()
 		end,
-		hidden = function() return status.dbx.useWhiteList or status.dbx.filterBossDebuffs==false end
+		hidden = function() return status.dbx.useWhiteList end
 	}
 	options.showShortDebuffs = {
 		type = "toggle",
@@ -390,7 +406,7 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 			status:UpdateDB()
 			Grid2:RefreshAuras()
 		end,
-		hidden = function() return status.dbx.useWhiteList or status.dbx.filterBossDebuffs==false end
+		hidden = function() return status.dbx.useWhiteList end
 	}
 	options.filterSep2 = { type = "description", name = "", order = 152.9 }	
 	options.showSelfDebuffs = {
@@ -404,7 +420,7 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 			status:UpdateDB()
 			Grid2:RefreshAuras()
 		end,
-		hidden = function() return status.dbx.useWhiteList or status.dbx.filterBossDebuffs==false end
+		hidden = function() return status.dbx.useWhiteList end
 	}
 	options.showNonSelfDebuffs = {
 		type = "toggle",
@@ -421,7 +437,7 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 			status:UpdateDB()
 			Grid2:RefreshAuras()
 		end,
-		hidden = function() return status.dbx.useWhiteList or status.dbx.filterBossDebuffs==false end
+		hidden = function() return status.dbx.useWhiteList end
 	}
 	options.filterSep3 = { type = "description", name = "", order = 153.9 }	
 	options.useWhiteList = {
@@ -465,6 +481,23 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 			status:UpdateAllIndicators()			
 		end,
 	}
+	options.dispellableOnly = {			--added by Derangement
+		type = "toggle",
+		name = L["Dispellable Only"],
+		desc = L["Display only debuffs you can dispel"],
+		order = 155,
+		get = function () return status.dbx.dispellableOnly==true end,
+		set = function (_, v)
+			if v then
+				status.dbx.dispellableOnly = true
+			else
+				status.dbx.dispellableOnly = nil
+			end
+			status:UpdateDB()
+			Grid2:RefreshAuras()
+		end,
+		hidden = function() return status.dbx.useWhiteList end
+	}
 end
 
 -- {{ Register
@@ -500,6 +533,12 @@ Grid2Options:RegisterStatusOptions("debuffType", "debuff", function(self, status
 	self:MakeStatusDebuffTypeFilterOptions(status, options, optionParams)
 end,{
 	groupOrder = 10
+} )
+
+Grid2Options:RegisterStatusOptions("debuffTypeBossBuff", "debuff", function(self, status, options, optionParams)
+	self:MakeStatusColorOptions(status, options, optionParams)
+end,{
+	groupOrder = 15
 } )
 
 Grid2Options:RegisterStatusOptions("debuffs", "debuff", function(self, status, options, optionParams)

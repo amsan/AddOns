@@ -33,10 +33,15 @@ Grid2Options.categories = {
 }
 -- debuff type icons
 Grid2Options.debuffTypeIcons = {
-	Magic   = "Interface\\Icons\\Spell_holy_nullifydisease", 
-	Poison  = "Interface\\Icons\\Spell_nature_nullifydisease",
-	Disease = "Interface\\Icons\\Spell_nature_removedisease",
-	Curse   = "Interface\\Icons\\Spell_nature_removedisease",
+	--Magic   = "Interface\\Icons\\Spell_holy_nullifydisease", 
+	--Poison  = "Interface\\Icons\\Spell_nature_nullifydisease",
+	--Disease = "Interface\\Icons\\Spell_nature_removedisease",
+	--Curse   = "Interface\\Icons\\Spell_nature_removedisease",
+	Magic   = "Interface\\Icons\\spell_yorsahj_bloodboil_blue",
+	Poison    = "Interface\\Icons\\spell_yorsahj_bloodboil_green",
+	Disease   = "Interface\\Icons\\spell_yorsahj_bloodboil_orange",
+	Curse   = "Interface\\Icons\\spell_yorsahj_bloodboil_purple",
+	BossBuff   = "Interface\\Icons\\spell_yorsahj_bloodboil_black",
 }
 -- status.dbx.type -> categoryKey
 Grid2Options.typeCategories = {}
@@ -121,7 +126,7 @@ do
 					desc = L["Buffs Group"]
 				elseif dbx.type == "debuffs" then
 					desc = L["Debuffs Group"]
-				elseif dbx.type=="debuffType" then
+				elseif dbx.type=="debuffType" or dbx.type=="debuffTypeBossBuff" then
 					icon = self.debuffTypeIcons[dbx.subType]
 					desc = L[dbx.type]
 				end
