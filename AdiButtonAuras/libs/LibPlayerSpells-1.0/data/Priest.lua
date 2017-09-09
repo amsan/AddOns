@@ -20,7 +20,7 @@ along with LibPlayerSpells-1.0.  If not, see <http://www.gnu.org/licenses/>.
 
 local lib = LibStub("LibPlayerSpells-1.0")
 if not lib then return end
-lib:__RegisterSpells("PRIEST", 70000, 7, {
+lib:__RegisterSpells("PRIEST", 70300, 1, {
 	[528] = "HARMFUL DISPEL MAGIC", -- Dispel Magic
 	COOLDOWN = {
 		   2050, -- Holy Word: Serenity
@@ -32,10 +32,12 @@ lib:__RegisterSpells("PRIEST", 70000, 7, {
 		 110744, -- Divine Star
 		 120517, -- Halo
 		 129250, -- Power Word: Solace
+		 194509, -- Power Word: Radiance
 		 204883, -- Circle of Healing
 		 205351, -- Shadow Word: Void
 		 205385, -- Shadow Clash
 		 207946, -- Light's Wrath (Discipline artifact)
+		 246287, -- Evangelism
 		[123040] = "POWER_REGEN", -- Mindbender (Discipline)
 		[200174] = "POWER_REGEN", -- Mindbender (Shadow)
 		DISPEL = {
@@ -45,17 +47,18 @@ lib:__RegisterSpells("PRIEST", 70000, 7, {
 		},
 		AURA = {
 			HELPFUL = {
-				    17, -- Power Word: Shield
-				 33076, -- Prayer of Mending
-				 62618, -- Power Word: Barrier
-				 64843, -- Divine Hymn (hot)
-				 64844, -- Divine Hymn (heal increase)
-				 65081, -- Body and Soul
-				 73325, -- Leap of Faith
-				121557, -- Angelic Feather
-				196356, -- Trust in the Light (Holy artifact)
-				208065, -- Light of T'uure (Holy artifact)
-				214121, -- Body and Mind
+				     17, -- Power Word: Shield
+				  33076, -- Prayer of Mending
+				  62618, -- Power Word: Barrier
+				  64843, -- Divine Hymn (hot)
+				  64844, -- Divine Hymn (heal increase)
+				  65081, -- Body and Soul
+				  73325, -- Leap of Faith
+				 121557, -- Angelic Feather
+				 196356, -- Trust in the Light (Holy artifact)
+				 208065, -- Light of T'uure (Holy artifact)
+				 214121, -- Body and Mind
+				 240673, -- Mind Quickening (Shadow artifact)
 				SURVIVAL = {
 					33206, -- Pain Suppression
 					47788, -- Guardian Spirit
@@ -63,12 +66,12 @@ lib:__RegisterSpells("PRIEST", 70000, 7, {
 				},
 			},
 			HARMFUL = {
-				 14914, -- Holy Fire
-				 15487, -- Silence -- NOTE: non-players only INTERRUPT, special case
-				204263, -- Shininig Force (slow)
-				205065, -- Void Torrent (Shadow artifact)
-				205369, -- Mind Bomb
-				214621, -- Schism
+				  14914, -- Holy Fire
+				  15487, -- Silence -- NOTE: non-players only INTERRUPT, special case
+				 205065, -- Void Torrent (Shadow artifact)
+				 205369, -- Mind Bomb
+				 214621, -- Schism
+				[204263] = "SNARE", -- Shininig Force (slow)
 				CROWD_CTRL = {
 					[  8122] = "DISORIENT", -- Psychic Scream (disorient)
 					[200196] = "INCAPACITATE", -- Holy Word: Chastise (incapacitate)
@@ -110,22 +113,20 @@ lib:__RegisterSpells("PRIEST", 70000, 7, {
 			 152118, -- Clarity of Will
 			 186367, -- Prayer's Reprise
 			 194384, -- Atonement
-			 208772, -- Smite
+			[111759] = "UNIQUE_AURA", -- Levitate
 			INVERT_AURA = {
 				187464, -- Shadow Mend
 				219521, -- Shadow Covenant
 			},
-			[111759] = "UNIQUE_AURA", -- Levitate
 		},
 		HARMFUL = {
 			    589, -- Shadow Word: Pain
 			  15407, -- Mind Flay
 			  34914, -- Void Touch
-			  48045, -- Mind Sear
 			 204213, -- Purge the Wicked
-			 210979, -- Focus in the Light (Holy artifact) (slow)
-			 217673, -- Mind Spike
+			 208772, -- Smite
 			[  9484] = "CROWD_CTRL INCAPACITATE", -- Shackle Undead (incapacitate)
+			[210979] = "SNARE", -- Focus in the Light (Holy artifact) (slow)
 		},
 		PERSONAL = {
 			  2096, -- Mind Vision
@@ -142,7 +143,7 @@ lib:__RegisterSpells("PRIEST", 70000, 7, {
 			223166, -- Overloaded with Light (Discipline artifact hidden ability)
 		},
 		PET = {
-			[   605] = "CROWD_CTRL DISORIENT INVERT_AURA", -- Mind Control (disorient)
+			[605] = "CROWD_CTRL DISORIENT INVERT_AURA", -- Mind Control (disorient)
 		},
 	},
 }, { -- map aura to provider(s)
@@ -179,10 +180,10 @@ lib:__RegisterSpells("PRIEST", 70000, 7, {
 	[210980] = 196419, -- Focus in the Light (Holy artifact)
 	[212570] = 193223, -- Surrendered Soul <- Surrender to Madness
 	[216135] = 197711, -- Vestments of Discipline (Discipline artifact)
-	[217673] = 73510, -- Mind Spike
 	[219521] = 204065, -- Shadow Covenant
 	[223166] = 207946, -- Overloaded with Light (Discipline artifact hidden ability) <- Light's Wrath (Discipline artifact)
 	[226943] = 205369, -- Mind Bomb (stun)
+	[240673] = 238101, -- Mind Quickening (Shadow artifact)
 }, { -- map aura(s) to modified spell(s)
 	[ 65081] = { -- Body and Soul
 		   17, -- Power Word: Shield
@@ -213,11 +214,7 @@ lib:__RegisterSpells("PRIEST", 70000, 7, {
 	[197767] = 47540, -- Speed of the Pious (Discipline artifact) -> Penance
 	[198069] = 47540, -- Power of the Dark Side (Discipline artifact) -> Penance
 	[200200] = 88625, -- Holy Word: Chastise (with Censure) (stun)
-	[205372] = { -- Void Ray
-		15407, -- Mind Flay
-		48045, -- Mind Sear
-		73510, -- Mind Spike
-	},
+	[205372] = 15407, -- Void Ray -> Mind Flay
 	[210027] = 17, -- Share in the Light (Discipline artifact) -> Power Word: Shield
 	[210979] = { -- Focus in the Light (Holy artifact) (slow)
 		14914, -- Holy Fire
@@ -228,5 +225,5 @@ lib:__RegisterSpells("PRIEST", 70000, 7, {
 		88625, -- Holy Word: Chastise
 	},
 	[216135] = 586, -- Vestments of Discipline (Discipline artifact) -> Fade
-	[217673] = 8092, -- Mind Spike -> Mind Blast
+	[240673] = 205065, -- Mind Quickening (Shadow artifact) -> Void Torrent (Shadow artifact)
 })

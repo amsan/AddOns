@@ -20,14 +20,18 @@ along with LibPlayerSpells-1.0.  If not, see <http://www.gnu.org/licenses/>.
 
 local lib = LibStub("LibPlayerSpells-1.0")
 if not lib then return end
-lib:__RegisterSpells("DEMONHUNTER", 70000, 4, {
+lib:__RegisterSpells("DEMONHUNTER", 70300, 1, {
 	COOLDOWN = {
 		 185123, -- Throw Glaive (Havoc)
 		 189110, -- Infernal Strike
 		 195072, -- Fel Rush
-		 201467, -- Fury of the Illidari (Havon artifact)
+		 201467, -- Fury of the Illidari (Havoc artifact)
 		 213241, -- Felblade
+		 203704, -- Mana Break (PvP)
+		 235903, -- Mana Rift (PvP)
+		 236189, -- Demonic Infusion
 		[183752] = "INTERRUPT", -- Consume Magic
+		[205604] = "DISPEL HELPFUL MAGIC", -- Reverse Magic (PvP)
 		AURA = {
 			HELPFUL = {
 				SURVIVAL = {
@@ -36,29 +40,40 @@ lib:__RegisterSpells("DEMONHUNTER", 70000, 4, {
 				},
 			},
 			HARMFUL = {
-				 198813, -- Vengeful Retreat (slow)
 				 202443, -- Anguish (Havoc artifact)
 				 204598, -- Sigil of Flame
-				 204843, -- Sigil of Chains (slow)
-				 207407, -- Soul Carver (Vengeance artifact)
 				 206491, -- Nemesis
+				 206649, -- Eye of Leotheras (PvP)
+				 207407, -- Soul Carver (Vengeance artifact)
 				 207690, -- Bloodlet
 				 207771, -- Fiery Brand
-				 210003, -- Razor Spikes (slow)
 				 211053, -- Fel Barrage
 				 212818, -- Fiery Demise (Vengeance artifact)
 				 213405, -- Master of the Glaive
 				[204490] = "INTERRUPT", -- Sigil of Silence
+				[206891] = "UNIQUE_AURA", -- Intimidated (PvP)
 				[207744] = "SURVIVAL", -- Fiery Brand
 				CROWD_CTRL = {
 					[185245] = "TAUNT", -- Torment (taunt)
 					[207685] = "DISORIENT", -- Sigil of Misery (disorient)
-					[217832] = "INCAPACITATE", -- Imprison (incapacitate)
+					INCAPACITATE = {
+						217832, -- Imprison (incapacitate)
+						221527, -- Imprison (incapacitate) (PvP)
+					},
 					STUN = {
 						179057, -- Chaos Nova (stun)
 						200166, -- Metamorphosis (Havoc) (stun)
+						205630, -- Illidan's Grasp (PvP) (stun)
+						208618, -- Illidan's Grasp (PvP) (stun)
 						211881, -- Fel Eruption (stun)
+						213491, -- Demonic Trample (stun) (PvP)
 					},
+				},
+				SNARE = {
+					198813, -- Vengeful Retreat (slow)
+					204843, -- Sigil of Chains (slow)
+					210003, -- Razor Spikes (slow)
+					232538, -- Rain of Chaos (slow) (PvP)
 				},
 			},
 			PERSONAL = {
@@ -66,7 +81,8 @@ lib:__RegisterSpells("DEMONHUNTER", 70000, 4, {
 				188499, -- Blade Dance
 				188501, -- Spectral Sight
 				203650, -- Prepared
-				207709, -- Blade Turning
+				205629, -- Demonic Trample (PvP)
+				206803, -- Rain from Above (PvP)
 				208579, -- Nemesis (Demons)
 				208605, -- Nemesis (Humanoids)
 				208607, -- Nemesis (Aberrations)
@@ -97,7 +113,7 @@ lib:__RegisterSpells("DEMONHUNTER", 70000, 4, {
 		},
 	},
 	AURA = {
-		[224509] = "HARMFUL", -- Frailty
+		[247456] = "HARMFUL", -- Frailty
 		PERSONAL = {
 			 131347, -- Glide
 			 207693, -- Feast of Souls
@@ -115,10 +131,10 @@ lib:__RegisterSpells("DEMONHUNTER", 70000, 4, {
 	[204490] = 202137, -- Sigil of Silence
 	[204598] = 204596, -- Sigil of Flame
 	[204843] = 202138, -- Sigil of Chains (slow)
+	[206891] = 207029, -- Intimidated <- Tormentor (Vengeance Honor Talent)
 	[207685] = 207684, -- Sigil of Misery (disorient)
 	[207690] = 206473, -- Bloodlet
 	[207693] = 207697, -- Feast of Souls
-	[207709] = 203753, -- Blade Turning
 	[207744] = 204021, -- Fiery Brand
 	[207771] = 207739, -- Fiery Brand <- Burning Alive
 	[207811] = 207810, -- Nether Bond
@@ -131,27 +147,27 @@ lib:__RegisterSpells("DEMONHUNTER", 70000, 4, {
 	[208612] = 206491, -- Nemesis (Giants)
 	[208613] = 206491, -- Nemesis (Mechanicals)
 	[208614] = 206491, -- Nemesis (Undead)
+	[208618] = 208173, -- Illidan's Grasp <- Illidan's Grasp: Throw (PvP) (stun)
 	[208628] = 206476, -- Momentum
 	[209426] = 196718, -- Darkness
 	[210003] = 209400, -- Razor Spikes (slow)
 	[210155] = 210152, -- Death Sweep
-	[212800] = {
-		198589, -- Blur
-		205411, -- Desperate Instincts
-	},
+	[212800] = 198589, -- Blur
 	[212818] = 212817, -- Fiery Demise (Vengeance artifact)
 	[212988] = 207387, -- Painbringer (Vengeance artifact)
 	[213405] = 203556, -- Master of the Glaive
 	[218561] = 218910, -- Siphoned Power <- Siphon Power (Vengeance artifact)
-	[224509] = 218679, -- Frailty <- Spirit Bomb
+	[213491] = 205629, -- Demonic Trample (stun) (PvP)
+	[247456] = 247454, -- Frailty <- Spirit Bomb
+	[221527] = 225596, -- Imprison (incapacitate) (PvP) <- Detainment
 	[227330] = 227327, -- Gluttony
+	[232538] = 205628, -- Rain of Chaos (slow) (PvP)
 }, {
 	-- map aura to modified spell(s)
 	[202443] = 198013, -- Anguish (Havoc artifact) -> Eyebeam
 	[203650] = 198793, -- Prepared -> Vengeful Retreat
 	[207690] = 185123, -- Bloodlet -> Throw Glaive
 	[207693] = 228477, -- Feast of Souls -> Soul Cleave
-	[207709] = 203782, -- Blade Turning -> Shear
 	[207771] = 204021, -- Fiery Brand
 	[208628] = { -- Momentum
 		195072, -- Fel Rush
@@ -162,5 +178,7 @@ lib:__RegisterSpells("DEMONHUNTER", 70000, 4, {
 	[212988] = 228477, -- Painbringer (Vengeance artifact) -> Soul Cleave
 	[213405] = 185123, -- Master of the Glaive -> Throw Glaive
 	[218561] = 218256, -- Siphoned Power (Vengeance artifact) -> Empower Wards
+	[221527] = 221527, -- Imprison (incapacitate) (PvP)
 	[227330] = 228477, -- Gluttony
+	[232538] = 189110, -- Rain of Chaos (slow) (PvP) -> Infernal Strike
 })

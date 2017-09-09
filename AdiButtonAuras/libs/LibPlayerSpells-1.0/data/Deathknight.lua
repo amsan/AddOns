@@ -20,7 +20,7 @@ along with LibPlayerSpells-1.0.  If not, see <http://www.gnu.org/licenses/>.
 
 local lib = LibStub("LibPlayerSpells-1.0")
 if not lib then return end
-lib:__RegisterSpells("DEATHKNIGHT", 70000, 7, {
+lib:__RegisterSpells("DEATHKNIGHT", 70300, 1, {
 	COOLDOWN = {
 		  47568, -- Empower Rune Weapon
 		  49206, -- Summon Gargoyle
@@ -34,14 +34,14 @@ lib:__RegisterSpells("DEATHKNIGHT", 70000, 7, {
 		[ 47528] = "INTERRUPT", -- Mind Freeze
 		[108199] = "KNOCKBACK", -- Gorefiend's Grasp (knockback)
 		AURA = {
+			HELPFUL = {
+				238698, -- Vampiric Aura (Blood artifact)
+			},
 			HARMFUL = {
 				  51399, -- Death Grip (taunt)
 				 130736, -- Soul Reaper
-				 190780, -- Frost Breath (Frost artifact) (slow)
-				 191719, -- Gravitational Pull (Unholy artifact) (slow)
 				 206931, -- Blooddrinker
-				 211793, -- Remorseless Winter (slow)
-				 212764, -- White Walker (slow)
+				[206891] = "UNIQUE_AURA", -- Intimidated (PvP)
 				[206977] = "SURVIVAL", -- Blood Mirror
 				CROWD_CTRL = {
 					[56222] = "TAUNT", -- Dark Command (taunt)
@@ -61,6 +61,11 @@ lib:__RegisterSpells("DEATHKNIGHT", 70000, 7, {
 						212337, -- Powerful Smash (abomination) (stun)
 						221562, -- Asphyxiate (Blood) (stun)
 					},
+				},
+				SNARE = {
+					190780, -- Frost Breath (Frost artifact) (slow)
+					191719, -- Gravitational Pull (Unholy artifact) (slow)
+					211793, -- Remorseless Winter (slow)
 				},
 			},
 			PERSONAL = {
@@ -103,22 +108,24 @@ lib:__RegisterSpells("DEATHKNIGHT", 70000, 7, {
 			3714, -- Path of Frost
 		},
 		HARMFUL = {
-			 45524, -- Chains of Ice (slow)
 			 55078, -- Blood Plague
 			 55095, -- Frost Fever
 			191587, -- Virulent Plague
 			194310, -- Festering Wound
 			196782, -- Outbreak
-			206930, -- Hearth Strike (slow)
 			206940, -- Mark of Blood
 			208278, -- Debilitating Infestation
 			211794, -- Winter is Coming
-			211831, -- Abomination's Might (slow)
 			CROWD_CTRL = {
 				STUN = {
 					207165, -- Abomination's Might (stun)
 					207171, -- Winter is Coming (stun)
 				},
+			},
+			SNARE = {
+				 45524, -- Chains of Ice (slow)
+				206930, -- Hearth Strike (slow)
+				211831, -- Abomination's Might (slow)
 			},
 		},
 		PERSONAL = {
@@ -131,7 +138,8 @@ lib:__RegisterSpells("DEATHKNIGHT", 70000, 7, {
 			194879, -- Icy Talons
 			195181, -- Bone Shield
 			207203, -- Frost Shield
-			213003, -- Soulgorge
+			240558, -- Souldrinker (Blood artifact)
+			253595, -- Inexorable Assault
 		},
 		PET = {
 			[111673] = "INVERT_AURA", -- Control Undead
@@ -170,6 +178,7 @@ lib:__RegisterSpells("DEATHKNIGHT", 70000, 7, {
 	[195181] = 195182, -- Bone Shield <- Marrowrend
 	[196782] = 77575, -- Outbreak
 	[205725] = 205727, -- Anti-Magic Barrier
+	[206891] = 207018, -- Intimidated <- Murderous Intent (Blood Honor Talent)
 	[206961] = 206960, -- Tremble Before Me (disorient)
 	[207165] = 207161, -- Abomination's Might (stun)
 	[207171] = 207170, -- Winter is Coming (stun)
@@ -183,11 +192,12 @@ lib:__RegisterSpells("DEATHKNIGHT", 70000, 7, {
 	[212383] = 63560, -- Gastric Bloat (abomination) <- Dark Transformation
 	[212385] = 212384, -- Protective Bile (abomination)
 	[212540] = 63560, -- Flesh Hook (abomination) (root) <- Dark Transformation
-	[212764] = 212765, -- White Walker (slow)
-	[213003] = 212744, -- Soulgorge
 	[215711] = 130736, -- Soul Reaper
 	[216974] = 207346, -- Necrosis
 	[218100] = 152280, -- Defile
+	[238698] = 238078, -- Vampiric Aura (Blood artifact)
+	[240558] = 238114,-- Souldrinker (Blood artifact)
+	[253595] = 253593, -- Inexorable Assault
 }, {
 	-- map aura to modified spell(s)
 	[ 51124] = { -- Killing Machine
@@ -220,9 +230,11 @@ lib:__RegisterSpells("DEATHKNIGHT", 70000, 7, {
 	[212337] = 212336, -- Powerful Smash (abomination) (stun) -> Smash (with Dark Transformation)
 	[212383] = 212384, -- Gastric Bloat (abomination) -> Protective Bile (with Dark Transformation)
 	[212540] = 212468, -- Flesh Hook (abomination) (root) -> Hook (with Dark Transformation)
-	[212764] = 212552, -- White Walker (slow) -> Wraith Walk
 	[216974] = { -- Necrosis
 		 55090, -- Scourge Strike
 		207311, -- Clawing Shadows
 	},
+	[238698] = 205223, -- Vampiric Aura -> Consumption (Blood artifact)
+	[240558] = 49998,-- Souldrinker (Blood artifact) -> Death Strike
+	[253595] = 6603, -- Inexorable Assault -> Auto Attack
 })

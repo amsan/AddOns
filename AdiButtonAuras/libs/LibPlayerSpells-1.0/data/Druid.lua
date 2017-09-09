@@ -20,7 +20,7 @@ along with LibPlayerSpells-1.0.  If not, see <http://www.gnu.org/licenses/>.
 
 local lib = LibStub("LibPlayerSpells-1.0")
 if not lib then return end
-lib:__RegisterSpells("DRUID", 70000, 7, {
+lib:__RegisterSpells("DRUID", 70300, 1, {
 	COOLDOWN = {
 		    740, -- Tranquility
 		  18562, -- Swiftmend
@@ -38,7 +38,6 @@ lib:__RegisterSpells("DRUID", 70000, 7, {
 		 202768, -- Half Moon (Moonkin artifact)
 		 202771, -- Full Moon (Moonkin artifact)
 		 204066, -- Lunar Beam
-		[106839] = "INTERRUPT", -- Skull Bash
 		[202060] = "BURST", -- Elune's Guidance
 		DISPEL = {
 			HELPFUL = {
@@ -46,26 +45,34 @@ lib:__RegisterSpells("DRUID", 70000, 7, {
 				[88423] = "CURSE POISON MAGIC", -- Nature's Cure
 			},
 		},
+		INTERRUPT = {
+			 78675, -- Solar Beam
+			106839, -- Skull Bash
+		},
 		AURA = {
 			HARMFUL = {
 				  50259, -- Dazed
-				  61391, -- Typhoon (slow) (knockback)
-				 127797, -- Ursol's Vortex (slow) (knockback)
+				  81261, -- Solar Beam
 				 192090, -- Thrash (bear)
 				 106830, -- Thrash (cat)
 				 205644, -- Force of Nature
 				 210723, -- Ashamane's Frenzy (Feral artifact)
-				 214995, -- Bloody Paws (slow) (Guardian artifact)
 				 214998, -- Roar of the Crowd (Guardian artifact)
-				[ 81261] = "INTERRUPT", -- Solar Beam
+				[206891] = "UNIQUE_AURA", -- Intimidated (PvP)
 				CROWD_CTRL = {
-					[  99] = "INCAPACITATE", -- Incapacitating Roar (incapacitate)
-					[5211] = "STUN", -- Mighty Bash (stun)
-					[6795] = "TAUNT", -- Growl (taunt)
+					[    99] = "INCAPACITATE", -- Incapacitating Roar (incapacitate)
+					[  5211] = "STUN", -- Mighty Bash (stun)
+					[  6795] = "TAUNT", -- Growl (taunt)
+					[236748] = "DISORIENT", -- Intimidating Roar (disorient)
 					ROOT = {
 						 45334, -- Immobilized (root)
 						102359, -- Mass Entaglement (root)
 					},
+				},
+				SNARE = {
+					 61391, -- Typhoon (slow) (knockback)
+					127797, -- Ursol's Vortex (slow) (knockback)
+					214995, -- Bloody Paws (slow) (Guardian artifact)
 				},
 			},
 			HELPFUL = {
@@ -75,6 +82,7 @@ lib:__RegisterSpells("DRUID", 70000, 7, {
 				 29166, -- Innervate
 				102342, -- Ironbark
 				102351, -- Cenarion Ward
+				240670, -- Fury of Ashamane (Feral artifact)
 			},
 			PERSONAL = {
 				  1850, -- Dash
@@ -112,14 +120,16 @@ lib:__RegisterSpells("DRUID", 70000, 7, {
 	},
 	AURA = {
 		HARMFUL = {
-			  1079, -- Rip
-			 58180, -- Infected Wounds (slow)
-			155625, -- Moonfire (from Lunar Inspiration)
-			155722, -- Rake
-			164812, -- Moonfire
-			164815, -- Sunfire
-			197637, -- Stellar Empowerment
-			202347, -- Stellar Flare
+			   1079, -- Rip
+			 155625, -- Moonfire (from Lunar Inspiration)
+			 155722, -- Rake
+			 164812, -- Moonfire
+			 164815, -- Sunfire
+			 197637, -- Stellar Empowerment
+			 202347, -- Stellar Flare
+			 240606, -- Circadian Invocation (Arcane) (Balance artifact)
+			 240607, -- Circadian Invocation (Nature) (Balance artifact)
+			[ 58180] = "SNARE", -- Infected Wounds (slow)
 			CROWD_CTRL = {
 				[339] = "ROOT", -- Entagling Roots (root)
 				STUN = {
@@ -137,18 +147,17 @@ lib:__RegisterSpells("DRUID", 70000, 7, {
 			207386, -- Spring Blossoms
 		},
 		PERSONAL = {
-			 16870, -- Clearcasting (Restoration)
-			 52610, -- Savage Roar
-			 69369, -- Predatory Swiftness
-			 93622, -- Mangle!
-			145152, -- Bloodtalons
-			189877, -- Power of the Archdruid (Restoration artifact)
-			213680, -- Guardian of Elune
-			213708, -- Galactic Guardian
-			SURVIVAL = {
-				192081, -- Ironfur
-				192083, -- Mark of Ursol
-			},
+			  16870, -- Clearcasting (Restoration)
+			  52610, -- Savage Roar
+			  69369, -- Predatory Swiftness
+			  93622, -- Mangle!
+			 135700, -- Clearcasting (Feral)
+			 145152, -- Bloodtalons
+			 189877, -- Power of the Archdruid (Restoration artifact)
+			 213680, -- Guardian of Elune
+			 213708, -- Galactic Guardian
+			 239952, -- Wax and Wane (Balance artifact)
+			[192081] = "SURVIVAL", -- Ironfur
 		},
 	},
 }, {
@@ -164,6 +173,7 @@ lib:__RegisterSpells("DRUID", 70000, 7, {
 	[114108] = 158478, -- Soul of the Forest
 	[117679] = 33891, -- Incarnation: Tree of Life
 	[127797] = 102793, -- Ursol's Vortex (slow) (knockback)
+	[135700] = 16864, -- Clearcasting (Feral) <- Omen of Clarity
 	[137452] = 102280, -- Displacer Beast
 	[145152] = 155672, -- Bloodtalons
 	[155625] = 155580, -- Moonfire <- Lunar Inspiration
@@ -200,6 +210,7 @@ lib:__RegisterSpells("DRUID", 70000, 7, {
 	[202739] = 202360, -- Blessing of An'she <- Blessing of the Ancients
 	[203123] = 22570, -- Maim (stun)
 	[205644] = 205636, -- Force of Nature
+	[206891] = 207017, -- Intimidated <- Alpha Challenge (Guardian Honor Talent)
 	[207386] = 207385, -- Spring Blossoms
 	[210583] = 210579, -- Ashamane's Energy (Feral artifact)
 	[210649] = 210631, -- Feral Instinct (Feral artifact)
@@ -208,6 +219,10 @@ lib:__RegisterSpells("DRUID", 70000, 7, {
 	[213708] = 203964, -- Galactic Guardian
 	[214995] = 200515, -- Bloody Paws (slow) (Guardian artifact)
 	[214998] = 214996, -- Roar of the Crowd (Guardian artifact)
+	[239952] = 238083, -- Wax and Wane (Balance artifact)
+	[240606] = 238119, -- Circadian Invocation (Arcane) (Balance artifact)
+	[240607] = 238119, -- Circadian Invocation (Nature) (Balance artifact)
+	[240670] = 238084, -- Fury of Ashamane (Feral artifact)
 }, {
 	-- map aura to modified spell(s)
 	[ 16870] = 8936, -- Clearcasting (Restoration) -> Regrowth
@@ -217,10 +232,14 @@ lib:__RegisterSpells("DRUID", 70000, 7, {
 	[ 69369] = { -- Predatory Swiftness
 		  339, -- Entagling Roots
 		 5185, -- Healing Touch
-		20484, -- Rebirth
 	},
 	[ 93622] = 33917, -- Mangle! -> Mangle
 	[114108] = 18562, -- Soul of the Forest -> Swiftmend
+	[135700] = { -- Clearcasting (Feral)
+		  5221, -- Shred
+		106785, -- Swipe
+		106830, -- Thrash
+	},
 	[145152] = 5185, -- Bloodtalons -> Healing Touch
 	[155625] = { -- Moonfire (from Lunar Inspiration)
 		  8921, -- Moonfire
@@ -246,10 +265,7 @@ lib:__RegisterSpells("DRUID", 70000, 7, {
 		8936, -- Regrowth
 	},
 	[200389] = 774, -- Cultivation -> Rejuvenation
-	[201671] = { -- Gory Fur (Guardian artifact)
-		192081, -- Ironfur
-		192083, -- Mark of Ursol
-	},
+	[201671] = 192081, -- Gory Fur (Guardian artifact) - > Ironfur
 	[202425] = 194153, -- Warrior of Elune -> Lunar Strike
 	[207386] = 145205, -- Spring Blossoms -> Efflorescence
 	[210583] = 5217, -- Ashamane's Energy (Feral artifact) -> Tiger's Fury
@@ -264,4 +280,11 @@ lib:__RegisterSpells("DRUID", 70000, 7, {
 		77761, -- Stampeding Roar (bear)
 		77764, -- Stampeding Roar (cat)
 	},
+	[239952] = { -- Wax and Wane (Balance artifact)
+		 8921, -- Moonfire
+		93402, -- Sunfire
+	},
+	[240606] = 8921, -- Circadian Invocation (Arcane) (Balance artifact) -> Moonfire
+	[240607] = 93402, -- Circadian Invocation (Nature) (Balance artifact) -> Sunfire
+	[240670] = 5217, -- Fury of Ashamane (Feral artifact) -> Tiger's Fury
 })

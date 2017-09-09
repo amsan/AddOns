@@ -24,45 +24,6 @@ AdiButtonAuras:RegisterRules(function()
 
 	local rules = {
 	--------------------------------------------------------------------------
-	-- Snares and anti-snares
-	--------------------------------------------------------------------------
-	-- Note that some of these are talent procs or passive effects.
-	-- This is intended as they will show up on active spells anyway.
-
-		LongestDebuffOf {
-			{
-				   116, -- Frostbolt (mage)
-				   120, -- Cone of Cold (mage)
-				  1044, -- Hand of Freedom (paladin)
-				  1604, -- Dazed (common)
-				  1715, -- Piercing Howl (warrior)
-				  3409, -- Crippling Poison (rogue)
-				  3600, -- Earthbind (shaman)
-				  5116, -- Concussive Shot (hunter)
-				  6136, -- Chilled (mage)
-				  -- 7321, -- Chilled (mage, bis) -- NOTE: removed in 7.1.5
-				  -- 8056, -- Frost Shock (shaman) -- NOTE: gone in Legion
-				  8178, -- Grounding Totem Effect (shaman)
-				 12323, -- Hamstring (warrior)
-				 13810, -- Ice Trap (hunter)
-				 17962, -- Conflagrate (warlock)
-				 26679, -- Deadly Throw (rogue)
-				 31589, -- Slow (mage)
-				 35346, -- Time Warp (hunter, warp Stalker)
-				 44614, -- Frostfire Bolt (mage)
-				 45524, -- Chains of Ice (death knight)
-				 50259, -- Dazed (feral charge effect)
-				 54644, -- Frost Breath (hunter, chimaera)
-				 58180, -- Infected Wounds (druid)
-				 61391, -- Typhoon (druid)
-				 -- 61394, -- Frozen Wake (hunter, glyph) -- NOTE: gone in Legion
-				116095, -- Disable (monk, 1 stack)
-				127797, -- Ursol's Vortex
-				-- 129923  -- Sluggish (warrior, hs glyph) -- NOTE: gone in Legion
-			}
-		}, -- Snares and anti-snares
-
-	--------------------------------------------------------------------------
 	-- Legendary Rings
 	--------------------------------------------------------------------------
 
@@ -191,13 +152,14 @@ AdiButtonAuras:RegisterRules(function()
 	local LibPlayerSpells = GetLib('LibPlayerSpells-1.0')
 	local band, bor = bit.band, bit.bor
 	local classMask = LibPlayerSpells.constants[PLAYER_CLASS]
+	local racialMask = LibPlayerSpells.constants.RACIAL
 
 	local debuffs, ccSpells = {}, {}
 
 	for aura, flags, _, target, ccMask in LibPlayerSpells:IterateSpells("CROWD_CTRL") do
 		debuffs[ccMask] = debuffs[ccMask] or {} -- associative array to avoid duplicates
 		debuffs[ccMask][aura] = true
-		if band(flags, classMask) > 0 then
+		if band(flags, classMask) > 0 or band(flags, racialMask) > 0 then
 			ccSpells[ccMask] = ccSpells[ccMask] or {} -- associative array to avoid duplicates
 			local spells = ccSpells[ccMask]
 			if type(target) == "table" then
@@ -239,7 +201,7 @@ AdiButtonAuras:RegisterRules(function()
 	local HELPFUL = LibPlayerSpells.constants.HELPFUL
 	for spell, flags, _, _, _, category in LibPlayerSpells:IterateSpells("DISPEL", PLAYER_CLASS) do
 		local offensive = bit.band(flags, HELPFUL) == 0
-		local spell, token = spell, offensive and "enemy" or "ally"
+		local token = offensive and "enemy" or "ally"
 		tinsert(rules, Configure {
 			"Dispel",
 			(offensive
@@ -268,8 +230,10 @@ AdiButtonAuras:RegisterRules(function()
 	-- Use LibPlayerSpells
 
 	local interrupts = {}
-	for spell, _, _, _, _, category in LibPlayerSpells:IterateSpells("INTERRUPT", PLAYER_CLASS) do
-		tinsert(interrupts, spell)
+	for spell, _, _, _, _, category in LibPlayerSpells:IterateSpells("INTERRUPT") do
+		if category == PLAYER_CLASS or category == "RACIAL" then
+			tinsert(interrupts, spell)
+		end
 	end
 	if #interrupts > 0 then
 		local source = DescribeLPSSource(PLAYER_CLASS)

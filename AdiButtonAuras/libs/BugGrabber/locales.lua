@@ -71,6 +71,7 @@ L["water totems"] = "물의 토템"
 L["your buff"] = "당신의 강화 효과"
 L["your debuff"] = "당신의 약화 효과"
 L["your pet"] = "당신의 소환수"
+
 	elseif locale == "deDE" then
 L[ [=[- Select a spell or item by clicking a highlighted button from your actionbars. 
 - Green buttons have recognized settings and are enabled. Red buttons are recognized but disabled. 
@@ -178,6 +179,7 @@ L["your buff"] = "dein Buff"
 L["your debuff"] = "dein Debuff"
 L["your pet"] = "dein Begleiter"
 L["yourself"] = "du selbst"
+
 	elseif locale == "esES" then
 L["\"Bad\" border"] = "Borde 'malo'"
 L["\"Good\" border"] = "Borde 'bueno'"
@@ -233,6 +235,7 @@ L["your buff"] = "tu beneficio"
 L["your debuff"] = "tu perjuicio"
 L["your pet"] = "tu mascota"
 L["yourself"] = "tú mismo"
+
 	elseif locale == "zhTW" then
 L[ [=[- Select a spell or item by clicking a highlighted button from your actionbars. 
 - Green buttons have recognized settings and are enabled. Red buttons are recognized but disabled. 
@@ -340,6 +343,7 @@ L["your buff"] = "你的增益效果"
 L["your debuff"] = "你的減益效果"
 L["your pet"] = "你的寵物"
 L["yourself"] = "自身"
+
 	elseif locale == "zhCN" then
 L[ [=[- Select a spell or item by clicking a highlighted button from your actionbars. 
 - Green buttons have recognized settings and are enabled. Red buttons are recognized but disabled. 
@@ -446,7 +450,9 @@ L["your buff"] = "你的增益"
 L["your debuff"] = "你的减益"
 L["your pet"] = "你的宠物"
 L["yourself"] = "你自己"
+
 	elseif locale == "ruRU" then
+
 	elseif locale == "frFR" then
 L["\"Bad\" border"] = "\"Mauvais\" pourtour"
 L["\"Good\" border"] = "\"Bon\" pourtour"
@@ -503,6 +509,7 @@ L["your buff"] = "votre buff"
 L["your debuff"] = "votre débuff"
 L["your pet"] = "votre familier"
 L["yourself"] = "vous-même"
+
 	elseif locale == "esMX" then
 L["\"Bad\" border"] = "Borde 'malo'"
 L["\"Good\" border"] = "Borde 'bueno'"
@@ -558,13 +565,16 @@ L["your buff"] = "tu beneficio"
 L["your debuff"] = "tu perjuicio"
 L["your pet"] = "tu mascota"
 L["yourself"] = "tú mismo"
+
 	elseif locale == "ptBR" then
 L["Disabled"] = "Desabilitado"
 L["Enabled"] = "Habilitado"
 L["Global"] = "Global"
 L["Shift+click to toggle."] = "Shift + Click para alternar."
 L["Status"] = "Status"
+
 	elseif locale == "itIT" then
+
 	end
 end
 

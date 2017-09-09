@@ -1,12 +1,55 @@
-tag 84ea647e9738e18f2f3e57a2db61bffb40ae70f2 2.0.6
-Author:	Rainrider <rainrider.wow@gmail.com>
-Date:	Sat Jan 14 12:49:01 2017 +0100
+tag 07c18c4917620d9424c6e4bc9210d3024a39a474 2.0.11
+Author:	Rainrider <Rainrider@users.noreply.github.com>
+Date:	Sat Sep 9 02:41:13 2017 +0200
 
-Version 2.0.6
+Tagging release 2.0.11
 
-commit f7dbb12c91d97089a040a31dad4dd17cb89b847b
+Fetch updated LibSpellbook-1.0
+
+commit 8ce72de9c39df4b6c46aff3a612393f76e932230
+Author: Rainrider <Rainrider@users.noreply.github.com>
+Date:   Tue Sep 5 02:59:30 2017 +0200
+
+    Bump interface version
+
+commit 70a267d30b64347821fb7aae85d9539f05d9b73f
 Author: Rainrider <rainrider.wow@gmail.com>
-Date:   Sat Jan 14 11:22:57 2017 +0100
+Date:   Thu Aug 17 17:51:47 2017 +0200
 
-    paladin: remove references to removed spells
+    priest: support Al'maiesh, the Cord of Hope (holy priest legendary)
+    
+    Thanks to temporicide4
+    Closes https://github.com/AdiAddons/AdiButtonAuras/issues/255
+
+commit c2029a703a3c490c824b96da675ab98f6d4e608b
+Author: Rainrider <rainrider.wow@gmail.com>
+Date:   Wed Aug 16 01:19:35 2017 +0200
+
+    core: remove overshadowing local variables from for loops
+
+commit 7deeb8505b6227950694afd2fe6b0503cafdf239
+Author: Rainrider <rainrider.wow@gmail.com>
+Date:   Mon Jul 3 02:53:30 2017 +0200
+
+    Provide the proper documentation link in the sample rule
+
+commit 742b6328fd3c044a4f5087fb4a12020bbb5d109e
+Author: Rainrider <rainrider.wow@gmail.com>
+Date:   Mon Jul 3 02:48:16 2017 +0200
+
+    docs: some more updates
+
+commit ef6c1182c9c719ed5aa1098cf49c917029300108
+Author: Rainrider <rainrider.wow@gmail.com>
+Date:   Mon Jul 3 02:15:16 2017 +0200
+
+    docs: update documentation
+
+commit d273c3572072f5818ebfe793192555de60faf7f1
+Author: Rainrider <rainrider.wow@gmail.com>
+Date:   Sun Jul 2 22:30:25 2017 +0200
+
+    Update the sample rule
+    
+    Closes https://github.com/AdiAddons/AdiButtonAuras/issues/253
 
