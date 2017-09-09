@@ -1,7 +1,7 @@
-## Interface: 70200
+## Interface: 70300
 ## Title: Long Macros
 ## Author: Derangement
-## Version: v1.0.12
+## Version: v1.0.13
 ## Notes: Tool to allow macros longer than 255 characters long, and still have their icon update normally.
 ## SavedVariables: LongMacrosAccountConfig
 ## SavedVariablesPerCharacter: LongMacrosCharacterConfig
