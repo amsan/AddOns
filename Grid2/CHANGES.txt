@@ -1,4 +1,18 @@
 ------------------------------------------------------------------------
+r805 | michaelspain | 2017-06-22 15:36:00 -0500 (Thu, 22 Jun 2017) | 1 line
+Changed paths:
+   M /trunk/RaidDebuffsOptions/RaidDebuffsLegion.lua
+
+Added Tomb of Sargeras raiddebuffs (thanks to Benea & Skyburn), ticket #511
+------------------------------------------------------------------------
+r804 | michaelspain | 2017-04-28 16:36:16 -0500 (Fri, 28 Apr 2017) | 2 lines
+Changed paths:
+   M /trunk/GridRoster.lua
+   M /trunk/RaidDebuffsOptions/RaidDebuffsLegion.lua
+
+-Fixed ticket #504
+-Workaround to try to fix ticket #506
+------------------------------------------------------------------------
 r803 | michaelspain | 2017-03-29 13:08:32 -0500 (Wed, 29 Mar 2017) | 3 lines
 Changed paths:
    M /trunk/Grid2.toc

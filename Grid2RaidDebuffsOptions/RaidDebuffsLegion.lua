@@ -356,76 +356,6 @@ RDDB["Legion"] = {
 		219349, -- Corroding Spray (non-dispellable) Cone AoE Stacks
 		},
 	},
-	[1088] = { -- The Nighthold (RAID)
-		["Skorpyron"] = {
-		order = 1, ejid = 1706,
-		204766, -- Energy Surge (non-dispellable, stacks) (DMG + Debuff)
-		214657, -- Acidic Fragments (non-dispellable) (DMG + Debuff)
-		214662, -- Volatile Fragments (non-dispellable) (DMG + Debuff)
-		211659, -- Arcane Tether (non-dispellable, stacks) (Stacking Ground AoE)
-		204471, -- Focused Blast (non-dispellable) (Frontal Cone AoE)
-		},
-		["Chronomatic Anomaly"] = {
-		order = 2, ejid = 1725,
-		206607, -- Chronometric Particles (non-dispellable, stacks) (Stacking DoT)
-		206609, -- Time Release (non-dispellable) (heal absorb)
-		206615, -- Time Bomb (non-dispellable) (Not a Debuff?)
-		212099, -- Temporal Charge (non-dispellable) (DoT)
-		},
-		["Trilliax"] = {
-		order = 3, ejid = 1731,
-		206482, -- Arcane Seepage (non-dispellable) (Ground AoE)
-		206788, -- Toxic Slice (non-dispellable) (DMG + Debuff Stacking DoT)
-		},
-		["Spellblade Aluriel"] = {
-		order = 4, ejid = 1751,
-		212492, -- Annihilate (non-dispellable) (DMG + Tank Debuff)
-		212587, -- Mark of Frost (non-dispellable) (DMG + Increase DMG taken per stack explodes if two people with it get close)
-		213083, -- Frozen Tempest (non-dispellable) (DoT)
-		},
-		["Tichondrius"] = {
-		order = 5, ejid = 1762,
-		206480, -- Carrion Plague (non-dispellable) (DoT)
-		213238, -- Seeker Swarm (non-dispellable) (DMG + Adds Carrion Plague DoT)
-		212795, -- Brand of Argus (non-dispellable) (Explodes if players clump)
-		208230, -- Feast of Blood (non-dispellable) (Increases DMG Taken)
-		216024, -- Volatile Wound (non-dispellable, Stacks) (DMG + Increases Future DMG Taken)
-		216040, -- Burning Soul (dispellable) (DMG + Mana Drain + Explode on Dispell)
-		},
-		["Krosus"] = {
-		order = 6, ejid = 1713,
-		208203, -- Isolated Rage (non-dispellable) (Ground AoE Not Avoidable)
-		},
-		["High Botanist Tel'arn"] = {
-		order = 7, ejid = 1761,
-		218502, -- Recursive Strikes (non-dispellable, stacks) (Increases DMG Taken)
-		219049, -- Toxic Spores (non-dispellable) (Ground AoE)
-		218424, -- Parasitic Fetter (dispellable) (Root + Increaseing DMG)
-		},
-		["Star Augur Etraeus"] = {
-		order = 8, ejid = 1732,
-		206585, -- Absolute Zero (non-dispellable, stacks) (DMG + Dispellable by Player Clump That then causes Chill)
-		206936, -- Icy Ejection (non-dispellable, stacks) (DoT + Slow-to-Stun)
-		206388, -- Felburst (non-dispellable, stacks) (DMG + DoT)
-		205649, -- Fel Ejection (non-dispellable, stacks) (DMG + DoT)
-		206965, -- Voidburst (non-dispellable) (DoT)
-		207143, -- Void Ejection (non-dispellable) (DMG + DoT)
-		},
-		["Grand Magistrix Elisande"] = {
-		order = 9, ejid = 1743,
-		211258, -- tormento-permeliativo
-		},
-		["Gul'dan"] = {
-		order = 10, ejid = 1737,
-		212568, -- Drain (dispellable) (Life Steal)
-		206883, -- Soul Vortex (non-dispellable, stacks) (AoE DMG + DoT)
-		206222, -- Bonds of Fel (non-dispellable) (chain + Slow + Explosion when seperated)
-		206221, -- Empowered Bonds of Fel (non-dispellable) (chain + Slow + Explosion when seperated)
-		208672, -- Carrion Wave (non-dispellable) (AoE DMG + Sleep)
-		208903, -- Burning Claws (non-dispellable) (ground AoE)
-		208802, -- Soul Corrosion (non-dispellable) (DMG + DoT)
-		},		
-	},
 	[1094] = { -- The Emerald Nightmare (RAID)
 		["Nythendra"] = {
 		order = 1, ejid = 1703,
@@ -629,5 +559,84 @@ RDDB["Legion"] = {
         221603, -- Flames of Sargeras (non-dispellable) (DMG + DoT)
         206896, -- Torn Soul (non-dispellable) (Tank debuff, DMG increase)
         },        
-    },	
+    },
+    [1147] = { -- Tomb of Sargeras (RAID)
+		["Goroth"] = {
+		order = 1, ejid = 1862,
+		231363, -- Burning Armor (non-dispellable) (DMG + Debuff)
+		230345, -- Crashing Comet (non-dispellable) (DMG + Debuff)
+		234264, -- Melted Armor (non-dispellable) (Debuff)
+		233279, -- Shattering Star (non-dispellable)
+		233062, -- Infernal Burning (non-dispellable) GG
+		},
+		["Demonic Inquisition"] = {
+		order = 2, ejid = 1867,
+		233430, -- Unbearable Torment (non-dispellable)
+		233983, -- Echoing Anguish (dispellable, stagger dispel)
+		},
+		["Harjatan"] = {
+		order = 3, ejid =1856,
+		231998, -- Jagged Abrasion (non-dispellable)
+		231729, -- Aqueous Burst (non-dispellable)
+		231770, -- Drenched (non-dispellable,stacks)
+		234128, -- Driven Assault (non-dispellable,fixate)
+		},
+		["Sisters of the Moon"] = {
+		order = 4, ejid = 1903,
+		236304, -- Incorporeal Shot (non-dispellable) (heavy dmg,split with raid)
+		236550, -- Discorporate (non-dispellable) (Tank debuff)
+		236519, -- Moon Burn (non-dispellable) (DoT)
+		236603, -- Rapid Shot (non-dispellable) (heavy dmg DoT)
+		234996, -- Umbra Suffusion (non-dispellable,stacks)
+		234995, -- Lunar Suffusion (non-dispellable,stacks)
+		236330, -- Astral Vulnerability (non-dispellable) (applied when switching between light/dark)
+		236541, -- Twilight Glaive (non-dispellable) (moderate dmg to target)
+		233263, -- Embrace of the Eclipse (non-dispellable,healing abosrb)
+		239264, -- Lunar Flare (non-dispellable) (Tank debuff)
+		236712, -- Lunar Beacon (non-dispellable) (moderate dmg to target)
+		},
+		["Mistress Sassz'ine"] = {
+		order = 5, ejid = 1861,
+		232913, -- Befouling Ink (bring to maw)
+		230139, -- Hydra Shot (split among some players)
+		232754, -- Hydra Acid (dot after hydra shot, stacks)
+		230201, -- Burden of Pain (tank)
+		230384, -- Consuming Hunger (murlocs eat your face, knock them off with thundering shock)
+		230358, -- Thundering Shock (stun)
+		},
+		["The Desolate Host"] = {
+		order = 6, ejid = 1896,
+		236449, -- Soul Bind (move to another player with it in other realm)
+		236241, -- Soul Rot (don�t stand in it)
+		236515, -- Shattering Scream (need it to remove bonecage armor)
+		235989, -- Tormented Cries (places wedge of goo on ground)
+		236361, -- Spirit Chains (players get linked & slowed)
+		235968, -- Grasping Darkness (ticking dot,non-dispellable,bounces)
+		},
+		["Maiden of Vigilance"] = {
+		order = 7, ejid = 1897,
+		235213, -- Light Infusion (don�t cross the streams)
+		235240, -- Fel Infusion (don�t cross the streams)
+		240209, -- Unstable Soul (You crossed the streams, go boom! Must fall in hole 1.5 sec or less)
+		},
+		["Fallen Avatar"] = {
+		order = 8, ejid = 1873,
+		236494, -- Desolate (tank swap thingy)
+		236604, -- Shadowy Blades (going to boom and poop goop, keep away from people)
+		239739, -- Dark Mark (will knock back, must share or use immunity)
+		},
+		["Kil�Jaeden"] = {
+		order = 9, ejid = 1898,
+		239932, -- Felclaws (tank thingy)
+		234295, -- Armageddon Rain (small, must be soaked by 1 person, leaves dot)
+		240911, -- Armageddon Hail (large, must be immuned or tank soaked, leaves dot)
+		238505, -- Focused Dreadflame (need to share the dmg)
+		238429, -- Bursting Dreadflame (move away from raid)
+		239216, -- Darkness of the Thousand Souls (really painful dot)
+		239155, -- Gravity Squeeze (need this for thousand souls)
+		236710, -- Shadow Reflection: Erupting (spawns adds that need to dps'd asap)
+		241822, -- Choking Shadow (inc heal absorb during intermission)
+		236555, -- Deceiver's Veil (intermission debuff)
+		},        
+	},
 }	
