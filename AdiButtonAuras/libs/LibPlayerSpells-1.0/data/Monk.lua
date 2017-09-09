@@ -20,7 +20,7 @@ along with LibPlayerSpells-1.0.  If not, see <http://www.gnu.org/licenses/>.
 
 local lib = LibStub("LibPlayerSpells-1.0")
 if not lib then return end
-lib:__RegisterSpells("MONK", 70200, 1, {
+lib:__RegisterSpells("MONK", 70300, 1, {
 	COOLDOWN = {
 		 109132, -- Roll
 		 115098, -- Chi Wave
@@ -49,6 +49,7 @@ lib:__RegisterSpells("MONK", 70200, 1, {
 				116841, -- Tiger's Lust
 				116849, -- Life Cocoon
 				119611, -- Renewing Mist
+				191840, -- Essence Font
 				199668, -- Blessings of Yu'lon (MW artifact)
 			},
 			HARMFUL = {
@@ -65,8 +66,21 @@ lib:__RegisterSpells("MONK", 70200, 1, {
 				CROWD_CTRL = {
 					[115078] = "INCAPACITATE", -- Paralysis (Incapacitate)
 					[116189] = "TAUNT", -- Provoke (taunt)
-					[119381] = "STUN", -- Leg Sweep (stun)
-					[198909] = "DISORIENT", -- Song of Chi-Ji (Disorient)
+					DISORIENT = {
+						198909, -- Song of Chi-Ji (disorient)
+						202274, -- Incendiary Brew (pvp)
+					},
+					STUN = {
+						119381, -- Leg Sweep (stun)
+						232055, -- Fists of Fury (stun) (pvp)
+					},
+				},
+				SNARE = {
+					121253, -- Keg Smash (slow)
+					123586, -- Flying Serpent Kick (slow)
+					196733, -- Special Delivery (slow)
+					199387, -- Spirit Tether (MW artifact) (slow)
+					205320, -- Strike of the Windlord (WW artifact) (slow)
 				},
 				SNARE = {
 					121253, -- Keg Smash (slow)
@@ -84,17 +98,20 @@ lib:__RegisterSpells("MONK", 70200, 1, {
 				 125174, -- Touch of Karma
 				 137639, -- Storm, Earth and Fire
 				 195381, -- Healing Winds (WW artifact)
+				 195630, -- Elusive Brawler
 				 196725, -- Refreshing Jade Wind
 				 196739, -- Elusive Dance
 				 197206, -- Uplifting Trance
 				 197908, -- Mana Tea
 				 199407, -- Light on Your Feet (MW artifact)
+				 202248, -- Guided Meditation (pvp)
 				 213177, -- Swift as a Coursing River (BM artifact)
 				 214373, -- Brew-Stache (BM artifact)
 				 228563, -- Blackout Combo
 				 242387, -- Thunderfist (WW artifact)
 				[152173] = "BURST", -- Serenity
 				SURVIVAL = {
+					115176, -- Zen Meditation
 					120954, -- Fortifying Brew (Brewmaster)
 					122278, -- Dampen Harm
 					122783, -- Diffuse Magic
@@ -108,8 +125,8 @@ lib:__RegisterSpells("MONK", 70200, 1, {
 	AURA = {
 		HELPFUL = {
 			124682, -- Enveloping Mist
-			191840, -- Essence Font
 			198533, -- Soothing Mist
+			216915, -- Fortune Turned (pvp)
 			240672, -- Master of Combinations (WW artifact)
 		},
 		HARMFUL = {
@@ -123,12 +140,13 @@ lib:__RegisterSpells("MONK", 70200, 1, {
 			},
 		},
 		PERSONAL = {
-			101546, -- Spinning Crane Kick
-			116768, -- Blackout Kick!
-			195321, -- Transfer of Power (WW artifact)
-			197916, -- Lifecycles (Vivify)
-			197919, -- Lifecycles (Enveloping Mist)
-			202090, -- Teachings of the Monastery (MW mastery)
+			 101546, -- Spinning Crane Kick
+			 116768, -- Blackout Kick!
+			 195321, -- Transfer of Power (WW artifact)
+			 197916, -- Lifecycles (Vivify)
+			 197919, -- Lifecycles (Enveloping Mist)
+			 202090, -- Teachings of the Monastery (MW mastery)
+			[233766] = "INVERT_AURA", -- Control the Mists (pvp)
 		},
 	},
 }, {
@@ -149,6 +167,7 @@ lib:__RegisterSpells("MONK", 70200, 1, {
 	[191840] = 191837, -- Essence Font
 	[195321] = 195300, -- Transfer of Power (WW artifact) <- Transfer the Power
 	[195381] = 195380, -- Healing Winds (WW artifact)
+	[195630] = 117906, -- Elusive Brawler <- Mastery: Elusive Brawler
 	[196608] = 196607, -- Eye of the Tiger
 	[196727] = 132578, -- Provoke <- Invoke Niuzao, the Black Ox
 	[196733] = 196730, -- Special Delivery (slow)
@@ -162,12 +181,15 @@ lib:__RegisterSpells("MONK", 70200, 1, {
 	[199407] = 199401, -- Light on Your Feet (MW artifact)
 	[199668] = 199665, -- Blessings of Yu'lon (MW artifact)
 	[202090] = 116645, -- Teachings of the Monastery (MW mastery)
+	[202248] = 202200, -- Guided Meditation (pvp)
+	[202274] = 202272, -- Incendiary Brew (pvp) <- Incendiary Breath (pvp)
 	[206891] = 207025, -- Intimidated <- Admonishment (BM Honor Talent)
 	[213063] = 227689, -- Dark Side of the Moon (BM artifact)
 	[213341] = 213340, -- Fortification (BM artifact)
 	[213177] = 213161, -- Swift as a Coursing River (BM artifact)
 	[214373] = 214372, -- Brew-Stache (BM artifact)
 	[215479] = 115308, -- Ironskin Brew
+	[216915] = 216913, -- Fortune Turned (pvp)
 	[228287] = { -- Mark of the Crane
 		100780, -- Tiger Palm (provider)
 		100784, -- Blackout Kick (provider)
@@ -175,6 +197,8 @@ lib:__RegisterSpells("MONK", 70200, 1, {
 		116847, -- Rushing Jade Wind (provider)
 	},
 	[228563] = 196736, -- Blackout Combo
+	[232055] = 205003, -- Fists of Fury (stun) (pvp) <- Heavy-Handed Strikes (pvp)
+	[233766] = 233765, -- Control the Mists (pvp)
 	[240672] = 238095, -- Master of Combinations (WW artifact)
 	[242387] = 238131, -- Thunderfist (WW artifact)
 }, {
@@ -182,20 +206,16 @@ lib:__RegisterSpells("MONK", 70200, 1, {
 	[116768] = 100784, -- Blackout Kick! -> Blackout Kick
 	[118635] = 115546, -- Provoke (through Black Ox Statue) (taunt)
 	[137639] = 221771, -- Storm, Earth and Fire -> Storm, Earth and Fire: Fixate
-	[152173] = { -- Serenity
-		100784, -- Blackout Kick
-		101546, -- Spinning Crane Kick
-		107428, -- Rising Sun Kick
-		113656, -- Fists of Fury
-		116847, -- Rushing Jade Wind
-		205320, -- Strike of the Windlord (WW artifact)
-	},
 	[195321] = { -- Transfer of Power (WW artifact)
 		100784, -- Blackout Kick (provider)
 		107428, -- Rising Sun Kick (provider)
 		113656, -- Fists of Fury (consumer)
 	},
 	[195381] = 119996, -- Healing Winds (WW artifact) -> Transcendance: Transfer
+	[195630] = { -- Elusive Brawler
+		115181, -- Breath of Fire
+		205523, -- Blackout Kick (BM)
+	},
 	[196608] = 100780, -- Eye of the Tiger
 	[196733] = { -- Special Delivery (slow)
 		115308, -- Ironskin Brew
@@ -213,6 +233,8 @@ lib:__RegisterSpells("MONK", 70200, 1, {
 		100780, -- Tiger Palm (provider)
 		100784, -- Blackout Kick (consumer)
 	},
+	[202248] = 115176, -- Guided Meditation (pvp) -> Zen Meditation
+	[202274] = 115181, -- Incendiary Brew (pvp) -> Breath of Fire
 	[213063] = 205523, -- Dark Side of the Moon (BM artifact) -> Blackout Strike
 	[213177] = { -- Swift as a Coursing River (BM artifact)
 		115203, -- Fortifying Brew
@@ -224,14 +246,10 @@ lib:__RegisterSpells("MONK", 70200, 1, {
 		115308, -- Ironskin Brew
 		119582, -- Purifying Brew
 	},
+	[216915] = 116694, -- Fortune Turned (pvp) -> Effuse
 	[228287] = 101546, -- Mark of the Crane -> Spinning Crane Kick
-	[228563] = { -- Blackout Combo
-		100780, -- Tiger Palm
-		115181, -- Beath of Fire
-		115308, -- Ironskin Brew
-		119582, -- Purifying Brew
-		121253, -- Keg Smash
-		205523, -- Blacout Strike
-	},
+	[228563] = 205523, -- Blackout Combo -> Blackout Strike
+	[232055] = 113656, -- Fists of Fury (stun) (pvp)
+	[233766] = 116694, -- Control the Mists (pvp) -> Effuse
 	[242387] = 205320, -- Thunderfist (WW artifact) -> Strike of the Windlord (WW artifact)
 })

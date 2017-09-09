@@ -24,8 +24,8 @@
 ## Title: SharedMedia - Button Highlight
 ## Notes: Media type and textures for button highlight in LibSharedMeda-3.0.
 ## Author: Adirelle
-## Version: @project-version@
-## X-Date: @project-date-iso@
+## Version: d0911e7
+## X-Date: 2014-11-30T0:29:25Z
 ## X-License: GPL v3
 ## X-eMail: adirelle@gmail.com
 ## X-Category: Library

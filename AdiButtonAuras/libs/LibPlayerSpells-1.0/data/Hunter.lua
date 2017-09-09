@@ -20,7 +20,7 @@ along with LibPlayerSpells-1.0.  If not, see <http://www.gnu.org/licenses/>.
 
 local lib = LibStub("LibPlayerSpells-1.0")
 if not lib then return end
-lib:__RegisterSpells("HUNTER", 70200, 1, {
+lib:__RegisterSpells("HUNTER", 70300, 1, {
 	COOLDOWN = {
 		   781, -- Disengage
 		  1543, -- Flare
@@ -39,6 +39,7 @@ lib:__RegisterSpells("HUNTER", 70200, 1, {
 		203415, -- Fury of the Eagle (SV artifact)
 		204147, -- Windburst (MM artifact)
 		206817, -- Sentinel
+		208652, -- Dire Beast: Hawk (PvP)
 		212431, -- Explosive Shot
 		212436, -- Butchery
 		INTERRUPT = {
@@ -47,10 +48,11 @@ lib:__RegisterSpells("HUNTER", 70200, 1, {
 		},
 		AURA = {
 			HELPFUL = {
-				 53480, -- Roar of Sacrifice (Cunning)
-				 90361, -- Spirit Mend (Spirit Beast) (exotic)
-				204477, -- Windburst (MM artifact)
-				212640, -- Mending Bandage (PvP)
+				  53480, -- Roar of Sacrifice (Cunning)
+				  90361, -- Spirit Mend (Spirit Beast) (exotic)
+				 203233, -- Aspect of the Cheetah (PvP)
+				 204477, -- Windburst (MM artifact)
+				[212640] = "DISPEL DISEASE POISON", -- Mending Bandage (PvP) -- NOTE: bleeds currently not supported
 			},
 			HARMFUL = {
 				  2649, -- Growl (pet) (taunt) NOTE: no DR
@@ -71,8 +73,10 @@ lib:__RegisterSpells("HUNTER", 70200, 1, {
 				194858, -- Dragonsfire Grenade
 				202914, -- Spider Sting (PvP)
 				202933, -- Spider Sting (Silenced debuff) (PvP)
+				203268, -- Sticky Tar (PvP)
 				204081, -- On the Trail
 				206505, -- A Murder of Crows (SV)
+				209967, -- Dire Beast: Basilisk (PvP)
 				237338, -- Explosive Trap (melee miss effect)
 				CROWD_CTRL = {
 					DISORIENT = {
@@ -82,6 +86,7 @@ lib:__RegisterSpells("HUNTER", 70200, 1, {
 					INCAPACITATE = {
 						  3355, -- Freezing Trap (incapacitate)
 						 19386, -- Wyvern Sting (incapacitate)
+						203337, -- Freezing Trap (incapacitate) (PvP)
 						209790, -- Freezing Arrow (incapacitate) (PvP)
 					},
 					ROOT = {
@@ -199,7 +204,7 @@ lib:__RegisterSpells("HUNTER", 70200, 1, {
 			 94019, -- Rest (Bear)
 			118455, -- Beast Cleave
 			126311, -- Surface Trot (Water Strider) (exotic)
-			126364, -- Rest (Porcupine)
+			126364, -- Rest (Rodent)
 		},
 	},
 }, {
@@ -252,15 +257,17 @@ lib:__RegisterSpells("HUNTER", 70200, 1, {
 	[201158] = 199543, -- Super Sticky Tar <- Expert Trapper
 	[201081] = 201082, -- Mok'Nathal Tactics <- Way of the Mok'Nathal
 	[202748] = 202746, -- Survival Tactics (PvP)
-	[202797] = 202793, -- Viper Sting (PvP)
-	[202900] = 202901, -- Scorpid Sting (PvP)
+	[203268] = 203264, -- Sticky Tar (PvP)
 	[203924] = 190503, -- Healing Shell (MM artifact)
 	[202933] = 202914, -- Spider Sting (Silenced debuff) (PvP)
+	[203233] = 203235, -- Aspect of the Cheetah (PvP) <- Hunting Pack (PvP)
+	[203337] = 203340, -- Freezing Trap (incapacitate) (PvP) <- Diamond Ice (PvP)
 	[204081] = 203757, -- On the Trail <- Eagle's Bite (SV artifact)
 	[204477] = 204147, -- Windburst (MM artifact)
 	[206755] = 200108, -- Ranger's Net (slow)
 	[207094] = 207068, -- Titan's Thunder (BM artifact)
 	[209790] = 209789, -- Freezing Arrow (Incapacitate) (PvP)
+	[209967] = 205691, -- Dire Beast: Basilisk (PvP)
 	[211138] = 197178, -- Hunter's Advantage (BM artifact)
 	[223138] = 185987, -- Marking Targets <- Hunter's Mark (passive)
 	[224729] = 186387, -- Bursting Shot
@@ -334,16 +341,12 @@ lib:__RegisterSpells("HUNTER", 70200, 1, {
 	[201142] = 187650, -- Frozen Wake -> Freezing Trap
 	[201158] = 187698, -- Super Sticky Tar -> Tar Trap
 	[202748] = 5384, -- Survival Tactics -> Feign Death
-	[202797] = { -- Viper Sting (PvP)
-		 19434, -- Aimed Shot
-		186270, -- Raptor Strike
-		193455, -- Cobra Shot
+	[203233] = 186257, -- Aspect of the Cheetah (PvP)
+	[203268] = { -- Sticky Tar (PvP)
+		187698, -- Tar Trap
+		194277, -- Caltrops
 	},
-	[202900] = { -- Scorpid Sting (PvP)
-		 19434, -- Aimed Shot
-		186270, -- Raptor Strike
-		193455, -- Cobra Shot
-	},
+	[203337] = 187650, -- Freezing Trap (incapacitate) (PvP)
 	[203924] = 186265, -- Healing Shell (MM artifact) -> Aspect of the Turtle
 	[204081] = { -- On the Trail
 		  6603, -- Auto Attack
