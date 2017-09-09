@@ -1,7 +1,7 @@
-changeset:   125:e79e4d8941df
-tag:         v7.2.0.125-release
+changeset:   218:8cee53478c4a
+tag:         v7.3.0.218-RC4
 user:        Tercio
-date:        Tue Apr 04 11:39:36 2017 -0300
-summary:     - ticket #353: "quests on broken shore should by pass filters".
+date:        Mon Sep 04 13:14:30 2017 -0300
+summary:     - Fixed comm spam when selecting and deselecting a rare.
 
 

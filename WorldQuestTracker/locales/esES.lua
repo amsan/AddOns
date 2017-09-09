@@ -10,6 +10,78 @@ L["S_ERROR_NOTLOADEDYET"] = "Esta misión no está cargada todavía, por favor e
 L["S_FLYMAP_SHOWTRACKEDONLY"] = "Sólo en rastreo"
 L["S_FLYMAP_SHOWTRACKEDONLY_DESC"] = "Mostrar sólo misiones en rastreo"
 L["S_FLYMAP_SHOWWORLDQUESTS"] = "Muestra misiones del mundo"
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_CANCEL_APPLICATIONS"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_CANCELING"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_CREATE"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_CREATE_DIRECT"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_LEAVEASK"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_LEAVINGIN"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_RETRYSEARCH"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_SEARCH"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_SEARCH_RARENPC"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_SEARCH_TOOLTIP"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_SEARCHING"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_SEARCHMORE"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_SEARCHOTHER"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_UNAPPLY1"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_UNLIST"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_UNLISTING"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_WAITING"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_AUTOOPEN_RARENPC_TARGETED"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_ENABLED"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_LEAVEOPTIONS"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_LEAVEOPTIONS_AFTERX"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_LEAVEOPTIONS_ASKX"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_LEAVEOPTIONS_DONTLEAVE"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_LEAVEOPTIONS_IMMEDIATELY"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_NOPVP"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_OT_ENABLED"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_QUEUEBUSY"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_RESULTS_APPLYING"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_RESULTS_APPLYING1"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_RESULTS_FOUND"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_RESULTS_FOUND1"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_RESULTS_UNAPPLY"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_RIGHTCLICKCLOSE"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_SECONDS"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_TITLE"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_TUTORIAL1"] = ""
 L["S_MAPBAR_AUTOWORLDMAP"] = "Auto mapa del mundo"
 L["S_MAPBAR_AUTOWORLDMAP_DESC"] = [=[Estando en Dalaran o en la Sede de Clase, apretar 'M' va directamente al mapa de las Islas Abruptas.
 Apretar 'M' dos veces va al mapa donde te encuentras.]=]
@@ -69,6 +141,16 @@ L["S_QUESTTYPE_PROFESSION"] = "Profesión"
 L["S_QUESTTYPE_PVP"] = "JcJ"
 L["S_QUESTTYPE_RESOURCE"] = "Recursos"
 L["S_QUESTTYPE_TRADESKILL"] = "Habilidad de comercio"
+--Translation missing 
+-- L["S_RAREFINDER_NPC_NOTREGISTERED"] = ""
+--Translation missing 
+-- L["S_RAREFINDER_OPTIONS_SHOWICONS"] = ""
+--Translation missing 
+-- L["S_RAREFINDER_TITLE"] = ""
+--Translation missing 
+-- L["S_RAREFINDER_TOOLTIP_SPOTTEDBY"] = ""
+--Translation missing 
+-- L["S_RAREFINDER_TOOLTIP_TIMEAGO"] = ""
 L["S_SHAREPANEL_THANKS"] = [=[¡Gracias por compartir el Rastreador de Misiones del Mundo!
 Envía nuestro enlace a tus amigos en Facebook, Twitter y la Moncloa.]=]
 L["S_SHAREPANEL_TITLE"] = "For All Those About to Rock!"
@@ -90,3 +172,4 @@ L["S_TUTORIAL_TIMELEFT"] = "Indica el tiempo restante (+4 horas, +90 minutos, +3
 L["S_TUTORIAL_WORLDMAPBUTTON"] = "Este botón te lleva al mapa de las Islas Abruptas."
 L["S_UNKNOWNQUEST"] = "Misión desconocida"
 L["S_WORLDQUESTS"] = "Misiones del mundo"
+
