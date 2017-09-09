@@ -170,6 +170,9 @@ local node_ids = {
 		[NL["Felslate Deposit"]]				= 256,
 		[NL["Rich Felslate Deposit"]]			= 257,
 		[NL["Felslate Seam"]]					= 258,
+		[NL["Empyrium Deposit"]]				= 259,
+		[NL["Rich Empyrium Deposit"]]			= 260,
+		[NL["Empyrium Seam"]]					= 261,
 	},
 	["Extract Gas"] = {
 		[NL["Windy Cloud"]] 					= 301,
@@ -266,6 +269,9 @@ local node_ids = {
 		[NL["Fjarnskaggl"]]						= 479,
 		[NL["Foxflower"]]						= 480,
 		[NL["Starlight Rose"]]					= 481,
+		[NL["Fel-Encrusted Herb"]]				= 482,
+		[NL["Fel-Encrusted Herb Cluster"]]		= 483,
+		[NL["Astral Glory"]]					= 484,
 	},
 	["Treasure"] = {
 		[NL["Giant Clam"]] 						= 501,
@@ -402,8 +408,10 @@ local rare_spawns = {
 	[478] = {[476]=true,[477]=true,[479]=true,[480]=true,[481]=true}, -- felwort
 	[254] = {[253]=true}, -- rich leystone deposit
 	[257] = {[256]=true}, -- rich feslate deposit
+	[260] = {[259]=true}, -- rich empyrium deposit
 	[553] = {[552]=true}, -- ancient mana chunk
 	[554] = {[552]=true,[553]=true}, -- ancient mana crystal
+	[483] = {[482]=true}, -- Fel-encrusted Herb Cluster
 }
 Collector.rareNodes = rare_spawns
 -- Format zone = { "Database", "new node id"}
@@ -584,6 +592,9 @@ local node_textures = {
 		[256] = icon_path.."Mine\\felslate.tga",
 		[257] = icon_path.."Mine\\felslate.tga",
 		[258] = icon_path.."Mine\\felslate.tga",
+		[259] = icon_path.."Mine\\empyrium.tga",
+		[260] = icon_path.."Mine\\empyrium.tga",
+		[261] = icon_path.."Mine\\empyrium.tga",
 	},
 	["Extract Gas"] = {
 		[301] = icon_path.."Gas\\windy_cloud.tga",
@@ -676,6 +687,9 @@ local node_textures = {
 		[479] = icon_path.."Herb\\fjarnskaggl.tga",
 		[480] = icon_path.."Herb\\foxflower.tga",
 		[481] = icon_path.."Herb\\starlightrose.tga",
+		[482] = icon_path.."Herb\\felherb.tga",
+		[483] = icon_path.."Herb\\felherb.tga",
+		[484] = icon_path.."Herb\\felherb.tga", -- PH
 	},
 	["Treasure"] = {
 		[501] = icon_path.."Treasure\\clam.tga",
@@ -834,6 +848,9 @@ local node_expansion = {
 		[256] = LEGION,
 		[257] = LEGION,
 		[258] = LEGION,
+		[259] = LEGION,
+		[260] = LEGION,
+		[261] = LEGION,
 	},
 	["Herb Gathering"] = {
 		[401] = CLASSIC,
@@ -917,6 +934,9 @@ local node_expansion = {
 		[479] = LEGION,
 		[480] = LEGION,
 		[481] = LEGION,
+		[482] = LEGION,
+		[483] = LEGION,
+		[484] = LEGION,
 	},
 }
 GatherMate.nodeExpansion = node_expansion

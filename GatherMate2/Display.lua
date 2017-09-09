@@ -342,14 +342,21 @@ function Display:DigsitesChanged()
 		SetMapZoom(continent)
 		local totalPOIs = GetNumMapLandmarks()
 		for index = 1,totalPOIs do
-			local name, description, textureIndex, px, py = GetMapLandmarkInfo(index)
+			local landmarkType, name, description, textureIndex, px, py
+			if C_WorldMap and C_WorldMap.GetMapLandmarkInfo then
+				landmarkType, name, description, textureIndex, px, py = C_WorldMap.GetMapLandmarkInfo(index)
+			else
+				landmarkType, name, description, textureIndex, px, py = GetMapLandmarkInfo(index)
+			end
 			if textureIndex == 177 then
 				local zoneName, mapFile, texPctX, texPctY, texX, texY, scrollX, scrollY = UpdateMapHighlight(px, py)
-				digSites[mapFile] = true
-				-- Hack for STV
-				if (mapFile == "StranglethornVale") then
-					digSites["StranglethornJungle"] = true
-					digSites["TheCapeOfStranglethorn"] = true
+				if mapFile then
+					digSites[mapFile] = true
+					-- Hack for STV
+					if (mapFile == "StranglethornVale") then
+						digSites["StranglethornJungle"] = true
+						digSites["TheCapeOfStranglethorn"] = true
+					end
 				end
 			end
 		end
@@ -674,6 +681,11 @@ function Display:UpdateIconPositions()
 		facing = lastFacing
 	end
 
+	if not x or not y or (rotateMinimap and not facing) then
+		self:UpdateMiniMap()
+		return
+	end
+
 	local refresh
 
 	local newScale = Minimap:GetScale()
@@ -734,6 +746,16 @@ function Display:UpdateMiniMap(force)
 		end
 	else
 		facing = lastFacing
+	end
+
+	--  disable all pins if no position is available
+	if not x or not y or (rotateMinimap and not facing) then
+		minimapPinCount = 0
+		for k,v in pairs(minimapPins) do
+			recyclePin(v)
+			minimapPins[k] = nil
+		end
+		return
 	end
 
 	local newScale = Minimap:GetScale()
