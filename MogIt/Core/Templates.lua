@@ -229,12 +229,6 @@ local function showMenu(menu, data, isSaved, isPreview)
 end
 
 do	-- item functions
-	local slots = {
-		[1] = "MainHandSlot",
-		-- [2] = "mainhand",
-		-- [3] = "offhand",
-	}
-
 	local sourceLabels = {
 		[L.source[1]] = BOSS,
 	}
@@ -253,14 +247,20 @@ do	-- item functions
 	function mog.Item_FrameUpdate(self, data)
 		local item = data.item
 		self:ApplyDress()
-		local slot = slots[mog:GetData("item", item, "slot")]
+		-- hack for items not returning any transmog info
+		if not item then return end
+		local _, _, _, slot = GetItemInfoInstant(item)
+		local tryonSlot
+		if slot == "INVTYPE_WEAPON" then
+			tryonSlot = "MAINHANDSLOT"
+		end
 		if data.sourceID then
-			self.model:TryOn(data.sourceID, slot)
+			self.model:TryOn(data.sourceID, tryonSlot)
 		else
-			self:TryOn(format(gsub(item, "item:(%d+):0", "item:%1:%%d"), mog.weaponEnchant), slot)
+			self:TryOn(format(gsub(item, "item:(%d+):0", "item:%1:%%d"), mog.weaponEnchant), tryonSlot)
 		end
 		if not mog:GetItemInfo(item) then
-			mog.doModelUpdate = true;
+			mog.doModelUpdate = true
 		end
 	end
 
@@ -287,6 +287,9 @@ do	-- item functions
 	end
 
 	function mog.ShowItemTooltip(self, item, items)
+		-- hack for items not returning any transmog info
+		if not item then return end
+		
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip[mog] = true
 
@@ -379,11 +382,23 @@ do	-- item functions
 			end
 		end
 
-		if items and #items > 1 then
-			GameTooltip:AddLine(" ")
-			GameTooltip:AddLine(L["Items using this appearance:"])
-			for i, v in ipairs(items) do
-				addItemTooltipLine(v, nil, v == item, (mog.wishlist:IsItemInWishlist(v)))
+		if items then
+			if type(items) == "string" then
+				local visualID = C_TransmogCollection.GetItemInfo(items)
+				if visualID then
+					local sources = C_TransmogCollection.GetAllAppearanceSources(visualID)
+					items = {}
+					for i, source in ipairs(sources) do
+						items[i] = mog:NormaliseItemString(select(6, C_TransmogCollection.GetAppearanceSourceInfo(source)))
+					end
+				end
+			end
+			if type(items) == "table" and #items > 1 then
+				GameTooltip:AddLine(" ")
+				GameTooltip:AddLine(L["Items using this appearance:"])
+				for i, v in ipairs(items) do
+					addItemTooltipLine(v, nil, v == item, (mog.wishlist:IsItemInWishlist(v)))
+				end
 			end
 		end
 
@@ -477,7 +492,7 @@ do	-- set functions
 		for i, slot in ipairs(mog.slots) do
 			local item = items[slot] or items[i]
 			if item then
-				addItemTooltipLine(item, nil, nil, nil, true)
+				addItemTooltipLine(item, items[slot] and slot, nil, nil, true)
 			end
 		end
 		GameTooltip:Show()
