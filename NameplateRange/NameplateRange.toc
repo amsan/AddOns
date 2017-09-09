@@ -1,0 +1,11 @@
+## Interface: 70000
+## Version: 1.1
+## Title: NameplateRange
+## Notes: Changes the nameplates range and disables clamping to screen
+## Author: Ketho @ EU-Boulderfist
+## X-Curse-Packaged-Version: v1.1
+## X-Curse-Project-Name: NameplateRange
+## X-Curse-Project-ID: nameplaterange
+## X-Curse-Repository-ID: wow/nameplaterange/mainline
+
+NameplateRange.lua

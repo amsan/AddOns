@@ -1,0 +1,12 @@
+tag v1.1
+38b660431e2bafdeee504c9720c5629c8a4e5099
+Ketho <sghs17@outlook.com>
+2016-07-23 01:14:58 +0200
+
+Tagging as v1.1
+
+
+--------------------
+
+Ketho:
+	- Fixed an error with /reloading while in combat

@@ -1,0 +1,12 @@
+tag 84ea647e9738e18f2f3e57a2db61bffb40ae70f2 2.0.6
+Author:	Rainrider <rainrider.wow@gmail.com>
+Date:	Sat Jan 14 12:49:01 2017 +0100
+
+Version 2.0.6
+
+commit f7dbb12c91d97089a040a31dad4dd17cb89b847b
+Author: Rainrider <rainrider.wow@gmail.com>
+Date:   Sat Jan 14 11:22:57 2017 +0100
+
+    paladin: remove references to removed spells
+

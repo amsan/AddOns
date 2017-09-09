@@ -1,0 +1,8 @@
+## Interface: 70000
+## Title: Derangement's Macro Flyouts
+## Author: Derangement
+## Version: v1.0.3
+## Notes: Adds invisible flyout buttons, for use in macros.
+## SavedVariablesPerCharacter: deeFlyoutConfig
+
+DerangementMacroFlyouts.xml

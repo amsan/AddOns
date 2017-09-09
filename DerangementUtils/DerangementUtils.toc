@@ -1,0 +1,7 @@
+## Interface: 70200
+## Title: Derangement's Utilities
+## Author: Derangement
+## Version: v1.1.0
+## Notes: Miscellaneous small utilities, for ease of programming in WoW
+
+DerangementUtils.lua

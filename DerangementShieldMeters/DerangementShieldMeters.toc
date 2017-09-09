@@ -1,0 +1,7 @@
+## Interface: 70200
+## Title: Derangement's Shield Meters
+## Author: Derangement
+## Version: v1.0.5
+## Notes: Simple addon to improve the default UI's damage prevention bars (like those shown for Power Word: Shield) so they always tell how much prevention is left, even when at full HP.
+
+DerangementShieldMeters.lua
