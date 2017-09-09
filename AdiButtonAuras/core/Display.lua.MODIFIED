@@ -354,8 +354,6 @@ function overlayPrototype:PLAYER_REGEN_ENABLED(event)
 	self.inCombat = (event == "PLAYER_REGEN_DISABLED")
 	self:ApplyHint()
 	self:ApplyFlash()
-	
-	self:GenericEvent(event, "player")	--added by Derangement
 end
 overlayPrototype.PLAYER_REGEN_DISABLED = overlayPrototype.PLAYER_REGEN_ENABLED
 

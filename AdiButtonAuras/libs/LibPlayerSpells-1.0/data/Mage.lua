@@ -20,7 +20,7 @@ along with LibPlayerSpells-1.0.  If not, see <http://www.gnu.org/licenses/>.
 
 local lib = LibStub("LibPlayerSpells-1.0")
 if not lib then return end
-lib:__RegisterSpells("MAGE", 70000, 6, {
+lib:__RegisterSpells("MAGE", 70200, 1, {
 	COOLDOWN = {
 		   1953, -- Blink
 		  31687, -- Summon Water Elemental
@@ -33,22 +33,21 @@ lib:__RegisterSpells("MAGE", 70000, 6, {
 		 190356, -- Blizzard
 		 194466, -- Phoenix's Flames (Fire artifact)
 		 198929, -- Cinderstorm
-		 205029, -- Flame On
-		 205030, -- Frozen Touch
 		 205032, -- Charged Up
 		 212653, -- Shimmer
 		 214634, -- Ebonbolt (Frost artifact)
 		[  2139] = "INTERRUPT", -- Counterspell
 		[ 30449] = "DISPEL HARMFUL MAGIC", -- Spellsteal
+		[235219] = "SURVIVAL", -- Cold Snap
 		AURA = {
+			HELPFUL = {
+				240671, -- Warmth of the Phoenix (Fire artifact)
+			},
 			HARMFUL = {
 				135029, -- Water Jet (Water Elemental)
 				155158, -- Meteor
-				157981, -- Blast Wave (slow)
 				157997, -- Ice Nova (root) -- TODO: check category
 				194522, -- Blast Furnace (Fire artifact)
-				205021, -- Ray of Frost (slow)
-				212792, -- Cone of Cold (slow)
 				217694, -- Living Bomb
 				224968, -- Mark of Aluneth (Arcane artifact)
 				CROWD_CTRL = {
@@ -58,6 +57,12 @@ lib:__RegisterSpells("MAGE", 70000, 6, {
 						  122, -- Frost Nova (root)
 						33395, -- Freeze (Water Elemental) (root)
 					},
+				},
+				SNARE = {
+					157981, -- Blast Wave (slow)
+					205021, -- Ray of Frost (slow)
+					212792, -- Cone of Cold (slow)
+					236299, -- Chrono Shift (slow)
 				},
 			},
 			PERSONAL = {
@@ -70,6 +75,8 @@ lib:__RegisterSpells("MAGE", 70000, 6, {
 				 210126, -- Arcane Familiar
 				 212799, -- Displacement
 				 227482, -- Scorched Earth (fire artifact)
+				 236298, -- Chrono Shift
+				 240555, -- Freezing Rain (Frost artifact)
 				[ 12051] = "POWER_REGEN", -- Evocation
 				[ 41425] = "INVERT_AURA", -- Hypothermia
 				SURVIVAL = {
@@ -78,6 +85,8 @@ lib:__RegisterSpells("MAGE", 70000, 6, {
 					 32612, -- Invisibility
 					 45438, -- Ice Block
 					110960, -- Greater Invisibility
+					235313, -- Blazing Barrier
+					235450, -- Prismatic Barrier
 				},
 				BURST = {
 					 12042, -- Arcane Power
@@ -93,14 +102,10 @@ lib:__RegisterSpells("MAGE", 70000, 6, {
 			130, -- Slow Fall
 		},
 		HARMFUL = {
-			  2120, -- Flamestrike (slow)
-			 31589, -- Slow (slow)
 			112948, -- Frost Bomb
 			114923, -- Nether Tempest
-			205708, -- Chilled (slow)
 			210824, -- Touch of the Magi (Arcane artifact)
 			226757, -- Conflagration
-			228354, -- Flurry (slow)
 			228358, -- Flurry (frozen)
 			CROWD_CTRL = {
 				[228600] = "ROOT", -- Glacial Spike (root) -- TODO: check category
@@ -118,6 +123,12 @@ lib:__RegisterSpells("MAGE", 70000, 6, {
 					161372, -- Polymorph: Monkey (incapacitate)
 				},
 			},
+			SNARE = {
+				  2120, -- Flamestrike (slow)
+				 31589, -- Slow (slow)
+				205708, -- Chilled (slow)
+				228354, -- Flurry (slow)
+			},
 		},
 		PERSONAL = {
 			 44544, -- Fingers of Frost
@@ -127,9 +138,9 @@ lib:__RegisterSpells("MAGE", 70000, 6, {
 			190446, -- Brain Freeze
 			195391, -- Jouster (Frost artifact)
 			195418, -- Chain Reaction (Frost artifact)
-			198924, -- Quickening
 			199844, -- Glacial Spike!
 			205473, -- Icicles
+			236060, -- Frenetic Speed
 		},
 	},
 }, {
@@ -151,7 +162,6 @@ lib:__RegisterSpells("MAGE", 70000, 6, {
 	[195391] = 214626, -- Jouster (Frost artifact)
 	[195418] = 195419, -- Chain Reaction (Frost artifact)
 	[195446] = 195448, -- Chilled to the Core (Frost artifact)
-	[198924] = 198923, -- Quickening
 	[199844] = 199786, -- Glacial Spike! <- Glacial Spike
 	[205473] = 76613, -- Icicles <- Mastery: Icicles
 	[205708] = { -- Chilled (slow)
@@ -170,6 +180,11 @@ lib:__RegisterSpells("MAGE", 70000, 6, {
 	[228354] = 44614, -- Flurry (slow)
 	[228358] = 190447, -- Flurry (frozen) <- Brain Freeze
 	[228600] = 199786, -- Glacial Spike (root)
+	[236060] = 236058, -- Frenetic Speed
+	[236298] = 235711, -- Chrono Shift
+	[236299] = 235711, -- Chrono Shift (slow)
+	[240555] = 238092, -- Freezing Rain (Frost artifact)
+	[240671] = 238091, -- Warmth of the Phoenix (Fire artifact)
 }, {
 	-- map aura to modified spell(s)
 	[ 44544] = 30455, -- Fingers of Frost -> Ice Lance
@@ -187,15 +202,15 @@ lib:__RegisterSpells("MAGE", 70000, 6, {
 	[195391] = 30455, -- Jouster (Frost artifact) -> Ice Lance
 	[195418] = 30455, -- Chain Reaction (Frost artifact) -> Ice Lance
 	[195446] = 12472, -- Chilled to the Core (Frost artifact) -> Icy Veins
-	[198924] = { -- Quickening
-		 1449, -- Arcane Explosion
-		 5143, -- Arcane Missiles
-		30451, -- Arcane Blast
-	},
 	[205025] = 30451, -- Presence of Mind -> Arcane Blast
 	[205473] = 116, -- Icicles -> Frostbolt
 	[210824] = 30451, -- Touch of the Magi (Arcane artifact)
 	[226757] = 133, -- Conflagration -> Fireball
 	[227482] = 2948, -- Scorched Earth (Fire artifact) -> Scorch
 	[228358] = 44614, -- Flurry (frozen) -> Flurry -- TODO: Ice Lance better?
+	[236060] = 2948, -- Frenetic Speed -> Scorch
+	[236298] = 44425, -- Chrono Shift -> Arcane Barrage
+	[236299] = 44425, -- Chrono Shift (slow) -> Arcane Barrage
+	[240555] = 190356, -- Freezing Rain (Frost artifact) -> Blizzard
+	[240671] = 194466, -- Warmth of the Phoenix (Fire artifact) -> Phoenix's Flames (Fire artifact)
 })

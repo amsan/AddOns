@@ -1,0 +1,4 @@
+Rainrider:
+	- Fix README links
+	- Make FindGlobals. shut up
+	- common: add back missing LPS

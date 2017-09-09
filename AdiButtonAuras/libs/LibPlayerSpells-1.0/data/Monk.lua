@@ -20,13 +20,14 @@ along with LibPlayerSpells-1.0.  If not, see <http://www.gnu.org/licenses/>.
 
 local lib = LibStub("LibPlayerSpells-1.0")
 if not lib then return end
-lib:__RegisterSpells("MONK", 70000, 7, {
+lib:__RegisterSpells("MONK", 70200, 1, {
 	COOLDOWN = {
 		 109132, -- Roll
 		 115098, -- Chi Wave
 		 115288, -- Energizing Elixir
 		 115310, -- Revival
 		 115399, -- Black Ox Brew
+		 116844, -- Ring of Peace
 		 119582, -- Purifying Brew
 		 119996, -- Transcendance: Transfer
 		 122281, -- Healing Elixir
@@ -34,7 +35,6 @@ lib:__RegisterSpells("MONK", 70000, 7, {
 		 123986, -- Chi Burst
 		 124081, -- Zen Pulse
 		 152175, -- Whirling Dragon Punch
-		 197945, -- Mistwalk
 		 198664, -- Invoke Chi-Ji, the Red Crane
 		[115176] = "SURVIVAL", -- Zen Meditation
 		[116705] = "INTERRUPT", -- Spear Hand Strike
@@ -55,29 +55,30 @@ lib:__RegisterSpells("MONK", 70000, 7, {
 				 115080, -- Touch of Death
 				 115804, -- Mortal Wounds
 				 118635, -- Provoke (through Black Ox Statue) (taunt)
-				 121253, -- Keg Smash (slow)
 				 122470, -- Touch of Karma
-				 123586, -- Flying Serpent Kick (slow)
 				 123725, -- Breath of Fire -- TODO: check without artifact
 				 124280, -- Touch of Karma (dmg dot)
-				 140023, -- Ring of Peace
 				 196727, -- Provoke
-				 196733, -- Special Delivery (slow)
-				 199387, -- Spirit Tether (MW artifact) (slow)
-				 205320, -- Strike of the Windlord (WW artifact) (slow)
 				 213063, -- Dark Side of the Moon (BM artifact)
 				 214326, -- Exploding Keg (BM artifact)
+				[206891] = "UNIQUE_AURA", -- Intimidated (PvP)
 				CROWD_CTRL = {
 					[115078] = "INCAPACITATE", -- Paralysis (Incapacitate)
 					[116189] = "TAUNT", -- Provoke (taunt)
 					[119381] = "STUN", -- Leg Sweep (stun)
 					[198909] = "DISORIENT", -- Song of Chi-Ji (Disorient)
 				},
+				SNARE = {
+					121253, -- Keg Smash (slow)
+					123586, -- Flying Serpent Kick (slow)
+					196733, -- Special Delivery (slow)
+					199387, -- Spirit Tether (MW artifact) (slow)
+					205320, -- Strike of the Windlord (WW artifact) (slow)
+				},
 			},
 			PERSONAL = {
 				 101643, -- Transcendance
 				 116680, -- Thunder Focus Tea
-				 116844, -- Ring of Peace
 				 116847, -- Rushing Jade Wind
 				 119085, -- Chi Torpedo
 				 125174, -- Touch of Karma
@@ -91,13 +92,15 @@ lib:__RegisterSpells("MONK", 70000, 7, {
 				 213177, -- Swift as a Coursing River (BM artifact)
 				 214373, -- Brew-Stache (BM artifact)
 				 228563, -- Blackout Combo
+				 242387, -- Thunderfist (WW artifact)
 				[152173] = "BURST", -- Serenity
 				SURVIVAL = {
-					120954, -- Fortifying Brew
+					120954, -- Fortifying Brew (Brewmaster)
 					122278, -- Dampen Harm
 					122783, -- Diffuse Magic
 					213341, -- Fortification (BM artifact)
 					215479, -- Ironskin Brew
+					243435, -- Fortifying Brew (Mistweaver)
 				},
 			},
 		},
@@ -107,13 +110,13 @@ lib:__RegisterSpells("MONK", 70000, 7, {
 			124682, -- Enveloping Mist
 			191840, -- Essence Font
 			198533, -- Soothing Mist
+			240672, -- Master of Combinations (WW artifact)
 		},
 		HARMFUL = {
-			116095, -- Disable (slow)
-			117952, -- Crackling Jade Lightning
-			196608, -- Eye of the Tiger -- NOTE: the buff id for the HoT is the same
-			196723, -- Dizzying Kicks
-			228287, -- Mark of the Crane
+			 117952, -- Crackling Jade Lightning
+			 196608, -- Eye of the Tiger -- NOTE: the buff id for the HoT is the same
+			 228287, -- Mark of the Crane
+			[116095] = "SNARE", -- Disable (slow)
 			CROWD_CTRL = {
 				[116706] = "ROOT", -- Disable (root)
 				[120086] = "STUN", -- Fists of Fury (stun)
@@ -138,17 +141,15 @@ lib:__RegisterSpells("MONK", 70000, 7, {
 	[119085] = 115008, -- Chi Torpedo
 	[119611] = 115151, -- Renewing Mist
 	[120086] = 205003, -- Fists of Fury (stun) <- Heavy-Handed Strikes (pvp)
-	[120954] = 115203, -- Fortifying Brew
+	[120954] = 115203, -- Fortifying Brew (Brewmaster)
 	[123586] = 101545, -- Flying Serpent Kick (slow)
 	[123725] = 115181, -- Breath of Fire
 	[124280] = 122470, -- Touch of Karma (dmg dot)
 	[125174] = 122470, -- Touch of Karma
-	[140023] = 116844, -- Ring of Peace
 	[191840] = 191837, -- Essence Font
 	[195321] = 195300, -- Transfer of Power (WW artifact) <- Transfer the Power
 	[195381] = 195380, -- Healing Winds (WW artifact)
 	[196608] = 196607, -- Eye of the Tiger
-	[196723] = 196722, -- Dizzying Kicks
 	[196727] = 132578, -- Provoke <- Invoke Niuzao, the Black Ox
 	[196733] = 196730, -- Special Delivery (slow)
 	[196739] = 196738, -- Elusive Dance
@@ -161,6 +162,7 @@ lib:__RegisterSpells("MONK", 70000, 7, {
 	[199407] = 199401, -- Light on Your Feet (MW artifact)
 	[199668] = 199665, -- Blessings of Yu'lon (MW artifact)
 	[202090] = 116645, -- Teachings of the Monastery (MW mastery)
+	[206891] = 207025, -- Intimidated <- Admonishment (BM Honor Talent)
 	[213063] = 227689, -- Dark Side of the Moon (BM artifact)
 	[213341] = 213340, -- Fortification (BM artifact)
 	[213177] = 213161, -- Swift as a Coursing River (BM artifact)
@@ -169,9 +171,12 @@ lib:__RegisterSpells("MONK", 70000, 7, {
 	[228287] = { -- Mark of the Crane
 		100780, -- Tiger Palm (provider)
 		100784, -- Blackout Kick (provider)
-		107428, -- Rising Sun Kick (consumer)
+		107428, -- Rising Sun Kick (provider)
+		116847, -- Rushing Jade Wind (provider)
 	},
 	[228563] = 196736, -- Blackout Combo
+	[240672] = 238095, -- Master of Combinations (WW artifact)
+	[242387] = 238131, -- Thunderfist (WW artifact)
 }, {
 	-- map aura to modified spell(s)
 	[116768] = 100784, -- Blackout Kick! -> Blackout Kick
@@ -192,7 +197,6 @@ lib:__RegisterSpells("MONK", 70000, 7, {
 	},
 	[195381] = 119996, -- Healing Winds (WW artifact) -> Transcendance: Transfer
 	[196608] = 100780, -- Eye of the Tiger
-	[196723] = 100784, -- Dizzying Kicks -> Blackout Kick
 	[196733] = { -- Special Delivery (slow)
 		115308, -- Ironskin Brew
 		119582, -- Purifying Brew
@@ -229,4 +233,5 @@ lib:__RegisterSpells("MONK", 70000, 7, {
 		121253, -- Keg Smash
 		205523, -- Blacout Strike
 	},
+	[242387] = 205320, -- Thunderfist (WW artifact) -> Strike of the Windlord (WW artifact)
 })

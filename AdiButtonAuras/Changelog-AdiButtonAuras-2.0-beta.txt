@@ -1,0 +1,26 @@
+tag 2.0-beta
+3e380d6754a6716a7b7016396aae29148ab32e09
+Rainrider <Rainrider@users.noreply.github.com>
+2016-07-19 22:55:53 +0200
+
+First Legion Beta
+
+Just tagging for a working pre-patch version.
+No special rules yet, mostly just LPS import.
+See https://github.com/AdiAddons/AdiButtonAuras/issues/209
+
+
+--------------------
+
+Rainrider:
+	- Update links to DRData
+	DRData-1.0 is not hosted on wowace anymore so it has to be embedded.
+	- Remove raid buffs from common rules
+	- Add LibArtifactData-1.0 dependency
+	- Remove all custom rules for a clean start
+	- Add the demon hunter class
+	- items: fix consumables detection
+	- common: comment out some of the removed spells
+	- Don't load Items.lua for now
+	GetAuctionItemClasses is gone in Legion
+	TODO look for replacement

@@ -1,0 +1,38 @@
+tag 1.9.7
+3c52553b1a1c2d28b24ec9137dc4781c6264de1b
+Rainrider <rainrider.wow@gmail.com>
+2016-02-14 23:59:29 +0100
+
+Pick up LPS changes
+
+
+--------------------
+
+Rainrider:
+	- Travis: move the build to Ubuntu Trusty
+	This resolves the issue with luabitop.
+	-y argument is needed.
+	Erlang has problem on travis' new infrastructure, that's why the switch
+	to C
+	- Fix travis CI
+	Also added a gitter.im webhook
+myth384:
+	- Changed invert to highlight
+	Coloured borders are called highlights everywhere in the code. So, I
+	think this is the most logical wording for showing missing auras with
+	coloured borders.
+Rainrider:
+	- Some small changes to missing auras highlights for consistency
+myth384:
+	- Fix for highlight texture after masque toggle
+	After selecting a non default texture, toggling the Masque button on and
+	off resulted in showing the default texture.
+	- Fix for disabling texture selection box
+	When enabling Masque support the texture selection box did not get
+	disabled previously.
+	- Fix for overlay size
+	After unticking the masque toggle, selecting a different overlay texture
+	resulted in oversized overlays.
+	- Added additional methods for showing missing Auras; as a hint or a flash. Changed configuration options for spells. The inverted toggle was removed. A dropdown list for selecting the method for missing auras was added instead. This includes none, inverted, hint and flash. Added logic for the promote toggle to be only applicable for the none and inverted methods. I doesn't make sense for the hint and flash methods. Added some code to upgrade saved variables.
+	- A quick change to get tests working
+	- A quick change to get tests working

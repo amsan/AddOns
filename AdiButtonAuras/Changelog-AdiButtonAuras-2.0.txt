@@ -1,0 +1,125 @@
+tag 2.0
+ae6d5d599423d3eae2a236a43f48c71d3b1e9bb8
+Rainrider <Rainrider@users.noreply.github.com>
+2016-08-22 10:52:20 +0200
+
+Tagging release 2.0 (Legion ready)
+
+Honor talents are still to be included
+
+
+--------------------
+
+Rainrider:
+	- Update ISSUE_TEMPLATE
+	- docs: a quick review
+	- Use github's issue template
+	- core: remove DRData
+	We no longer depend on it for CC DR categories.
+	- core: use LPS for CC DR rules
+	- core: support artifact traits in DebugTooltip
+	- pkgmeta: fix git urls for LSB and LIB
+	- mage: track Arcane Familiar by its totem rather than the aura
+	- monk: add a rule for the duration of summoned statues
+	- core: add GetPetTimeRemaining to the save environment
+	... aaaaaand to the list of globals :peep:
+	- monk: add a rule to track duration of the Invoke spells
+	- rules: and of course I missed one
+	My opinion about global lists is a very long :peep:
+	- :fireworks: Copyright 2016
+	- rules: refresh the list of globals
+	- core: clean up the save environment
+	Removed GetComboPoints and GetEclipseDirection
+	- rogue: exclude Night Terrors
+	Fixes https://github.com/AdiAddons/AdiButtonAuras/issues/221
+	- rules: add GetDebuff to the list of globals
+	- rules: add a rule to show Surrendered Soul on battle res spells
+	- core: get the version of the queried category only
+	- core: track all sources for auras with multiple sources
+	- core: providers are now the 5th value for ShowPower
+	Also update the docs.
+	- docs: update ShowStacks
+	- death knight: make use of ShowStacks for Razorice
+	- core: ShowStacks now works for player's debuffs too
+	The unit must be set to "enemy" for this.
+	- mage: add some rules for frost
+	- mage: add a rule for Heating Up
+	- paladin: rule for Power of the Silver Hand
+	Display only timer for the build-up and timer and border for the spender
+	buff. Untested
+	- paladin: add a rule for Light's Hammer
+	- paladin: add some rules for protection
+	Blessing of Spellwarding
+	Avenger's Shield Interrupt for non-players' casts
+	- priest: show Atonement on Plea and Power Word: Radiance only
+	Both don't have other effects associated.
+	Also exclude Share in the Light
+	- priest: add GetPlayerDebuff to the list of globals
+	This is really annoying
+	- priest: add some rules for shadow
+	- rogue: update for assassination
+	Exclude Surge of Toxins, From the Shadows, Blood of the Assassinated and
+	Alacity
+	- warlock: add UnitName to the list of globals
+	- rogue: show combo points on spenders
+	- warlock: add some rules for demonology
+	- warlock: add a rule for Soul Effigy
+	- core: add UnitName to the safe environment
+	- warlock: add some rules for destruction
+	- warrior:  prevent division by zero in the rule for Execute
+	- shaman: add some more totems
+	Only show totem duration and no border as some totems have associated
+	auras without duration that will draw the border
+	- Bump the ToC of AdiButtonAuras_Config
+	Fixes https://github.com/AdiAddons/AdiButtonAuras/issues/215
+	- Switch back to the wowace repo of DRData-1.0
+	Fixes https://github.com/AdiAddons/AdiButtonAuras/issues/213
+	- shaman: add a rule for enhancement
+	Show Maelstrom on Lightning Bolt when the Overcharge talent is chosen.
+	Hint at 45 Maelstrom
+	- core: allow providers for ShowPower
+Adirelle:
+	- Another attempt at deploying tags.
+	- Deploy: tweaking the deploy condition.
+Rainrider:
+	- mage: add some rules
+	- shaman: add some rules for elemental
+Adirelle:
+	- Changed deploy condition to push tags.
+Rainrider:
+	- paladin: more work on my tunnel vision
+	- paladin: fix my indentation fail
+	- Use SetColorTexture instead of SetTexture
+	Fixes "darken" and "lighten" highlights
+	- paladin: add some rules for retribution
+	- warrior: add a rule for Execute
+	- death knight: add some rules for unholy
+	- death knight: add rule for Razorice
+	Show the stacks of Razorice on Frost Strike when the talent Shattering
+	Strikes is selected.
+Adirelle:
+	- Fixed gitter.im webhook URL.
+	- Set up git-attributes.
+	- Fixed deploy.sh.
+	- Avoid to ever commit the unencrypted key.
+	[skip ci]
+	- Automatically push to wowace on successful build.
+	- Fixed Travis-CI builds.
+Rainrider:
+	- Fix combo points handling
+	- druid: add rules for combo points spenders and Efflorescence
+	- Fix README links
+	- Make FindGlobals. shut up
+	- common: add back missing LPS
+	- Update links to DRData
+	DRData-1.0 is not hosted on wowace anymore so it has to be embedded.
+	- Remove raid buffs from common rules
+	- Add LibArtifactData-1.0 dependency
+	- Update .pkgmeta for the new project org
+	- Remove all custom rules for a clean start
+	- Add the demon hunter class
+	- items: fix consumables detection
+	- common: comment out some of the removed spells
+	- Don't load Items.lua for now
+	GetAuctionItemClasses is gone in Legion
+	TODO look for replacement

@@ -1,6 +1,6 @@
 --[[
 AdiButtonAuras - Display auras on action buttons.
-Copyright 2013-2016 Adirelle (adirelle@gmail.com)
+Copyright 2013-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiButtonAuras.
@@ -23,10 +23,8 @@ local addonName, addon = ...
 
 local _G = _G
 local assert = _G.assert
-local CreateFrame = _G.CreateFrame
 local C_Timer = _G.C_Timer
-local error = _G.error
-local format = _G.format
+local CreateFrame = _G.CreateFrame
 local GetActionCooldown = _G.GetActionCooldown
 local GetActionInfo = _G.GetActionInfo
 local GetMacroBody = _G.GetMacroBody
@@ -37,7 +35,6 @@ local GetPetActionInfo = _G.GetPetActionInfo
 local GetShapeshiftFormCooldown = _G.GetShapeshiftFormCooldown
 local GetShapeshiftFormInfo = _G.GetShapeshiftFormInfo
 local GetSpellLink = _G.GetSpellLink
-local GetTime = _G.GetTime
 local gsub = _G.gsub
 local ipairs = _G.ipairs
 local next = _G.next
@@ -51,8 +48,6 @@ local strmatch = _G.strmatch
 local strsplit = _G.strsplit
 local strtrim = _G.strtrim
 local tonumber = _G.tonumber
-local tostring = _G.tostring
-local type = _G.type
 local UnitGUID = _G.UnitGUID
 local UnitIsUnit = _G.UnitIsUnit
 local wipe = _G.wipe
@@ -131,7 +126,7 @@ local conditionalsCache = addon.Memoize(function(index)
 	local body = GetMacroBody(index)
 	if not body then return false end
 	
-	--support for long macros (added by Derangement)
+	--support for long macros
 	local longMacro = strmatch(body,"^#longmacro.*(LongMacro_[^;%s]*)");
 	if( longMacro ) then 
 		longMacro = _G[longMacro];
@@ -188,7 +183,7 @@ end
 ------------------------------------------------------------------------------
 
 local overlayPrototype = setmetatable({
-	Debug                 = function(self, ...) return addon.Debug('Buttons', self, ...) end,
+	Debug                 = addon.Debug,
 	RegisterMessage       = addon.RegisterMessage,
 	UnregisterMessage     = addon.UnregisterMessage,
 	UnregisterAllMessages = addon.UnregisterAllMessages,
@@ -206,9 +201,7 @@ function overlayPrototype:Initialize(button)
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
 
-	local width, height = button:GetSize()
-	self:SetSize(width or 36, height or 36)
-	self:SetPoint("CENTER", button)
+	self:SetAllPoints(button)
 
 	self:InitializeDisplay()
 
@@ -226,7 +219,7 @@ function overlayPrototype:Initialize(button)
 	self.RegisterMessage(name, addon.RULES_UPDATED, ForceUpdate)
 	self.RegisterMessage(name, addon.DYNAMIC_UNIT_CONDITONALS_CHANGED, ForceUpdate)
 	self.RegisterMessage(name, addon.CONFIG_CHANGED, function(...) return self:OnConfigChanged(...) end)
-	self.RegisterMessage(name, addon.THEME_CHANGED, function(...) return self:ApplySkin(...) end)
+	self.RegisterMessage(name, addon.THEME_CHANGED, function(...) return self:UpdateDisplay(...) end)
 
 	self:Show()
 end
@@ -295,7 +288,6 @@ function overlayPrototype:SetAction(event, actionType, actionId, macroConditiona
 		for token, default in pairs(addon.dynamicUnitConditionals) do
 			if units[token] then
 				local cond = macroConditionals and gsub(macroConditionals , "%[%]", default) or default
-				
 				self.unitConditionals[token] = cond
 				-- Dynamic always includes target
 				units.target = 'UpdateDynamicUnits'
@@ -386,7 +378,7 @@ function overlayPrototype:UpdateCooldown(event)
 		self:Debug('cooldownStart=', start, 'cooldownDuration=', duration)
 		self.cooldownStart, self.cooldownDuration = start, duration
 		if inCooldown then
-			C_Timer.After(start + duration + 0.1 - GetTime(), function() return self:UpdateCooldown() end)
+			C_Timer.After((start+duration+0.1)-GetTime(), function() return self.UpdateCooldown(self) end)
 		end
 	end
 	if self.inCooldown ~= inCooldown then
@@ -394,7 +386,6 @@ function overlayPrototype:UpdateCooldown(event)
 		self.inCooldown = inCooldown
 		self:ApplyHighlight()
 		self:ApplyHint()
-		self:ApplyFlash()
 	end
 end
 overlayPrototype.ACTIONBAR_UPDATE_COOLDOWN = overlayPrototype.UpdateCooldown
@@ -406,17 +397,7 @@ function overlayPrototype:UpdateDynamicUnits(event, unit)
 	for token, conditional in pairs(self.unitConditionals) do
 		local _, unit = SecureCmdOptionParse(conditional)
 		if not unit or unit == "" then
-			--unit = "target"
-			
-			local default = addon.dynamicUnitConditionals[token];	--start of chunk modified by Derangement
-			if( default ) then
-				_, unit = SecureCmdOptionParse(default);
-			end
-			
-			if not unit or unit == "" then
-				unit = "target"
-			end														--end of chunk modified by Derangement
-			
+			unit = "target"
 		elseif unit == "mouseover" then
 			local mouseoverUnit = addon:GetMouseoverUnit()
 			if mouseoverUnit == "mouseover" then
@@ -426,7 +407,6 @@ function overlayPrototype:UpdateDynamicUnits(event, unit)
 			end
 		end
 		self.unitMap[token] = unit
-		
 		updated = self:UpdateGUID(event, unit) or updated
 	end
 
@@ -457,73 +437,36 @@ function overlayPrototype:ScheduleUpdate(event)
 end
 
 local model = {}
-
-local modelProxy = setmetatable({}, {
-	__index = model,
-	__newindex = function(_, key, value)
-		if key == "count" or key == "maxCount" or key == "expiration" then
-			if type(value) ~= "number" then
-				return error(format("Invalid %s, should be a number, not %s", key, type(value)), 2)
-			end
-		elseif key == "highlight" then
-			if value == "flash" then
-				key, value = value, true
-			elseif value ~= nil and value ~= "good" and value ~= "bad" and value ~= "darken" and value ~= "lighten" then
-				return error(format('Invalid %s, should be one of "flash", "good", "bad", "darken", "lighten" or nil, not %s', key, tostring(value)), 2)
-			end
-		elseif key == "flash" then
-			if type(value) ~= "boolean" then
-				return error(format("Invalid %s, should be a false or true, not %s", key, type(value)), 2)
-			end
-		elseif key == "hint" then
-			if type(value) ~= "boolean" then
-				return error(format("Invalid %s, should be false or true, not %s", key, type(value)), 2)
-			end
-		else
-			return error(format('Unknown model property: %s, must be one of: count, maxCount, expiration, highlight or hint', tostring(key)), 2)
-		end
-		model[key] = value
-	end,
-})
-
 function overlayPrototype:UpdateState(event)
 	self:SetScript('OnUpdate', nil)
 
-	model.count, model.maxCount, model.expiration, model.highlight, model.hint, model.flash  = 0, 0, 0, nil, false, false
+	model.count, model.expiration, model.highlight, model.hint  = 0, 0, nil, false
 
 	if self.handlers then
-		model.spellId, model.actionType, model.actionId = self.spellId, self.actionType, self.actionId
-
 		local unitMap = self.unitMap
 		for i, handler in ipairs(self.handlers) do
-			handler(unitMap, modelProxy)
+			handler(unitMap, model)
 		end
 
-		if addon.db.profile.missing[self.spellId] == "highlight" then
+		if addon.db.profile.inverted[self.spellId] then
 			if model.highlight then
-				model.highlight = nil
+				if model.highlight ~= "flash" then
+					model.highlight = nil
+				end
 			else
 				model.highlight = self.units.enemy and "bad" or "good"
 			end
 		end
 
-		if not model.highlight then
-			if addon.db.profile.missing[self.spellId] == "hint" then
-				model.hint = true
-			elseif addon.db.profile.missing[self.spellId] == "flash" then
-				model.flash = true
-			end
-		end
-
 		if addon.db.profile.flashPromotion[self.spellId] and (model.highlight == "good" or model.highlight == "bad") then
-			model.highlight, model.flash = nil, true
+			model.highlight = "flash"
 		end
 	end
 
-	self:SetCount(model.count, model.maxCount)
+	--self:Debug("Scan =>", model.highlight, model.count, model.expiration, model.hint)
+	self:SetCount(model.count)
 	self:SetExpiration(model.expiration)
 	self:SetHighlight(model.highlight)
-	self:SetFlash(model.flash)
 	self:SetHint(model.hint)
 
 	return true
