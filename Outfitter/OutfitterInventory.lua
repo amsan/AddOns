@@ -683,7 +683,9 @@ function Outfitter:GetInventoryCache()
 end
 
 function Outfitter:FlushInventoryCache()
-	self.InventoryCache = nil
+	if self.InventoryCache then
+		self.InventoryCache:Flush()
+	end
 end
 
 ----------------------------------------
@@ -698,6 +700,19 @@ function Outfitter._InventoryCache:Construct()
 	self.NeedsUpdate = true
 	
 	self.ItemsPendingInfo = {}		--added by Derangement, to handle awkwardness caused by GET_ITEM_INFO_RECEIVED delays
+	
+	self.FirstBagIndex = 0
+	self.NumBags = 0
+
+	Outfitter.EventLib:RegisterEvent("GET_ITEM_INFO_RECEIVED", self.Flush, self)
+end
+
+function Outfitter._InventoryCache:Flush()
+	wipe(self.ItemsByCode)
+	wipe(self.ItemsBySlot)
+	self.InventoryItems = nil
+	wipe(self.BagItems)
+	self.NeedsUpdate = true
 	
 	self.FirstBagIndex = 0
 	self.NumBags = 0
@@ -1088,15 +1103,19 @@ function Outfitter._InventoryCache:FlushInventory()
 	if Outfitter.Debug.InventoryCache then
 		Outfitter:DebugMessage("Outfitter._InventoryCache:FlushInventory()")
 	end
-	
-	if( self.InventoryItems ) then
-		for vInventorySlot, vItem in pairs(self.InventoryItems) do
-			self:RemoveItem(vItem)
-		end
-		
-		self.NeedsUpdate = true
-		self.InventoryItems = nil
+
+	-- Do nothing if no items are cached yet
+	if not self.InventoryItems then
+		return
 	end
+
+	-- Remove each item
+	for vInventorySlot, vItem in pairs(self.InventoryItems) do
+		self:RemoveItem(vItem)
+	end
+		
+	self.NeedsUpdate = true
+	self.InventoryItems = nil
 	
 end
 

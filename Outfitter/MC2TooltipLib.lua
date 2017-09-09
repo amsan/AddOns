@@ -16,7 +16,7 @@ function Addon.TooltipLib:SharedTooltip()
 		-- Create the tooltip
 		local tooltipName = AddonName..".TooltipLib.Tooltip"
 		self.tooltip = CreateFrame("GameTooltip", tooltipName, nil, "GameTooltipTemplate")
-		self.tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+		self.tooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 	end
 
 	return self.tooltip
