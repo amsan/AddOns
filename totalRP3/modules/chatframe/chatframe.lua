@@ -17,6 +17,8 @@
 --	limitations under the License.
 ----------------------------------------------------------------------------------
 
+-- Removed NPC talk prefix option and changed prefix to a hardcoded one (Paul Corlay) [RIP NPC talk prefix option 2014 - 2017]
+
 -- imports
 local Globals, Utils = TRP3_API.globals, TRP3_API.utils;
 local loc = TRP3_API.locale.getText;
@@ -54,7 +56,6 @@ local CONFIG_NAME_METHOD = "chat_name";
 local CONFIG_REMOVE_REALM = "remove_realm";
 local CONFIG_NAME_COLOR = "chat_color";
 local CONFIG_NPC_TALK = "chat_npc_talk";
-local CONFIG_NPC_TALK_PREFIX = "chat_npc_talk_p";
 local CONFIG_EMOTE = "chat_emote";
 local CONFIG_EMOTE_PATTERN = "chat_emote_pattern";
 local CONFIG_USAGE = "chat_use_";
@@ -64,6 +65,7 @@ local CONFIG_OOC_COLOR = "chat_ooc_color";
 local CONFIG_YELL_NO_EMOTE = "chat_yell_no_emote";
 local CONFIG_INSERT_FULL_RP_NAME = "chat_insert_full_rp_name";
 local CONFIG_INCREASE_CONTRAST = "chat_color_contrast";
+local CONFIG_SHOW_ICON = "chat_show_icon";
 
 local function configNoYelledEmote()
 	return getConfigValue(CONFIG_YELL_NO_EMOTE);
@@ -127,7 +129,6 @@ local function createConfigPage()
 	registerConfigKey(CONFIG_NAME_COLOR, true);
 	registerConfigKey(CONFIG_INCREASE_CONTRAST, false);
 	registerConfigKey(CONFIG_NPC_TALK, true);
-	registerConfigKey(CONFIG_NPC_TALK_PREFIX, "|| ");
 	registerConfigKey(CONFIG_EMOTE, true);
 	registerConfigKey(CONFIG_EMOTE_PATTERN, "(%*.-%*)");
 	registerConfigKey(CONFIG_OOC, true);
@@ -135,6 +136,7 @@ local function createConfigPage()
 	registerConfigKey(CONFIG_OOC_COLOR, "aaaaaa");
 	registerConfigKey(CONFIG_YELL_NO_EMOTE, false);
     registerConfigKey(CONFIG_INSERT_FULL_RP_NAME, true);
+    registerConfigKey(CONFIG_SHOW_ICON, false);
 
 	local NAMING_METHOD_TAB = {
 		{loc("CO_CHAT_MAIN_NAMING_1"), 1},
@@ -192,9 +194,14 @@ local function createConfigPage()
 			},
 			{
 				inherit = "TRP3_ConfigCheck",
-				title = "Increase color contrast",
+				title = loc("CO_CHAT_INCREASE_CONTRAST"),
 				configKey = CONFIG_INCREASE_CONTRAST,
 				dependentOnOptions = {CONFIG_NAME_COLOR},
+			},
+			{
+				inherit = "TRP3_ConfigCheck",
+				title = loc("CO_CHAT_USE_ICONS"),
+				configKey = CONFIG_SHOW_ICON,
 			},
 			{
 				inherit = "TRP3_ConfigH1",
@@ -204,13 +211,6 @@ local function createConfigPage()
 				inherit = "TRP3_ConfigCheck",
 				title = loc("CO_CHAT_MAIN_NPC_USE"),
 				configKey = CONFIG_NPC_TALK,
-			},
-			{
-				inherit = "TRP3_ConfigEditBox",
-				title = loc("CO_CHAT_MAIN_NPC_PREFIX"),
-				configKey = CONFIG_NPC_TALK_PREFIX,
-				help = loc("CO_CHAT_MAIN_NPC_PREFIX_TT"),
-				dependentOnOptions = {CONFIG_NPC_TALK},
 			},
 			{
 				inherit = "TRP3_ConfigH1",
@@ -292,6 +292,7 @@ local function getCharacterInfoTab(unitID)
 	end
 	return {};
 end
+TRP3_API.utils.getCharacterInfoTab = getCharacterInfoTab;
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 -- Emote and OOC detection
@@ -346,7 +347,7 @@ end
 
 -- These variables will hold data between the handleCharacterMessage message filter and our custom GetColoredName
 -- So we are able to flag messages as needing their player name's to be modified
-local npcMessageId, npcMessageName, ownershipNameId;
+local npcMessageId, npcMessageName, ownershipNameId, emoteStartingWithACommaID;
 
 function TRP3_API.chat.getNPCMessageID()
 	return npcMessageId;
@@ -366,7 +367,7 @@ function handleCharacterMessage(_, event, message, ...)
 
 	-- Detect NPC talk pattern on authorized channels
 	if event == "CHAT_MSG_EMOTE" then
-		if message:sub(1, 3) == configNPCTalkPrefix() and configDoHandleNPCTalk() then
+		if message:sub(1, 3) == "|| " and configDoHandleNPCTalk() then
 			npcMessageId = messageID;
 			npcMessageName, message = handleNPCEmote(message);
 
@@ -381,6 +382,9 @@ function handleCharacterMessage(_, event, message, ...)
 		elseif message:sub(1, 3) == "'s " then
 			ownershipNameId = messageID; -- pass the messageID to the name altering functionality. This uses a separate variable to identify wich method should be used. - Lora
 			message = message:sub(4);
+		elseif message:sub(1, 2) == ", " then -- Added support for , at the start of an emote
+			emoteStartingWithACommaID = messageID;
+			message = message:sub(3);
 		end
 	end
 
@@ -526,12 +530,23 @@ function Utils.customGetColoredNameWithCustomFallbackFunction(fallback, event, a
 		characterName = characterColor:WrapTextInColorCode(characterName);
 	end
 
+	if getConfigValue(CONFIG_SHOW_ICON) then
+		local info = getCharacterInfoTab(unitID);
+		if info and info.characteristics and info.characteristics.IC then
+			characterName = Utils.str.icon(info.characteristics.IC, 15) .. " " .. characterName;
+		end
+	end
 
 	-- Check if this message was flagged as containing a 's at the beggning.
 	-- To avoid having a space between the name of the player and the 's we previously removed the 's
 	-- from the message. We now need to insert it after the player's name, without a space.
 	if ownershipNameId == messageID then
 		characterName = characterName .. "'s";
+	end
+	-- Support for emotes starting with a ,
+	-- We remove the space so the comma is placed right after the name
+	if emoteStartingWithACommaID == messageID then
+		characterName = characterName .. ",";
 	end
 
 	return characterName;

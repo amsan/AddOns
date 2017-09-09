@@ -113,14 +113,22 @@ end
 local FIELDS_TO_SANITIZE = {
 	"CO", "CU"
 }
+---@param structure table
+---@return boolean
 function TRP3_API.dashboard.sanitizeCharacter(structure)
+	local somethingWasSanitized = false;
 	if structure then
 		for _, field in pairs(FIELDS_TO_SANITIZE) do
 			if structure[field] then
-				structure[field] = Utils.str.sanitize(structure[field]);
+				local sanitizedValue = Utils.str.sanitize(structure[field]);
+				if sanitizedValue ~= structure[field] then
+					structure[field] = sanitizedValue;
+					somethingWasSanitized = true;
+				end
 			end
 		end
 	end
+	return somethingWasSanitized;
 end
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -194,19 +202,7 @@ TRP3_API.dashboard.init = function()
 	end);
 
 	-- Tab bar
-	local whatsNewText = loc("WHATS_NEW_9");
-	if TRP3_API.april_fools then
-		whatsNewText = [[
-# Total RP 3 is now flagRSP 3!
-
-We had a good run, but Total RP 3 is now retiring in favor of flagRSP, the original best roleplaying add-on!
-
-We know that many tooltip still references Total RP 3, but they will be updated in the upcoming weeks to reflect this change.
-
-We have also decided to keep the |cffffffff/trp3|r command for now to avoid confusion.
-]];
-		TRP3_DashboardLogo:SetTexture([[Interface\AddOns\totalRP3\resources\flagrsp3]]);
-	end
+	local whatsNewText = loc("WHATS_NEW_13");
 	local moreModuleText = loc("MORE_MODULES_2");
 	local aboutText = loc("THANK_YOU_1");
 
@@ -259,15 +255,22 @@ We have also decided to keep the |cffffffff/trp3|r command for now to avoid conf
 		--[[
 		-- Links relative to the What's new section (valid for version 1.1.0)
 		 ]]
-        elseif url == "tooltip_settings" then
-			-- Open tooltip config
-            TRP3_API.navigation.menu.selectMenu("main_91_config_main_config_tooltip");
-        elseif url == "npc_speeches" then
-			-- Open NPC speeches UI
-			TRP3_API.r.showNPCTalkFrame();
-        elseif url == "open_map_filters_dropdown" then
-			ToggleWorldMap();
-			WorldMapFrame.UIElementsFrame.TrackingOptionsButton.Button:Click();
+        elseif url == "chat_settings" then
+			if TRP3_API.configuration.getValue("chat_show_icon") then
+				TRP3_API.configuration.setValue("chat_show_icon", false);
+				TRP3_API.ui.tooltip.toast(loc("OPTION_DISABLED_TOAST"), 3);
+			else
+				TRP3_API.configuration.setValue("chat_show_icon", true);
+				TRP3_API.ui.tooltip.toast(loc("OPTION_ENABLED_TOAST"), 3);
+			end
+		elseif url == "tooltip_cropping" then
+			if TRP3_API.configuration.getValue("tooltip_crop_text") then
+				TRP3_API.configuration.setValue("tooltip_crop_text", false);
+				TRP3_API.ui.tooltip.toast(loc("OPTION_DISABLED_TOAST"), 3);
+			else
+				TRP3_API.configuration.setValue("tooltip_crop_text", true);
+				TRP3_API.ui.tooltip.toast(loc("OPTION_ENABLED_TOAST"), 3);
+			end
 		--[[
 	 	-- Fallback, open URL in a popup
 		 ]]

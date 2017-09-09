@@ -1,6 +1,29 @@
+----------------------------------------------------------------------------------
+--- Total RP 3
+--- Prat plugin
+--- ---------------------------------------------------------------------------
+--- Copyright 2017 Renaud "Ellypse" Parize <ellypse@totalrp3.info> @EllypseCelwe
+---
+--- Licensed under the Apache License, Version 2.0 (the "License");
+--- you may not use this file except in compliance with the License.
+--- You may obtain a copy of the License at
+---
+--- http://www.apache.org/licenses/LICENSE-2.0
+---
+--- Unless required by applicable law or agreed to in writing, software
+--- distributed under the License is distributed on an "AS IS" BASIS,
+--- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--- See the License for the specific language governing permissions and
+--- limitations under the License.
+----------------------------------------------------------------------------------
+
+local loc = TRP3_API.locale.getText;
+
 local function onStart()
 	-- Stop right here if Prat is not installed
-	if not Prat then return false, "Prat not found." end;
+	if not Prat then
+		return false, loc("MO_ADDON_NOT_INSTALLED"):format("Prat");
+	end;
 
 	Prat:AddModuleToLoad(function()
 
@@ -9,6 +32,7 @@ local function onStart()
 		local pratModule = Prat:NewModule(PRAT_MODULE);
 	
 		-- Import Total RP 3 functions
+		local Globals 							= TRP3_API.globals;
 		local unitInfoToID                      = TRP3_API.utils.str.unitInfoToID; -- Get "Player-Realm" unit ID
 		local getFullnameForUnitUsingChatMethod = TRP3_API.chat.getFullnameForUnitUsingChatMethod; -- Get full name using settings
 		local isChannelHandled                  = TRP3_API.chat.isChannelHandled; -- Check if Total RP 3 handles this channel
@@ -18,7 +42,9 @@ local function onStart()
 		local getUnitCustomColor                = TRP3_API.utils.color.getUnitCustomColor; -- Get the custom color of a unit using its Unit ID
 		local extractColorFromText              = TRP3_API.utils.color.extractColorFromText; -- Get a Color object from a colored text
 		local getOwnershipNameID                = TRP3_API.chat.getOwnershipNameID; -- Get the latest message ID associated to an ownership mark ('s)
-	
+		local getConfigValue 					= TRP3_API.configuration.getValue;
+		local getCharacterInfoTab 				= TRP3_API.utils.getCharacterInfoTab;
+		local icon 								= TRP3_API.utils.str.icon;
 		-- WoW imports
 		local GetPlayerInfoByGUID = GetPlayerInfoByGUID;
 	
@@ -51,41 +77,65 @@ local function onStart()
 			-- Do not do any modification if the channel is not handled by TRP3 or customizations has been disabled
 			-- for that channel in the settings
 			if not isChannelHandled(event) or not configIsChannelUsed(event) then return end;
-			
-			-- Extract the color used by Prat so we use it by default
-			local color = extractColorFromText(message.PLAYER);
+
 
 			-- Retrieve all the player info from the message GUID
 			local _, _, _, _, _, name, realm = GetPlayerInfoByGUID(message.GUID);
 		
 			-- Calling our unitInfoToID() function to get a "Player-Realm" formatted string (handles cases where realm is nil)
 			local unitID = unitInfoToID(name, realm);
-			
+			local characterName = unitID;
+
+			--- Extract the color used by Prat so we use it by default
+			---@type ColorMixin
+			local characterColor = extractColorFromText(message.PLAYER);
+
+			-- Character name is without the server name is they are from the same realm or if the option to remove realm info is enabled
+			if realm == Globals.player_realm_id or getConfigValue("remove_realm") then
+				characterName = name;
+			end
+
 			-- Get the unit color and name
-			local characterName = getFullnameForUnitUsingChatMethod(unitID, name);
-		
-			-- Check if we use custom color and retrieve the color custom color associated to the unit ID
+			local customizedName = getFullnameForUnitUsingChatMethod(unitID);
+
+			if customizedName then
+				characterName = customizedName;
+			end
+
+			-- We retrieve the custom color if the option for custom colored names in chat is enabled
 			if configShowNameCustomColors() then
 				local customColor = getUnitCustomColor(unitID);
-				
-				-- If we did receive a color and the option to increase contrast is enabled, lighten up the color until it is readable on dark backgrounds
-				if customColor and configIncreaseNameColorContrast() then
-					customColor:LightenColorUntilItIsReadable();
+
+				-- If we do have a custom
+				if customColor then
+					-- Check if the option to increase the color contrast is enabled
+					if configIncreaseNameColorContrast() then
+						-- And lighten the color if it is
+						customColor:LightenColorUntilItIsReadable();
+					end
+
+					-- And finally, use the color
+					characterColor = customColor;
 				end
-				
-				-- Use the custom color if it exists.
-				color = customColor or color;
 			end
-			
+
+			if characterColor then
+				-- If we have a valid color in the end, wrap the name around the color's code
+				characterName = characterColor:WrapTextInColorCode(characterName);
+			end
+
+			if getConfigValue("chat_show_icon") then
+				local info = getCharacterInfoTab(unitID);
+				if info and info.characteristics and info.characteristics.IC then
+					characterName = icon(info.characteristics.IC, 15) .. " " .. characterName;
+				end
+			end
+
 			-- Check if this message was flagged as containing a 's at the beggning.
 			-- To avoid having a space between the name of the player and the 's we previously removed the 's
 			-- from the message. We now need to insert it after the player's name, without a space.
 			if getOwnershipNameID() == message.GUID then
 				characterName = characterName .. "'s";
-			end
-
-			if color then
-				characterName = color:WrapTextInColorCode(characterName);
 			end
 
 			-- Replace the message player name with the colored character name
@@ -107,8 +157,8 @@ end
 
 -- Register a Total RP 3 module that can be disabled in the settings
 TRP3_API.module.registerModule({
-	["name"] = "Prat support",
-	["description"] = "Add support for the Prat add-on.",
+	["name"] = "Prat",
+	["description"] = loc("MO_CHAT_CUSTOMIZATIONS_DESCRIPTION"):format("TinyTooltip"),
 	["version"] = 1.1,
 	["id"] = "trp3_prat",
 	["onStart"] = onStart,
