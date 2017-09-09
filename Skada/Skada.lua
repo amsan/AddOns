@@ -2707,6 +2707,7 @@ do
 		media:Register("statusbar", "Glaze2",         [[Interface\Addons\Skada\media\statusbar\Glaze2]])
 		media:Register("statusbar", "Gloss",          [[Interface\Addons\Skada\media\statusbar\Gloss]])
 		media:Register("statusbar", "Graphite",       [[Interface\Addons\Skada\media\statusbar\Graphite]])
+		media:Register("statusbar", "GraphiteTransparent", [[Interface\Addons\Skada\media\statusbar\GraphiteTransparent]])		--added by Derangement
 		media:Register("statusbar", "Grid",           [[Interface\Addons\Skada\media\statusbar\Grid]])
 		media:Register("statusbar", "Healbot",        [[Interface\Addons\Skada\media\statusbar\Healbot]])
 		media:Register("statusbar", "LiteStep",       [[Interface\Addons\Skada\media\statusbar\LiteStep]])
