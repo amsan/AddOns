@@ -51,6 +51,7 @@ local unitIDToInfo = Utils.str.unitIDToInfo;
 local lightenColorUntilItIsReadable = Utils.color.lightenColorUntilItIsReadable;
 local isPlayerIC;
 local unitIDIsFilteredForMatureContent;
+local crop = Utils.str.crop;
 
 -- ICONS
 local AFK_ICON = "|TInterface\\FriendsFrame\\StatusIcon-Away:15:15|t";
@@ -71,6 +72,7 @@ local CONFIG_PROFILE_ONLY = "tooltip_profile_only";
 local CONFIG_IN_CHARACTER_ONLY = "tooltip_in_character_only";
 local CONFIG_CHARACT_COMBAT = "tooltip_char_combat";
 local CONFIG_CHARACT_COLOR = "tooltip_char_color";
+local CONFIG_CROP_TEXT = "tooltip_crop_text";
 local CONFIG_CHARACT_CONTRAST = "tooltip_char_contrast";
 local CONFIG_CHARACT_ANCHORED_FRAME = "tooltip_char_AnchoredFrame";
 local CONFIG_CHARACT_ANCHOR = "tooltip_char_Anchor";
@@ -357,6 +359,13 @@ local function writeTooltipForCharacter(targetID, originalTexts, targetType)
 	local character = getCharacter(targetID);
 	local targetName = UnitName(targetType);
 
+	local FIELDS_TO_CROP = {
+		TITLE = 150,
+		NAME  = 100,
+		RACE  = 50,
+		CLASS = 50,
+	}
+
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	-- BLOCKED
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -396,6 +405,11 @@ local function writeTooltipForCharacter(targetID, originalTexts, targetType)
 
 
 	local completeName = getCompleteName(info.characteristics or {}, targetName, not showTitle());
+
+	if getConfigValue(CONFIG_CROP_TEXT) then
+		completeName = crop(completeName, FIELDS_TO_CROP.NAME);
+	end
+
 	completeName = color:WrapTextInColorCode(completeName);
 
 	if showIcons() then
@@ -439,6 +453,11 @@ local function writeTooltipForCharacter(targetID, originalTexts, targetType)
 			fullTitle = UnitPVPName(targetType);
 		end
 		if fullTitle:len() > 0 then
+
+			if getConfigValue(CONFIG_CROP_TEXT) then
+				fullTitle = crop(fullTitle, FIELDS_TO_CROP.TITLE);
+			end
+
 			tooltipBuilder:AddLine(strconcat("< ", fullTitle, " |r>"), 1, 0.50, 0, getSubLineFontSize(), true);
 		end
 	end
@@ -459,6 +478,10 @@ local function writeTooltipForCharacter(targetID, originalTexts, targetType)
 		end
 		if info.characteristics and info.characteristics.CL and info.characteristics.CL:len() > 0 then
 			class = info.characteristics.CL;
+		end
+		if getConfigValue(CONFIG_CROP_TEXT) then
+			race = crop(race, FIELDS_TO_CROP.RACE);
+			class = crop(class, FIELDS_TO_CROP.CLASS);
 		end
 		lineLeft = strconcat("|cffffffff", race, " ", color:WrapTextInColorCode(class));
 		lineRight = strconcat("|cffffffff", loc("REG_TT_LEVEL"):format(getLevelIconOrText(targetType), getFactionIcon(targetType)));
@@ -506,7 +529,7 @@ local function writeTooltipForCharacter(targetID, originalTexts, targetType)
 		if text:len() > getCurrentMaxSize() then
 			text = text:sub(1, getCurrentMaxSize()) .. "…";
 		end
-		tooltipBuilder:AddLine("\"" .. text .. "\"", 1, 0.75, 0, getSmallLineFontSize(), true);
+		tooltipBuilder:AddLine(text, 1, 0.75, 0, getSmallLineFontSize(), true);
 	end
 
 	tooltipBuilder:AddSpace();
@@ -522,7 +545,7 @@ local function writeTooltipForCharacter(targetID, originalTexts, targetType)
 		if text:len() > getCurrentMaxSize() then
 			text = text:sub(1, getCurrentMaxSize()) .. "…";
 		end
-		tooltipBuilder:AddLine("\"" .. text .. "\"", 1, 0.75, 0, getSmallLineFontSize(), true);
+		tooltipBuilder:AddLine(text, 1, 0.75, 0, getSmallLineFontSize(), true);
 	end
 
 	tooltipBuilder:AddSpace();
@@ -538,19 +561,24 @@ local function writeTooltipForCharacter(targetID, originalTexts, targetType)
 			local localizedClass, englishClass = UnitClass(targetType .. "target");
 			local targetInfo = getCharacterInfoTab(targetTargetID);
 			local color = englishClass and Utils.color.getClassColor(englishClass) or Utils.color.CreateColor(1, 1, 1, 1);
-
+			
 			-- Only use custom colors if the option is enabled and if we have one
 			if getConfigValue(CONFIG_CHARACT_COLOR) and targetInfo.characteristics and targetInfo.characteristics.CH then
 				local customColor = Utils.color.getColorFromHexadecimalCode(targetInfo.characteristics.CH);
-
+				
 				if getConfigValue(CONFIG_CHARACT_CONTRAST) then
 					customColor:LightenColorUntilItIsReadable();
 				end
-
+				
 				color = customColor or color;
 			end
-
+			
 			name = getCompleteName(targetInfo.characteristics or {}, name, true);
+
+			if getConfigValue(CONFIG_CROP_TEXT) then
+				name = crop(name, FIELDS_TO_CROP.NAME);
+			end
+
 			name = color:WrapTextInColorCode(name);
 		end
 		tooltipBuilder:AddLine(loc("REG_TT_TARGET"):format(name), 1, 1, 1, getSubLineFontSize());
@@ -579,10 +607,6 @@ local function writeTooltipForCharacter(targetID, originalTexts, targetType)
 		if notifText:len() > 0 or clientText:len() > 0 then
 			if notifText:len() == 0 then
 				notifText = " "; -- Prevent bad right line height
-			end
-			if TRP3_API.april_fools then
-				-- You get to have flagRSP 3! And you too! And you! And you! ٩(๑❛ᴗ❛๑)۶
-				clientText = strconcat("|cffffffff", "flagRSP 3", " v", "0.0.1");
 			end
 			tooltipBuilder:AddDoubleLine(notifText, clientText, 1, 1, 1, 0, 1, 0, getSmallLineFontSize());
 		end
@@ -652,6 +676,13 @@ local function writeCompanionTooltip(companionFullID, originalTexts, targetType,
 	local targetName = UnitName(targetType);
 	local companionFamily = UnitCreatureType(targetType);
 
+
+	local FIELDS_TO_CROP = {
+		TITLE = 150,
+		NAME  = 100
+	}
+
+
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	-- BLOCKED
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -676,7 +707,14 @@ local function writeCompanionTooltip(companionFullID, originalTexts, targetType,
 		end
 	end
 
-	tooltipBuilder:AddLine(leftIcons .. "|cff" .. (info.NH or "ffffff") .. (info.NA or companionID), 1, 1, 1, getMainLineFontSize());
+	local petName = info.NA or targetName or UNKNOWN;
+
+	if getConfigValue(CONFIG_CROP_TEXT) then
+		petName = crop(petName, FIELDS_TO_CROP.NAME);
+	end
+
+
+	tooltipBuilder:AddLine(leftIcons .. "|cff" .. (info.NH or "ffffff") .. (petName or companionID), 1, 1, 1, getMainLineFontSize());
 
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	-- full title
@@ -688,6 +726,10 @@ local function writeCompanionTooltip(companionFullID, originalTexts, targetType,
 			fullTitle = strconcat("< ", info.TI, " |r>");
 		end
 		if fullTitle:len() > 0 then
+
+			if getConfigValue(CONFIG_CROP_TEXT) then
+				fullTitle = crop(fullTitle, FIELDS_TO_CROP.TITLE);
+			end
 			tooltipBuilder:AddLine(fullTitle, 1, 0.50, 0, getSubLineFontSize());
 		end
 	end
@@ -705,13 +747,18 @@ local function writeCompanionTooltip(companionFullID, originalTexts, targetType,
 			local ownerInfo = getCharacterInfoTab(ownerID);
 			if ownerInfo.characteristics then
 				ownerFinalName = getCompleteName(ownerInfo.characteristics, ownerFinalName, true);
+
+				if getConfigValue(CONFIG_CROP_TEXT) then
+					ownerFinalName = crop(ownerFinalName, FIELDS_TO_CROP.NAME);
+				end
+
 				if getConfigValue(CONFIG_CHARACT_COLOR) and ownerInfo.characteristics.CH then
 					local customColor = Utils.color.getColorFromHexadecimalCode(ownerInfo.characteristics.CH);
-
-					if getConfigValue(CONFIG_CHARACT_CONTRAST) then
-						customColor:LightenColorUntilItIsReadable();
-					end
-
+						
+						if getConfigValue(CONFIG_CHARACT_CONTRAST) then
+							customColor:LightenColorUntilItIsReadable();
+						end
+					
 					ownerColor = customColor or ownerColor;
 				end
 			end
@@ -797,6 +844,12 @@ local function writeTooltipForMount(ownerID, companionFullID, mountName)
 	local info = profile.data or EMPTY;
 	local PE = profile.PE or EMPTY;
 
+
+	local FIELDS_TO_CROP = {
+		TITLE = 150,
+		NAME  = 100
+	}
+
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	-- Icon and name
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -809,8 +862,14 @@ local function writeTooltipForMount(ownerID, companionFullID, mountName)
 			leftIcons = strconcat(Utils.str.icon(info.IC, 25), leftIcons, " ");
 		end
 	end
+	local mountCustomName = info.NA
 
-	tooltipCompanionBuilder:AddLine(leftIcons .. "|cff" .. (info.NH or "ffffff") .. (info.NA or mountName), 1, 1, 1, getMainLineFontSize());
+	if getConfigValue(CONFIG_CROP_TEXT) then
+		mountCustomName = crop(mountCustomName, FIELDS_TO_CROP.NAME);
+	end
+
+
+	tooltipCompanionBuilder:AddLine(leftIcons .. "|cff" .. (info.NH or "ffffff") .. (mountCustomName or mountName), 1, 1, 1, getMainLineFontSize());
 
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	-- full title
@@ -822,6 +881,9 @@ local function writeTooltipForMount(ownerID, companionFullID, mountName)
 			fullTitle = strconcat("< ", info.TI, " |r>");
 		end
 		if fullTitle:len() > 0 then
+			if getConfigValue(CONFIG_CROP_TEXT) then
+				fullTitle = crop(fullTitle, FIELDS_TO_CROP.TITLE);
+			end
 			tooltipCompanionBuilder:AddLine(fullTitle, 1, 0.50, 0, getSubLineFontSize());
 		end
 	end
@@ -1007,7 +1069,7 @@ end);
 local function onModuleInit()
 	getCompanionProfile = TRP3_API.companions.player.getCompanionProfile;
 	getCompanionRegisterProfile = TRP3_API.companions.register.getCompanionProfile;
-	isPlayerIC = TRP3_API.dashboard.isPlayerIC;
+    isPlayerIC = TRP3_API.dashboard.isPlayerIC;
 	unitIDIsFilteredForMatureContent = TRP3_API.register.unitIDIsFilteredForMatureContent;
 
 	Events.listenToEvent(Events.MOUSE_OVER_CHANGED, function(targetID, targetMode)
@@ -1034,6 +1096,7 @@ local function onModuleInit()
 	registerConfigKey(CONFIG_CHARACT_COMBAT, false);
 	registerConfigKey(CONFIG_CHARACT_COLOR, true);
 	registerConfigKey(CONFIG_CHARACT_CONTRAST, false);
+	registerConfigKey(CONFIG_CROP_TEXT, true);
 	registerConfigKey(CONFIG_CHARACT_ANCHORED_FRAME, "GameTooltip");
 	registerConfigKey(CONFIG_CHARACT_ANCHOR, "ANCHOR_TOPRIGHT");
 	registerConfigKey(CONFIG_CHARACT_HIDE_ORIGINAL, true);
@@ -1108,6 +1171,12 @@ local function onModuleInit()
 				configKey = CONFIG_CHARACT_CONTRAST,
 				help = loc("CO_TOOLTIP_CONTRAST_TT"),
 				dependentOnOptions = {CONFIG_CHARACT_COLOR},
+			},
+			{
+				inherit = "TRP3_ConfigCheck",
+				title = loc("CO_TOOLTIP_CROP_TEXT"),
+				configKey = CONFIG_CROP_TEXT,
+				help = loc("CO_TOOLTIP_CROP_TEXT_TT")
 			},
 			{
 				inherit = "TRP3_ConfigEditBox",
