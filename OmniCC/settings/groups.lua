@@ -28,16 +28,19 @@ function OmniCC:GetGroup(cooldown)
 end
 
 function OmniCC:FindGroup(cooldown)
-	local parent = cooldown:GetParent()
-	local name = cooldown:GetName() or (parent and parent:GetName())
-	if name then
-		local groups = self.sets.groups
-		for i = #groups, 1, -1 do
-			local group = groups[i]
-			if group.enabled then
-				for _, pattern in pairs(group.rules) do
-					if name:match(pattern) then
-						return group.id
+	if not cooldown:IsForbidden() then		--added by Derangement
+		
+		local parent = cooldown:GetParent()
+		local name = cooldown:GetName() or (parent and parent:GetName())
+		if name then
+			local groups = self.sets.groups
+			for i = #groups, 1, -1 do
+				local group = groups[i]
+				if group.enabled then
+					for _, pattern in pairs(group.rules) do
+						if name:match(pattern) then
+							return group.id
+						end
 					end
 				end
 			end
