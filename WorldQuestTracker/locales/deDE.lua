@@ -10,6 +10,48 @@ L["S_ERROR_NOTLOADEDYET"] = "Diese Quest ist noch nicht geladen. Bitte warte ein
 L["S_FLYMAP_SHOWTRACKEDONLY"] = "Nur verfolgte"
 L["S_FLYMAP_SHOWTRACKEDONLY_DESC"] = "Zeigt nur verfolgte Quests"
 L["S_FLYMAP_SHOWWORLDQUESTS"] = "Weltquests anzeigen"
+L["S_GROUPFINDER_ACTIONS_CANCEL_APPLICATIONS"] = "Klicken, um Anmeldungen zurückzunehmen..."
+L["S_GROUPFINDER_ACTIONS_CANCELING"] = "abbrechen..."
+L["S_GROUPFINDER_ACTIONS_CREATE"] = "Keine Gruppe gefunden? Klicke, um eine zu erstellen"
+L["S_GROUPFINDER_ACTIONS_CREATE_DIRECT"] = "Gruppe erstellen"
+L["S_GROUPFINDER_ACTIONS_LEAVEASK"] = "Die Gruppe verlassen?"
+L["S_GROUPFINDER_ACTIONS_LEAVINGIN"] = "Du verlässt die Gruppe in (Klicken zum sofortigen Verlassen):"
+L["S_GROUPFINDER_ACTIONS_RETRYSEARCH"] = "Suche wiederholen"
+L["S_GROUPFINDER_ACTIONS_SEARCH"] = "Klicken, um mit der Suche nach Gruppen zu starten"
+--Translation missing 
+-- L["S_GROUPFINDER_ACTIONS_SEARCH_RARENPC"] = ""
+L["S_GROUPFINDER_ACTIONS_SEARCH_TOOLTIP"] = "Einer Gruppe, die diese Quest macht, beitreten"
+L["S_GROUPFINDER_ACTIONS_SEARCHING"] = "suche..."
+L["S_GROUPFINDER_ACTIONS_SEARCHMORE"] = "Klicken, um nach weiteren Gruppenmitgliedern zu suchen."
+L["S_GROUPFINDER_ACTIONS_SEARCHOTHER"] = "Verlassen und eine andere Gruppe suchen?"
+L["S_GROUPFINDER_ACTIONS_UNAPPLY1"] = "Klicken, um die Anmeldung aufzuheben, damit eine neue Gruppe gestartet werden kann"
+L["S_GROUPFINDER_ACTIONS_UNLIST"] = "Klicken, um deine derzeitige Gruppe abzumelden"
+L["S_GROUPFINDER_ACTIONS_UNLISTING"] = "abmelden..."
+L["S_GROUPFINDER_ACTIONS_WAITING"] = "warten..."
+--Translation missing 
+-- L["S_GROUPFINDER_AUTOOPEN_RARENPC_TARGETED"] = ""
+L["S_GROUPFINDER_ENABLED"] = "Bei neuer Quest automatisch öffnen"
+L["S_GROUPFINDER_LEAVEOPTIONS"] = "Optionen Gruppenverlassen"
+L["S_GROUPFINDER_LEAVEOPTIONS_AFTERX"] = "Nach X Sekunden verlassen"
+--Translation missing 
+-- L["S_GROUPFINDER_LEAVEOPTIONS_ASKX"] = ""
+--Translation missing 
+-- L["S_GROUPFINDER_LEAVEOPTIONS_DONTLEAVE"] = ""
+L["S_GROUPFINDER_LEAVEOPTIONS_IMMEDIATELY"] = "Nach Questabschluss sofort verlassen"
+L["S_GROUPFINDER_NOPVP"] = "PvP-Realms vermeiden"
+L["S_GROUPFINDER_OT_ENABLED"] = "Buttons auf der Questverfolgung zeigen."
+L["S_GROUPFINDER_QUEUEBUSY"] = "Du bist bereits in einer Warteschlange."
+L["S_GROUPFINDER_RESULTS_APPLYING"] = "Es gibt noch %d verbleibende Gruppen, klicke nochmal"
+L["S_GROUPFINDER_RESULTS_APPLYING1"] = "Es gibt noch 1 verbleibende Gruppe, klicke nochmal"
+L["S_GROUPFINDER_RESULTS_FOUND"] = [=[Es wurden %s Gruppen gefunden
+Klicke, um beizutreten]=]
+L["S_GROUPFINDER_RESULTS_FOUND1"] = [=[Es wurden eine Gruppe gefunden
+Klicke, um beizutreten]=]
+L["S_GROUPFINDER_RESULTS_UNAPPLY"] = "%d verbleibende Anmeldungen..."
+L["S_GROUPFINDER_RIGHTCLICKCLOSE"] = "Rechtsklick, um dieses Menü zu schließen"
+L["S_GROUPFINDER_SECONDS"] = "Sekunden"
+L["S_GROUPFINDER_TITLE"] = "Dungeonbrowser"
+L["S_GROUPFINDER_TUTORIAL1"] = "Erledige deine Weltquests schneller, indem du Gruppen beitrittst, die die gleiche Quest machen!"
 L["S_MAPBAR_AUTOWORLDMAP"] = "Autom. Weltkarte"
 L["S_MAPBAR_AUTOWORLDMAP_DESC"] = [=[Wenn du dich in Dalaran oder in der Klassenordenshalle befindest, öffnet das Drücken von "M" direkt die Karte der Verheerten Inseln.
 
@@ -72,13 +114,22 @@ L["S_QUESTTYPE_PROFESSION"] = "Beruf"
 L["S_QUESTTYPE_PVP"] = "PvP"
 L["S_QUESTTYPE_RESOURCE"] = "Ressourcen"
 L["S_QUESTTYPE_TRADESKILL"] = "Berufsfertigkeit"
+--Translation missing 
+-- L["S_RAREFINDER_NPC_NOTREGISTERED"] = ""
+--Translation missing 
+-- L["S_RAREFINDER_OPTIONS_SHOWICONS"] = ""
+--Translation missing 
+-- L["S_RAREFINDER_TITLE"] = ""
+L["S_RAREFINDER_TOOLTIP_SPOTTEDBY"] = "Aufgespürt von"
+--Translation missing 
+-- L["S_RAREFINDER_TOOLTIP_TIMEAGO"] = ""
 L["S_SHAREPANEL_THANKS"] = [=[Danke, dass Du World Quest Tracker weitergibst!
 Sende den Link an deine Freunde auf Facebook, Twitter usw..]=]
 L["S_SHAREPANEL_TITLE"] = "World Quest Tracker weiterempfehlen"
 L["S_SUMMARYPANEL_EXPIRED"] = "ABGELAUFEN"
 L["S_SUMMARYPANEL_LAST15DAYS"] = "Letzten 15 Tage"
 L["S_SUMMARYPANEL_LIFETIMESTATISTICS_ACCOUNT"] = "Accountweite Statistik"
-L["S_SUMMARYPANEL_LIFETIMESTATISTICS_CHARACTER"] = "Charakter Statistik"
+L["S_SUMMARYPANEL_LIFETIMESTATISTICS_CHARACTER"] = "Charakterspezifische Statistik"
 L["S_SUMMARYPANEL_OTHERCHARACTERS"] = "Andere Charaktere"
 L["S_TUTORIAL_AMOUNT"] = "Zeigt die zu erhaltene Anzahl an"
 L["S_TUTORIAL_CLICKTOTRACK"] = "Klicken, um eine Quest zu verfolgen."
@@ -93,3 +144,4 @@ L["S_TUTORIAL_TIMELEFT"] = "Zeigt die verbleibende Zeit an (+4 Stunden, +90 Minu
 L["S_TUTORIAL_WORLDMAPBUTTON"] = "Diese Schaltfläche öffnet die Karte der Verheerten Inseln."
 L["S_UNKNOWNQUEST"] = "Unbekannte Quest"
 L["S_WORLDQUESTS"] = "Weltquests"
+
