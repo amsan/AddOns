@@ -6,7 +6,7 @@
 ## OptionalDeps: Ace3
 ## RequiredDeps: HandyNotes
 ## X-Embeds: Ace3
-## SavedVariables: LegionTreasuresDB
+## SavedVariables: LegionRaresTreasuresDB
 
 #@no-lib-strip@
 embeds.xml
