@@ -98,9 +98,10 @@ function Outfitter:GetBagItemInvType(pBagIndex, pSlotIndex)
 		return
 	end
 	
-	local _, _, _, _, _, _, _, _, vItemInvType = GetItemInfo(vItemLink)
+	local itemFamilyName, _, _, _, _, _, _, _, vItemInvType = GetItemInfo(vItemLink)
+	local itemInfoNotFound = (itemFamilyName == nil);
 	
-	return vItemInvType
+	return vItemInvType, itemInfoNotFound;
 end
 
 function Outfitter:GetItemLocationLink(pItemLocation)
@@ -246,6 +247,10 @@ function Outfitter._ItemInfo:GetItemInfoFromCode(itemCode)
 	      itemSubType,
 	      itemCount,
 	      itemInvType = GetItemInfo(itemCode)
+	      
+	if( not itemFamilyName ) then		--added by Derangement
+		self.ItemInfoNotFound = true;
+	end
 	
 	--
 	
@@ -313,6 +318,7 @@ function Outfitter._ItemInfo:GetItemInfoFromLink(itemLink)
 	
 	-- Do nothing if the codes can't be extracted
 	local itemCodes, itemName = Outfitter:ParseItemLink2(itemLink)
+	
 	if not itemCodes then
 		return
 	end
@@ -320,12 +326,18 @@ function Outfitter._ItemInfo:GetItemInfoFromLink(itemLink)
 	-- Start with the base code info
 	self:GetItemInfoFromCode(itemCodes[1])
 
+	
 	-- The provided itemLink may have Quality, ItemLevel etc. that differ from the base item.
 	-- supersede info from ItemCode with info from the provided itemLink:
-	local _, _,
+	local itemFamilyName, 
+	      _,
 	      itemQuality,
 	      itemLevel,
 	      itemMinLevel = GetItemInfo(itemLink)
+	
+	if( not itemFamilyName ) then		--added by Derangement
+		self.ItemInfoNotFound = true;
+	end
 	
 	self.Name = itemName
 	self.Link = itemLink
@@ -361,7 +373,7 @@ function Outfitter._ItemInfo:GetItemInfoFromLink(itemLink)
 	end
 
 	self.BonusIDs = (numBonusIDsString ~= 0 and numBonusIDsString or "")..":"..(bonusID1 ~= 0 and bonusID1 or "")..":"..(bonusID2 ~= 0 and bonusID2 or "")
-	self.UpgradeID = itemCodes[index] or 0
+	self.UpgradeID = itemCodes[index] or 0	
 end
 
 function Outfitter._ItemInfo:ParseTooltip()
@@ -685,9 +697,31 @@ function Outfitter._InventoryCache:Construct()
 	self.BagItems = {}
 	self.NeedsUpdate = true
 	
+	self.ItemsPendingInfo = {}		--added by Derangement, to handle awkwardness caused by GET_ITEM_INFO_RECEIVED delays
+	
 	self.FirstBagIndex = 0
 	self.NumBags = 0
 end
+
+
+function Outfitter._InventoryCache:GetPendingItemLocation( itemCode, initIfNotFound )	--added by Derangement
+	local pendingItemLocation = self.ItemsPendingInfo[ itemCode ]
+	
+	if( not pendingItemLocation and initIfNotFound ) then
+		pendingItemLocation = {
+			Equipped = false;
+			Bags = {}
+		};
+		self.ItemsPendingInfo[ itemCode ] = pendingItemLocation
+	end
+	
+	return pendingItemLocation;
+end
+
+function Outfitter._InventoryCache:ClearPendingItemLocation( itemCode )	--added by Derangement
+	self.ItemsPendingInfo[ itemCode ] = nil;
+end
+
 
 function Outfitter._InventoryCache:Synchronize()
 	-- Check for a change in the number of bags
@@ -718,13 +752,17 @@ function Outfitter._InventoryCache:Synchronize()
 		
 		for _, vInventorySlot in ipairs(Outfitter.cSlotNames) do
 			local vItemInfo = Outfitter:GetInventoryItemInfo(vInventorySlot)
-			
-			if vItemInfo
-			and vItemInfo.ItemSlotName
-			and vItemInfo.Code ~= 0 then
-				vItemInfo.SlotName = vInventorySlot
-				
-				self:AddItem(vItemInfo)
+								
+			if( vItemInfo and vItemInfo.Code ~= 0 ) then
+				if( vItemInfo.ItemInfoNotFound ) then
+					local pendingItemLocation = self:GetPendingItemLocation( vItemInfo.Code, true );
+					pendingItemLocation.Equipped = true;
+					
+				elseif( vItemInfo.ItemSlotName ) then
+					vItemInfo.SlotName = vInventorySlot
+					
+					self:AddItem(vItemInfo)
+				end
 			end
 		end
 	end
@@ -741,12 +779,18 @@ function Outfitter._InventoryCache:Synchronize()
 				for vBagSlotIndex = 1, vNumBagSlots do
 					local vItemInfo = Outfitter:GetBagItemInfo(vBagIndex, vBagSlotIndex)
 					
-					if vItemInfo
-					and vItemInfo.Code ~= 0
-					and vItemInfo.ItemSlotName
-					and Outfitter:CanEquipBagItem(vBagIndex, vBagSlotIndex)
-					and not vItemInfo:GetBoE() then
-						self:AddItem(vItemInfo)
+					if( vItemInfo and vItemInfo.Code ~= 0 ) then
+						if( vItemInfo.ItemInfoNotFound ) then
+							local pendingItemLocation = self:GetPendingItemLocation( vItemInfo.Code, true );
+							pendingItemLocation.Bags[vBagIndex] = true;
+							
+						elseif(
+							vItemInfo.ItemSlotName and 
+							Outfitter:CanEquipBagItem(vBagIndex, vBagSlotIndex) and 
+							not vItemInfo:GetBoE() 
+						) then
+							self:AddItem(vItemInfo)
+						end
 					end
 				end -- for vBagSlotIndex
 			end -- if vNumBagSlots > 0
@@ -907,7 +951,6 @@ end
 
 function Outfitter._InventoryCache:FindItemIndex(pOutfitItem, pAllowSubCodeWildcard)
 	local vItemFamily = self.ItemsByCode[pOutfitItem.Code]
-	
 	if not vItemFamily then
 		return
 	end
@@ -981,6 +1024,7 @@ function Outfitter._InventoryCache:FindItemIndex(pOutfitItem, pAllowSubCodeWildc
 end
 		
 function Outfitter._InventoryCache:FindItemOrAlt(pOutfitItem, pMarkAsInUse, pAllowSubCodeWildcard)
+	
 	local vItem, vIgnoredItem = self:FindItem(pOutfitItem, pMarkAsInUse, pAllowSubCodeWildcard)
 	
 	if vItem then
@@ -1045,12 +1089,15 @@ function Outfitter._InventoryCache:FlushInventory()
 		Outfitter:DebugMessage("Outfitter._InventoryCache:FlushInventory()")
 	end
 	
-	for vInventorySlot, vItem in pairs(self.InventoryItems) do
-		self:RemoveItem(vItem)
+	if( self.InventoryItems ) then
+		for vInventorySlot, vItem in pairs(self.InventoryItems) do
+			self:RemoveItem(vItem)
+		end
+		
+		self.NeedsUpdate = true
+		self.InventoryItems = nil
 	end
 	
-	self.NeedsUpdate = true
-	self.InventoryItems = nil
 end
 
 function Outfitter._InventoryCache:ResetIgnoreItemFlags()

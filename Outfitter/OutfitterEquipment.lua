@@ -33,7 +33,7 @@ function Outfitter._EquipmentChanges:addChangesToEquipOutfit(outfit, inventoryCa
 	
 	local items = outfit:GetItems()
 	
-	for inventorySlot, outfitItem in pairs(items) do
+	for inventorySlot, outfitItem in pairs(items) do		
 		local containsItem, item = inventoryCache:InventorySlotContainsItem(inventorySlot, outfitItem)
 		
 		if containsItem then
@@ -113,9 +113,11 @@ function Outfitter._EquipmentChanges:addSlot(outfit, inventoryCache, inventorySl
 	
 	local slotID = Outfitter.cSlotIDs[inventorySlot]
 	
+	
 	local currentItemCodes, currentItemName = Outfitter:GetSlotIDLinkInfo(slotID)
 	local currentItemCode = currentItemCodes and currentItemCodes[1]
 
+	
 	local equipmentChange = Outfitter:New(Outfitter._EquipmentChange, inventorySlot, outfitItem.Name)
 	
 	-- If the item is a phantom, just ignore it

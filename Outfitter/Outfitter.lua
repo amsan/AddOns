@@ -1155,6 +1155,24 @@ function Outfitter:VariablesLoaded()
 	self.Settings = gOutfitter_Settings
 end
 
+function Outfitter:ItemInfoReceived( itemID )	--added by Derangement
+	local vInventoryCache = self:GetInventoryCache()
+	local itemLocation = vInventoryCache:GetPendingItemLocation( itemID );
+	
+	if( itemLocation ) then
+		if( itemLocation.Equipped ) then
+			vInventoryCache:FlushInventory()
+		end
+		
+		for bagIndex, _ in pairs( itemLocation.Bags ) do
+			vInventoryCache:FlushBag(bagIndex)
+		end
+		
+		vInventoryCache:ClearPendingItemLocation( itemID );
+		self:ScheduleSynch()
+	end
+end
+
 function Outfitter:BankSlotsChanged()
 	self:ScheduleSynch()
 end
@@ -4695,6 +4713,7 @@ function Outfitter:Initialize()
 
 	-- For indicating which outfits are missing items
 	
+	self.EventLib:RegisterEvent("GET_ITEM_INFO_RECEIVED", self.ItemInfoReceived, self, true) 	--Register as a blind event handler (no event id param) (added by Derangement)
 	self.EventLib:RegisterEvent("BAG_UPDATE", self.BagUpdate, self)
 	self.EventLib:RegisterEvent("PLAYERBANKSLOTS_CHANGED", self.BankSlotsChanged, self)
 	
@@ -5138,10 +5157,10 @@ function Outfitter:FindTooltipLine(pTooltip, pText, pPlain)
 end
 
 function Outfitter:CanEquipBagItem(pBagIndex, pBagSlotIndex)
-	local vItemInvType = self:GetBagItemInvType(pBagIndex, pBagSlotIndex)
+	local vItemInvType, itemInfoNotFound = self:GetBagItemInvType(pBagIndex, pBagSlotIndex)
 	
 	-- Disabling minLevel check because new drops pre WoD are showing as minLevel 100 despite only requiring 90
-	return Outfitter.cInvTypeToSlotName[vItemInvType] ~= nil
+	return Outfitter.cInvTypeToSlotName[vItemInvType] ~= nil, itemInfoNotFound
 --	       and (not vItemMinLevel or UnitLevel("player") >= vItemMinLevel)
 end
 
