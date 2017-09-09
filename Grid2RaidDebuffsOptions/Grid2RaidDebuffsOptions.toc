@@ -8,7 +8,7 @@
 ## Dependencies: Grid2, Grid2RaidDebuffs
 ## LoadOnDemand: 1
 
-## Version: r803
+## Version: r805
 
 #@no-lib-strip@
 #Libs\LibBabble-Boss-3.0\lib.xml
