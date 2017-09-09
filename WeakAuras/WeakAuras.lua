@@ -3209,8 +3209,10 @@ local function ApplyStateToRegion(id, region, state)
   if(region.UpdateCustomText and not WeakAuras.IsRegisteredForCustomTextUpdates(region)) then
     region.UpdateCustomText();
   end
-
-  if(state.texture and region.SetTexture) then
+  
+  if(state.atlas and region.SetAtlas) then			--added by Derangement
+  	region:SetAtlas(state.atlas);
+  elseif(state.texture and region.SetTexture) then	--already existed
     region:SetTexture(state.texture);
   end
 

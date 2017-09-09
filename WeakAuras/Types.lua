@@ -881,7 +881,9 @@ if(WeakAuras.PowerAurasPath ~= "") then
     [WeakAuras.PowerAurasPath.."Aura140"] = "Palette",
     [WeakAuras.PowerAurasPath.."Aura141"] = "Blue Ring",
     [WeakAuras.PowerAurasPath.."Aura142"] = "Ornate Ring",
-    [WeakAuras.PowerAurasPath.."Aura143"] = "Ghostly Skull"
+    [WeakAuras.PowerAurasPath.."Aura143"] = "Ghostly Skull",
+    [WeakAuras.PowerAurasPath.."Derangement22"] = "Glow with Border",
+    
   };
   WeakAuras.texture_types["PowerAuras Separated"] = {
   [WeakAuras.PowerAurasPath.."Aura46"] = "8-Part Ring 1",
@@ -930,7 +932,13 @@ if(WeakAuras.PowerAurasPath ~= "") then
     [WeakAuras.PowerAurasPath.."Aura136"] = "Sliced Orb 4",
     [WeakAuras.PowerAurasPath.."Aura137"] = "Sliced Orb 5",
     [WeakAuras.PowerAurasPath.."Aura144"] = "Taijitu Bottom",
-    [WeakAuras.PowerAurasPath.."Aura145"] = "Taijitu Top"
+    [WeakAuras.PowerAurasPath.."Aura145"] = "Taijitu Top",
+    [WeakAuras.PowerAurasPath.."Derangement89"] = "5-Part Ring with Border 1",		-- added by Derangement
+    [WeakAuras.PowerAurasPath.."Derangement90"] = "5-Part Ring with Border 2",
+    [WeakAuras.PowerAurasPath.."Derangement91"] = "5-Part Ring with Border 3",
+    [WeakAuras.PowerAurasPath.."Derangement92"] = "5-Part Ring with Border 4",
+    [WeakAuras.PowerAurasPath.."Derangement93"] = "5-Part Ring with Border 5",
+    [WeakAuras.PowerAurasPath.."Derangement94"] = "5-Part Ring with Border Full"
   };
   WeakAuras.texture_types["PowerAuras Words"] = {
     [WeakAuras.PowerAurasPath.."Aura20"] = "Power",

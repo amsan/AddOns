@@ -300,7 +300,7 @@ local barPrototype = {
 
   -- Set bar color
   ["SetForegroundColor"] = function(self, r, g, b, a)
-    self.fg:SetVertexColor(r, g, b, a);
+  	self.fg:SetVertexColor(r, g, b, a);
   end,
   ["GetForegroundColor"] = function(self)
     return self.fg:GetVertexColor();
@@ -317,6 +317,10 @@ local barPrototype = {
   -- Convenience methods
   ["SetTexture"] = function(self, texture)
     self:SetStatusBarTexture(texture);
+  end,
+  ["SetAtlas"] = function(self, atlas)		--added by Derangement
+    self.fg:SetAtlas(atlas);
+    self.bg:SetAtlas(atlas);
   end,
   ["GetTexture"] = function(self)
     return self:GetStatusBarTexture();
@@ -417,6 +421,18 @@ local function create(parent)
       self.__WAGlowFrame:SetFrameLevel(frameLevel + 1);
     end
   end
+  
+  
+  function region:SetTexture(path)	--added by Derangement
+    local texturePath = path;
+    region.bar:SetTexture(texturePath);
+  end
+  
+  function region:SetAtlas(atlas)	--added by Derangement
+    local atlasString = atlas;
+    region.bar:SetAtlas(atlasString);
+  end
+  
 
 -- Return new display/region
   return region;

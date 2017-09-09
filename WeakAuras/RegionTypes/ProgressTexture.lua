@@ -340,6 +340,19 @@ local function create(parent)
     region.duration = 0;
     region.expirationTime = math.huge;
 
+  
+	function region:SetTexture(path)	--added by Derangement
+	  local texturePath = path;
+	  region.foreground:SetTexture(texturePath);
+	  region.background:SetTexture(texturePath);
+	end
+	  
+	function region:SetAtlas(atlas)		--added by Derangement
+	  local atlasString = atlas;
+	  region.foreground:SetAtlas(atlasString);
+	  region.background:SetAtlas(atlasString);
+	end
+    
     return region;
 end
 
@@ -375,7 +388,7 @@ local function modify(parent, region, data)
     foreground:SetTexture(data.foregroundTexture);
     foreground:SetDesaturated(data.desaturateForeground)
     foreground:SetBlendMode(data.blendMode);
-
+    
     foregroundSpinner:SetTexture(data.foregroundTexture);
     foregroundSpinner:SetDesaturated(data.desaturateForeground);
     foregroundSpinner:SetBlendMode(data.blendMode);

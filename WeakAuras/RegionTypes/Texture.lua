@@ -110,6 +110,11 @@ local function modify(parent, region, data)
         local texturePath = path;
         region.texture:SetTexture(texturePath);
     end
+	  
+	function region:SetAtlas(atlas)		--added by Derangement
+	  local atlasString = atlas;
+	  region.texture:SetAtlas(atlasString);
+	end
 
     function region:Color(r, g, b, a)
         region.color_r = r;

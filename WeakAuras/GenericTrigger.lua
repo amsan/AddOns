@@ -426,7 +426,16 @@ function WeakAuras.ActivateEvent(id, triggernum, data, state)
   end
   local name = data.nameFunc and data.nameFunc(data.trigger) or state.name;
   local icon = data.iconFunc and data.iconFunc(data.trigger) or state.icon;
-  local texture = data.textureFunc and data.textureFunc(data.trigger) or state.texture;
+  
+  --local texture = data.textureFunc and data.textureFunc(data.trigger) or state.texture;	--improved by Derangement:
+  local texture, atlas;
+  if( data.textureFunc ) then
+  	texture, atlas = data.textureFunc(data.trigger);
+  else
+  	texture = state.texture;
+  	atlas = nil;
+  end
+  
   local stacks = data.stacksFunc and data.stacksFunc(data.trigger) or state.stacks;
   if (state.name ~= name) then
     state.name = name;
@@ -438,6 +447,10 @@ function WeakAuras.ActivateEvent(id, triggernum, data, state)
   end
   if (state.texture ~= texture) then
     state.texture = texture;
+    changed = true;
+  end
+  if (state.atlas ~= atlas) then	--added by Derangement
+    state.atlas = atlas;
     changed = true;
   end
   if (state.stacks ~= stacks) then
@@ -2510,7 +2523,15 @@ function GenericTrigger.CreateFallbackState(data, triggernum, state)
   WeakAuras.ActivateAuraEnvironment(data.id, "", state);
   state.name = event.nameFunc and event.nameFunc(data.trigger) or nil;
   state.icon = event.iconFunc and event.iconFunc(data.trigger) or nil;
-  state.texture = event.textureFunc and event.textureFunc(data.trigger) or nil;
+  
+  --state.texture = event.textureFunc and event.textureFunc(data.trigger) or nil;		--improved by Derangement:
+  if( event.textureFunc ) then
+  	state.texture, state.atlas = event.textureFunc(data.trigger);
+  else
+  	state.texture = nil;
+  	state.atlas = nil;
+  end
+  
   state.stacks = event.stacksFunc and event.stacksFunc(data.trigger) or nil;
 
   if (event.durationFunc) then
