@@ -1,14 +1,12 @@
-tag 7055ed719045ac70321cd80647534a309964bfca v70100-1.1.0
+tag 540b30de267147b5a42678c2fc911caade2421b9 v70200-1.1.0
 Author:	Jim Whitehead <jnwhiteh@gmail.com>
-Date:	Fri Jan 27 09:29:37 2017 +0100
+Date:	Sat Apr 8 10:57:22 2017 +0200
 
-Tagging v70100-1.1.0
+Tagging v70200-1.1.0
 
-commit bec043c2940f8889c79db1e681c4faf7855cee53
+commit f60e63b93f25a1b5730c7561b363805d033bbb06
 Author: Jim Whitehead <jnwhiteh@gmail.com>
-Date:   Fri Jan 27 09:29:00 2017 +0100
+Date:   Sat Apr 8 10:56:26 2017 +0200
 
-    Add a /clique profile <profileName> command
-    
-    This makes it possible to change profiles without navigating the GUI.
+    Don't try to enable nameplates or forbidden objects
 
