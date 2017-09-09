@@ -162,6 +162,8 @@ function addon:Enable_BlizzCompactUnitFrames()
     end
 
     hooksecurefunc("CompactUnitFrame_SetUpFrame", function(frame, ...)
+    	if frame:IsForbidden() then return end
+    	
         local name = frame and frame.GetName and frame:GetName()
         for i = 1, 3 do
             local buff = _G[name .. "Buff" .. i]
