@@ -62,7 +62,7 @@ end
 
 local function onClick(self)
 	self:GetParent():SelectTab(self:GetID())
-	PlaySound("igCharacterInfoTab")
+	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB)
 end
 
 function Prototype:CreateTab(name)

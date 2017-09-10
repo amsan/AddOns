@@ -28,7 +28,7 @@ do
 	end
 	
 	local function closeOnClick(this)
-		PlaySound("gsTitleOptionExit")
+		PlaySound(SOUNDKIT.GS_TITLE_OPTION_EXIT)
 		this.obj:Hide()
 	end
 	
