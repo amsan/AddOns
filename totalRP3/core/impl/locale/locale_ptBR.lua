@@ -999,6 +999,9 @@ Por exemplo, ele pode ser |c0000ff00esbelto, gordo ou musculoso...|r. Ou ele pod
 
 
 {h2}{icon:THUMBUP:20} Reconhecimentos{/h2}
+{col:ffffff}Ellypse's {/col}{link*https://www.patreon.com/ellypse*Patreon} {col:ffffff}supporters:{/col}
+%s
+
 {col:ffffff}Nossa equipe de QA do pré-alpha:{/col}
 - Saelora
 - Erzan

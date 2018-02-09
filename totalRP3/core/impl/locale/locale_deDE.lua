@@ -996,6 +996,9 @@ Zum Beispiel kann du folgendes angeben: |c0000ff00schlank, dick or muskulös...|
 
 
 {h2}{icon:THUMBUP:20} Danksagungen{/h2}
+{col:ffffff}Ellypse's {/col}{link*https://www.patreon.com/ellypse*Patreon} {col:ffffff}supporters:{/col}
+%s
+
 {col:ffffff}Unser Pre-Alpha QA Team:{/col}
 - Saelora
 - Erzan

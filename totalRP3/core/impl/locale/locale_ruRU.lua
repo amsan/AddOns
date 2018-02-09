@@ -678,6 +678,9 @@ Link it anyway ?]=],
 
 
 {h2}{icon:THUMBUP:20} Acknowledgements{/h2}
+{col:ffffff}Ellypse's {/col}{link*https://www.patreon.com/ellypse*Patreon} {col:ffffff}supporters:{/col}
+%s
+
 {col:ffffff}Our pre-alpha QA team:{/col}
 - Saelora
 - Erzan
