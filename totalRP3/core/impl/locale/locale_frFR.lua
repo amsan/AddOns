@@ -1029,6 +1029,9 @@ Il pourrait par exemple être |c0000ff00mince, gros ou musclé...|r Ou tout simp
 - {twitter*Solanya_*Solanya} (Community Manager)
 
 {h2}{icon:THUMBUP:20} Remerciements{/h2}
+{col:ffffff}Les supporteurs {/col}{link*https://www.patreon.com/ellypse*Patreon} {col:ffffff} d'Ellypse :{/col}
+%s
+
 {col:ffffff}Notre équipe de test:{/col}
 - Erzan
 - Calian
@@ -1076,21 +1079,25 @@ Total RP n'est pas responsable du contenu des liens partagés.]=],
 	["UI_MUSIC_SELECT"] = "Choisir une musique",
 	["UI_TUTO_BUTTON"] = "Mode tutoriel",
 	["UI_TUTO_BUTTON_TT"] = "Cliquer pour afficher ou masquer le mode tutoriel",
-	["WHATS_NEW_12"] = [=[Cette mise-à-jour mineur apporte principalement des améliorations et corrections aux fonctionnalités existantes.
+	["WHATS_NEW_16"] = [=[
+## 1.2.11 - 2017-11-09
 
-## Améliorations
+### Ajouts
 
-- Puisque nous continuions à recevoir des rapports de bugs de la part de joueurs insérant des codes de couleur ou d'icône non supportés, Total RP 3 va maintenant automatiquement nettoyé ces codes au chargement de l'add-on et va tenter d'empêcher l'insertion de ces codes en jeu. A partir de maintenant, tout rapport de bug soumis par quelqu'un ayant inséré des codes manuellement dans son profil seront ignorés, que le bug soit en rapport avec l'insertion ou non.
-- Ajout d'un module de compatibilité avec l'add-on [TinyTooltip](https://mods.curse.com/addons/wow/268266-tinytooltip) pour que les préférences d'infobulle définies dans l'add-on soit appliquées aux infobulle de Total RP 3
-- Ajout d'une indication du nombre de charactères maximum pouvant être envoyé dans la fenêtre de dialogue de PNJ. — [Issue #101](https://wow.curseforge.com/projects/total-rp-3/issues/101)
-- Ajout d'un bouton pour réinitialiser le dictionnaire utilisé par le filtre de contenu mature. — [Issue #97](https://wow.curseforge.com/projects/total-rp-3/issues/97)
+- Ajout du support pour l'indication de téléchargement d'un profil RP depuis et vers l'add-on XRP.
 
-## Corrections de bugs
+### Corrections
 
-- Correction d'un problème d'alignement des labels des champs de personnalité.
-- Correction d'un problème qui coupait le lien à copier-coller dans le dialogue qui s'ouvre lorsque l'on clique sur un lien dans une description si un autre add-on avait indiqué une taille maximum pour le champ de texte avant Total RP 3 n'ouvre le dialogue. — [Issue #113](https://wow.curseforge.com/projects/total-rp-3/issues/113)
-- Correction d'un problème dans l'intégration avec l'add-on WIM — [Issue #108](https://wow.curseforge.com/projects/total-rp-3/issues/108)
-- Les librairies utilisées par Total RP 3 ont été mis-à-jour afin notamment de corrigé un problème avec certains menus.]=]
+- Correction d'une erreur lors de l'ajout d'un profile ayant été marqué comme contenant du contenu mature à la liste blanche ([ticket #133](https://wow.curseforge.com/projects/total-rp-3/issues/133)).
+- Correction d'un problème permettant d'envoyer des messages de PNJ vides en utilisant la toucher Entrée ([ticket #124](https://wow.curseforge.com/projects/total-rp-3/issues/124)).
+- Correction d'une erreur lorsque des mascottes qui sont dans un combat de mascottes sont ciblées ([ticket #96](https://wow.curseforge.com/projects/total-rp-3/issues/96)).
+- Correction d'un problème empêchant d'utiliser le caractère espace comme classe pour afficher une classe vide (like to indicate you have none) it would be considered as empty and your character's real class would be used instead ([ticket #103](https://wow.curseforge.com/projects/total-rp-3/issues/103)).
+- Correction d'un soucis affichant les joueurs ayant défini un statut roleplay personnalisé dans un autre add-on roleplay que Total RP 3 comme étant HRP.
+
+### Suppressions
+
+- Nous avons enlevé la rustine qu'on avait ajouté pour le soucis d'alignement de curseur de texte dans les boîtes de texte de plusieurs lignes, puisque le problème a été corrigé avec la mise-à-jour 7.3.2.
+]=]
 }
 };
 

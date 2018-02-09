@@ -983,41 +983,56 @@ Your profiles, companions profiles and settings will be temporarily stashed away
 |cff00ff00Use the same command again (|cff999999/trp3 stash|cff00ff00) to restore your data.|r]],
 		OPTION_ENABLED_TOAST = "Option enabled",
 		OPTION_DISABLED_TOAST = "Option disabled",
-		WHATS_NEW_13 = [[
-## [1.2.9.1](https://github.com/Ellypse/Total-RP-3/compare/1.2.9...1.2.9.1) - 2017-08-29
+		WHATS_NEW_16 = [[
+## 1.2.11 - 2017-11-09
 
 ### Added
 
-- Added Traditional Chinese and Korean localizations.
-
-### Changed
-
-- Renamed Chinese localization to Simplified Chinese.
-- Fixed many typos in the English localization (thanks to Solanya).
-
-### Removed
-- Removed the option to change the detection pattern for NPC speeches, as it created many issues and there really wasn't a need for it.
+- Added support for the profile downloading indicator from and to the XRP add-on.
 
 ### Fixed
 
-- Fixed issues with patch 7.3.
+- Fixed an error when trying to whitelist a profile that has been flagged as containing mature content when the profile hasn't been entirely downloaded yet ([ticket #133](https://wow.curseforge.com/projects/total-rp-3/issues/133)).
+- Fixed an issue allowing the user to send empty NPC messages when using the Enter key ([ticket #124](https://wow.curseforge.com/projects/total-rp-3/issues/124)).
+- Fixed an error when targeting battle pets that are participating in a pet battle ([ticket #96](https://wow.curseforge.com/projects/total-rp-3/issues/96)).
+- Fixed an issue where if you used a single space character for your class (like to indicate you have none) it would be considered as empty and your character's real class would be used instead ([ticket #103](https://wow.curseforge.com/projects/total-rp-3/issues/103)).
+- Fixed an issue where players with custom RP status from other add-ons sent via the Mary Sue Protocol would be shown as Out Of Character.
 
-## Changes for version 1.2.9
+### Removed
 
-### Improvements
+- Removed workaround for the text box issue introduced in patch 7.3 as this issue has been fixed in patch 7.3.2.
 
-- Since we kept seeing invalid bug reports from users who are inserting non-supported codes inside their profiles, Total RP 3 will now clean the user profile from these invalid codes on launch and try to prevent advanced editing on runtime. From now on, any bug report involving profiles that have non supported codes injected in them will be systematically ignored.
-- Added custom module for the [TinyTooltip](https://mods.curse.com/addons/wow/268266-tinytooltip) add-on to apply its tooltip modifications to Total RP 3's tooltips.
-- Added character limitation on the NPC speeches window and a character count to indicate how many characters are remaining for your message — [Issue #101](https://wow.curseforge.com/projects/total-rp-3/issues/101)
-- Added a button to reset the mature filter dictionary to its default values — [Issue #97](https://wow.curseforge.com/projects/total-rp-3/issues/97)
+]],
+		WHATS_NEW_16_1 = [[
+## 1.2.11.1 - 2017-12-08
 
-### Bug fixes
+### Fixed
 
-- Fixed alignment of the text field labels for personality traits.
-- Fixed an issue where the text popup for copying the URL of a link clicked in a profile had truncated text if another add-on added a limit on the text input before Total RP 3 opened the pop-up — [Issue #113](https://wow.curseforge.com/projects/total-rp-3/issues/113)
-- Fixed an issue with the custom WIM integration — [Issue #108](https://wow.curseforge.com/projects/total-rp-3/issues/108)
-- Updated the libraries used by the add-on the their latest version, including the drop-downs library, in order to fix some issues with the drop-downs.
+- Fixed an issue where the Mary Sue Protocol downloading indicator would get stuck for Total RP 3 profiles.
 
+]],
+		WHATS_NEW_16_2 = [[
+## 1.2.11.2 - 2017-12-26
+
+### Fixed
+
+- Fixed a Lua overflow error with the ChatThrottleLib that could occur in rare cases.
+- Fixed an issue that would cause the tooltip to reload all the data too frequently.
+- Fixed an issue that could cause a larger than usual amount of Unknown profiles to be listed in the Directory.
+
+### Removed
+
+- Removed the downloading progression indicator in the tooltip for now as it was the cause of some of these issues. It will be brought back later with a better implementation.
+
+]],
+		WHATS_NEW_16_3 = [[
+## 1.2.11.3 - 2018-01-02
+
+Happy new year! The Total RP 3 team wishes you the best for 2018.
+
+### Updated
+
+- Updated list of Patreon supporters inside the add-on for the month of December.
 
 ]],
 		MORE_MODULES_2 = [[{h2:c}Optional modules{/h2}
@@ -1049,6 +1064,9 @@ The Kui |cff9966ffNameplates|r module adds several Total RP 3 customizations to 
 - {twitter*Solanya_*Solanya} (Community Manager)
 
 {h2}{icon:THUMBUP:20} Acknowledgements{/h2}
+{col:ffffff}Ellypse's {/col}{link*https://www.patreon.com/ellypse*Patreon} {col:ffffff}supporters:{/col}
+%s
+
 {col:ffffff}Our pre-alpha QA team:{/col}
 - Erzan
 - Calian
