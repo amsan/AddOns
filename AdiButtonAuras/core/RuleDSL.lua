@@ -638,7 +638,7 @@ local RULES_ENV = addon.BuildSafeEnv(
 		"UnitIsPlayer", "UnitName", "UnitPower", "UnitPowerMax", "UnitStagger",
 		
 		--added by Derangement
-		"IsSpellKnown", "GetSpellCooldown", "GetSpecialization", 
+		"IsSpellKnown", "GetSpellCooldown", "GetSpecialization", "GetTalentInfo",
 		"UnitLevel", "UnitAffectingCombat", "UnitCanAttack",
 		"IsStealthed", "GetMirrorTimerProgress", "GetUnitSpeed", "BASE_MOVEMENT_SPEED",
 	}
