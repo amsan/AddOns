@@ -17,6 +17,9 @@
 --	limitations under the License.
 ----------------------------------------------------------------------------------
 
+---@type
+local _, TRP3_API = ...;
+
 TRP3_API.ui = {
 	tooltip = {},
 	listbox = {},
@@ -28,12 +31,12 @@ TRP3_API.ui = {
 
 -- imports
 local globals = TRP3_API.globals;
-local loc = TRP3_API.locale.getText;
+local loc = TRP3_API.loc;
 local floor, tinsert, pairs, wipe, assert, _G, tostring, table, type, strconcat = floor, tinsert, pairs, wipe, assert, _G, tostring, table, type, strconcat;
 local math = math;
-local MouseIsOver, CreateFrame, ToggleDropDownMenu = MouseIsOver, CreateFrame, L_ToggleDropDownMenu;
-local UIDropDownMenu_Initialize, UIDropDownMenu_CreateInfo, UIDropDownMenu_AddButton = L_UIDropDownMenu_Initialize, L_UIDropDownMenu_CreateInfo, L_UIDropDownMenu_AddButton;
-local CloseDropDownMenus = L_CloseDropDownMenus;
+local MouseIsOver, CreateFrame, ToggleDropDownMenu = MouseIsOver, CreateFrame, MSA_ToggleDropDownMenu;
+local UIDropDownMenu_Initialize, UIDropDownMenu_CreateInfo, UIDropDownMenu_AddButton = MSA_DropDownMenu_Initialize, MSA_DropDownMenu_CreateInfo, MSA_DropDownMenu_AddButton;
+local CloseDropDownMenus = CloseDropDownMenus;
 local TRP3_MainTooltip, TRP3_MainTooltipTextRight1, TRP3_MainTooltipTextLeft1, TRP3_MainTooltipTextLeft2 = TRP3_MainTooltip, TRP3_MainTooltipTextRight1, TRP3_MainTooltipTextLeft1, TRP3_MainTooltipTextLeft2;
 local shiftDown = IsShiftKeyDown;
 local UnitIsBattlePetCompanion, UnitIsUnit, UnitIsOtherPlayersPet, UnitIsOtherPlayersBattlePet = UnitIsBattlePetCompanion, UnitIsUnit, UnitIsOtherPlayersPet, UnitIsOtherPlayersBattlePet;
@@ -78,7 +81,7 @@ end
 function TRP3_API.ui.frame.getTiledBackgroundList()
 	local tab = {};
 	for index, texture in pairs(tiledBackgrounds) do
-		tinsert(tab, {loc("UI_BKG"):format(tostring(index)), index, "|T" .. texture .. ":200:200|t"});
+		tinsert(tab, {loc.UI_BKG:format(tostring(index)), index, "|T" .. texture .. ":200:200|t"});
 	end
 	return tab;
 end
@@ -115,10 +118,10 @@ local function openDropDown(anchoredFrame, values, callback, space, addCancel)
 	assert(anchoredFrame, "No anchoredFrame");
 
 	if not dropDownFrame then
-		dropDownFrame = CreateFrame("Frame", DROPDOWN_FRAME, UIParent, "UIDropDownMenuTemplate");
+		dropDownFrame = CreateFrame("Frame", DROPDOWN_FRAME, UIParent, "MSA_DropDownMenuTemplate");
 	end
 
-	if _G["L_DropDownList1"]:IsVisible() then
+	if _G["DropDownList1"]:IsVisible() then
 		CloseDropDownMenus();
 		return;
 	end
@@ -189,7 +192,7 @@ local function openDropDown(anchoredFrame, values, callback, space, addCancel)
 	);
 	dropDownFrame:SetParent(anchoredFrame);
 	ToggleDropDownMenu(1, nil, dropDownFrame, anchoredFrame:GetName() or "cursor", -((space or -10)), 0);
-	TRP3_API.ui.misc.playUISound("igMainMenuOptionCheckBoxOn");
+	TRP3_API.ui.misc.playUISound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 	currentlyOpenedDrop = anchoredFrame;
 end
 TRP3_API.ui.listbox.displayDropDown = openDropDown;
@@ -386,7 +389,7 @@ end
 
 TRP3_API.ui.tooltip.CONFIG_TOOLTIP_SIZE = "CONFIG_TOOLTIP_SIZE";
 local CONFIG_TOOLTIP_SIZE = TRP3_API.ui.tooltip.CONFIG_TOOLTIP_SIZE;
-local getConfigValue;
+local getConfigValue = function() end;
 
 TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 	TRP3_API.configuration.registerConfigKey(TRP3_API.ui.tooltip.CONFIG_TOOLTIP_SIZE, 11);
@@ -477,7 +480,7 @@ end
 local DUMMY_TOOLTIP = CreateFrame("GameTooltip", "TRP3_DUMMY_TOOLTIP", nil, "GameTooltipTemplate");
 DUMMY_TOOLTIP:SetOwner( WorldFrame, "ANCHOR_NONE" );
 
-local findPetOwner, findBattlePetOwner, UnitName = TRP3_API.locale.findPetOwner, TRP3_API.locale.findBattlePetOwner, UnitName;
+local findPetOwner, findBattlePetOwner, UnitName = TRP3_API.Locale.findPetOwner, TRP3_API.Locale.findBattlePetOwner, UnitName;
 TRP3_API.ui.misc.TYPE_CHARACTER = "CHARACTER";
 TRP3_API.ui.misc.TYPE_PET = "PET";
 TRP3_API.ui.misc.TYPE_BATTLE_PET = "BATTLE_PET";
@@ -786,31 +789,37 @@ local unitTexture = {
 		"Achievement_Guild_ClassyPanda",
 		"Achievement_Character_Pandaren_Female",
 	},
+	Nightborne = {
+		"Ability_Racial_DispelIllusions",
+		"Ability_Racial_Masquerade",
+	},
+	LightforgedDraenei = {
+		"Ability_Racial_FinalVerdict",
+		"Achievement_AlliedRace_LightforgedDraenei",
+	},
+	VoidElf = {
+		"Ability_Racial_EntropicEmbrace",
+		"Ability_Racial_PreturnaturalCalm",
+	},
+	HighmountainTauren = {
+		"Ability_Racial_BullRush",
+		"Achievement_AlliedRace_HighmountainTauren",
+	},
+	MagharOrc = {
+		"ACHIEVEMENT_CHARACTER_ORC_MALE_BRN",
+		"ACHIEVEMENT_CHARACTER_ORC_FEMALE_BRN"
+	},
+	DarkIronDwarf = {
+		"Ability_Racial_Fireblood",
+		"ability_racial_foregedinFlames"
+	}
 };
-
-local classTexture = {
-	ROGUE = "Ability_Rogue_DualWeild",
-	WARLOCK = "Ability_Warlock_Eradication",
-	PALADIN = "Spell_Paladin_Clarityofpurpose",
-	MONK = "Monk_Ability_Transcendence",
-	MAGE = "spell_Mage_NetherTempest",
-	HUNTER = "Ability_Hunter_MasterMarksman",
-	WARRIOR = "Ability_Warrior_OffensiveStance",
-	DEATHKNIGHT = "Spell_Deathknight_FrostPresence",
-	DRUID = "Spell_druid_tirelesspursuit",
-	SHAMAN = "Ability_Shaman_WindwalkTotem",
-	PRIEST = "Priest_icon_Chakra",
-}
 
 TRP3_API.ui.misc.getUnitTexture = function(race, gender)
 	if unitTexture[race] and unitTexture[race][gender - 1] then
 		return unitTexture[race][gender - 1];
 	end
 	return globals.icons.default;
-end
-
-TRP3_API.ui.misc.getClassTexture = function (class)
-	return classTexture[class] or globals.icons.default;
 end
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -853,8 +862,8 @@ local function insertContainerTag(alignIndex, button, frame)
 	assert(button.tagIndex and TAGS_INFO[button.tagIndex], "Button is not properly init with a tag index");
 	local tagInfo = TAGS_INFO[button.tagIndex];
 	local cursorIndex = frame:GetCursorPosition();
-	insertTag(strconcat(tagInfo.openTags[alignIndex], loc("REG_PLAYER_ABOUT_T1_YOURTEXT"), tagInfo.closeTag), cursorIndex, frame);
-	postInsertHighlight(cursorIndex, tagInfo.openTags[alignIndex]:len(), loc("REG_PLAYER_ABOUT_T1_YOURTEXT"):len(), frame);
+	insertTag(strconcat(tagInfo.openTags[alignIndex], loc.REG_PLAYER_ABOUT_T1_YOURTEXT, tagInfo.closeTag), cursorIndex, frame);
+	postInsertHighlight(cursorIndex, tagInfo.openTags[alignIndex]:len(), loc.REG_PLAYER_ABOUT_T1_YOURTEXT:len(), frame);
 end
 
 local function onColorTagSelected(red, green, blue, frame)
@@ -880,34 +889,34 @@ end
 
 local function onLinkTagClicked(frame)
 	local cursorIndex = frame:GetCursorPosition();
-	local tag = ("{link*%s*%s}"):format(loc("UI_LINK_URL"), loc("UI_LINK_TEXT"));
+	local tag = ("{link*%s*%s}"):format(loc.UI_LINK_URL, loc.UI_LINK_TEXT);
 	insertTag(tag, cursorIndex, frame);
 	frame:SetCursorPosition(cursorIndex + 6);
-	frame:HighlightText(cursorIndex + 6, cursorIndex + 6 + loc("UI_LINK_URL"):len());
+	frame:HighlightText(cursorIndex + 6, cursorIndex + 6 + loc.UI_LINK_URL:len());
 end
 
 -- Drop down
 local function onContainerTagClicked(button, frame, isP)
 	local values = {};
 	if not isP then
-		tinsert(values, {loc("REG_PLAYER_ABOUT_P")});
-		tinsert(values, {loc("CM_LEFT"), 1});
-		tinsert(values, {loc("CM_CENTER"), 2});
-		tinsert(values, {loc("CM_RIGHT"), 3});
+		tinsert(values, {loc.REG_PLAYER_ABOUT_P});
+		tinsert(values, {loc.CM_LEFT, 1});
+		tinsert(values, {loc.CM_CENTER, 2});
+		tinsert(values, {loc.CM_RIGHT, 3});
 	else
-		tinsert(values, {loc("REG_PLAYER_ABOUT_HEADER")});
-		tinsert(values, {loc("CM_CENTER"), 1});
-		tinsert(values, {loc("CM_RIGHT"), 2});
+		tinsert(values, {loc.REG_PLAYER_ABOUT_HEADER});
+		tinsert(values, {loc.CM_CENTER, 1});
+		tinsert(values, {loc.CM_RIGHT, 2});
 	end
 	openDropDown(button, values, function(alignIndex, button) insertContainerTag(alignIndex, button, frame) end, 0, true);
 end
 
 function TRP3_API.ui.text.setupToolbar(toolbar, textFrame, parentFrame, point, parentPoint)
-	toolbar.title:SetText(loc("REG_PLAYER_ABOUT_TAGS"));
-	toolbar.image:SetText(loc("CM_IMAGE"));
-	toolbar.icon:SetText(loc("CM_ICON"));
-	toolbar.color:SetText(loc("CM_COLOR"));
-	toolbar.link:SetText(loc("CM_LINK"));
+	toolbar.title:SetText(loc.REG_PLAYER_ABOUT_TAGS);
+	toolbar.image:SetText(loc.CM_IMAGE);
+	toolbar.icon:SetText(loc.CM_ICON);
+	toolbar.color:SetText(loc.CM_COLOR);
+	toolbar.link:SetText(loc.CM_LINK);
 	toolbar.h1.tagIndex = 1;
 	toolbar.h2.tagIndex = 2;
 	toolbar.h3.tagIndex = 3;
@@ -923,10 +932,14 @@ function TRP3_API.ui.text.setupToolbar(toolbar, textFrame, parentFrame, point, p
 			{function(icon) onIconTagSelected(icon, textFrame) end});
 	end);
 	toolbar.color:SetScript("OnClick", function()
-		TRP3_API.popup.showPopup(
-			TRP3_API.popup.COLORS,
-			{parent = parentFrame, point = point, parentPoint = parentPoint},
-			{function(red, green, blue) onColorTagSelected(red, green, blue, textFrame) end});
+		if shiftDown() or (getConfigValue and getConfigValue("default_color_picker")) then
+			TRP3_API.popup.showDefaultColorPicker({function(red, green, blue) onColorTagSelected(red, green, blue, textFrame) end});
+		else
+			TRP3_API.popup.showPopup(
+				TRP3_API.popup.COLORS,
+				{parent = parentFrame, point = point, parentPoint = parentPoint},
+				{function(red, green, blue) onColorTagSelected(red, green, blue, textFrame) end});
+		end
 	end);
 	toolbar.image:SetScript("OnClick", function()
 		TRP3_API.popup.showPopup(
@@ -942,29 +955,7 @@ end
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 local PlaySoundFile = PlaySoundFile;
---- Patch 7.3 compatibility preparation
 local PlaySound = PlaySound;
-
-if select(4, GetBuildInfo()) == 70300 then
-	-- 7.3 uses IDs instead of sound strings. This table is mapping the IDs we need to use instead
-	local FILE_IDS_TO_OLD_PATHS = {
-		["QUESTLOGOPEN"] = 844, -- SOUNDKIT.IG_QUEST_LOG_OPEN
-		["QUESTLOGCLOSE"] = 845, -- SOUNDKIT.IG_QUEST_LOG_CLOSE
-		["igMainMenuOptionCheckBoxOn"] = 856, -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
-		["gsCharacterSelection"] = 856, -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON (this one no longer exists)
-		["igCharacterInfoTab"] = 841, -- SOUNDKIT.IG_CHARACTER_INFO_TAB (this one no longer exists)
-		["UChatScrollButton"] = 1115, -- SOUNDKIT.U_CHAT_SCROLL_BUTTON
-		["AchievementMenuClose"] = 13833, -- SOUNDKIT.ACHIEVEMENT_MENU_CLOSE
-		["AchievementMenuOpen"] = 13832, -- SOUNDKIT.ACHIEVEMENT_MENU_OPEN
-		["GAMEDIALOGCLOSE"] = 850, -- SOUNDKIT.IG_MAINMENU_OPEN
-		["GAMEDIALOGOPEN"] = 851, -- SOUNDKIT.IG_MAINMENU_CLOSE
-	}
-
-	local oldPlaySound = PlaySound;
-	PlaySound = function(sound)
-		oldPlaySound(FILE_IDS_TO_OLD_PATHS[sound] or sound);
-	end
-end
 
 function TRP3_API.ui.misc.playUISound(pathToSound, url)
 	if getConfigValue and getConfigValue(CONFIG_UI_SOUNDS) then
@@ -1056,7 +1047,7 @@ function TRP3_API.ui.frame.initResize(resizeButton)
 	resizeButton.resizableFrame = resizeButton.resizableFrame or resizeButton:GetParent();
 	assert(resizeButton.minWidth, "minWidth key is not set.");
 	assert(resizeButton.minHeight, "minHeight key is not set.");
-	TRP3_API.ui.tooltip.setTooltipAll(resizeButton, "BOTTOMLEFT", 0, 0, loc("CM_RESIZE"), loc("CM_RESIZE_TT"));
+	TRP3_API.ui.tooltip.setTooltipAll(resizeButton, "BOTTOMLEFT", 0, 0, loc.CM_RESIZE, loc.CM_RESIZE_TT);
 	local parentFrame = resizeButton.resizableFrame;
 	resizeButton:RegisterForDrag("LeftButton");
 	resizeButton:SetScript("OnDragStart", function(self)
@@ -1094,16 +1085,18 @@ function TRP3_API.ui.frame.initResize(resizeButton)
 	end);
 end
 
+local VALID_SIZE_COLOR = TRP3_API.Ellyb.ColorManager.GREEN;
+local INVALID_SIZE_COLOR = TRP3_API.Ellyb.ColorManager.RED;
 resizeShadowFrame:SetScript("OnUpdate", function(self)
 	local height, width = self:GetHeight(), self:GetWidth();
-	local heightColor, widthColor = "|cff00ff00", "|cff00ff00";
+	local heightColor, widthColor = VALID_SIZE_COLOR, VALID_SIZE_COLOR;
 	if height < self.minHeight then
-		heightColor = "|cffff0000";
+		heightColor = INVALID_SIZE_COLOR;
 	end
 	if width < self.minWidth then
-		widthColor = "|cffff0000";
+		widthColor = INVALID_SIZE_COLOR;
 	end
-	resizeShadowFrame.text:SetText(widthColor .. math.ceil(width) .. "|r x " .. heightColor .. math.ceil(height));
+	resizeShadowFrame.text:SetText(heightColor(math.ceil(width)) .. " x " .. heightColor(math.ceil(height)));
 end);
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -1118,28 +1111,4 @@ function TRP3_API.ui.frame.setupMove(frame)
 	frame:SetScript("OnDragStop", function(self)
 		self:StopMovingOrSizing();
 	end)
-end
-
---*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
--- Workarounds
---*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-function TRP3_API.ui.frame.workaround7_3GetParentEffectiveScale(frame)
-	local parentFrame = frame:GetParent():GetParent();
-	return parentFrame and parentFrame:GetEffectiveScale() or 1;
-end
-
-function TRP3_API.ui.frame.workaround7_SetFontScale(editboxFrame)
-	local effectiveScale = TRP3_API.ui.frame.workaround7_3GetParentEffectiveScale(editboxFrame);
-	local fontPath, fontSize, fontFlag = editboxFrame:GetFont();
-	editboxFrame:SetFont(fontPath, 11 * effectiveScale, fontFlag);
-end
-
-function TRP3_API.ui.frame.workaround7_3SetWidth(editboxFrame)
-	local parentFrame = editboxFrame:GetParent():GetParent();
-	local parentFrameEffectiveScale = TRP3_API.ui.frame.workaround7_3GetParentEffectiveScale(editboxFrame);
-	local parentEffectiveWidth = parentFrame:GetWidth() * parentFrameEffectiveScale;
-	local effectiveMargin = 40 * parentFrameEffectiveScale;
-	editboxFrame:SetWidth(parentEffectiveWidth - effectiveMargin);
-	editboxFrame:SetHeight(editboxFrame:GetHeight() * parentFrameEffectiveScale);
 end

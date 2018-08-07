@@ -1,6 +1,6 @@
 --[[
 AdiButtonAuras - Display auras on action buttons.
-Copyright 2013-2016 Adirelle (adirelle@gmail.com)
+Copyright 2013-2018 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiButtonAuras.
@@ -16,146 +16,147 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with AdiButtonAuras.  If not, see <http://www.gnu.org/licenses/>.
+along with AdiButtonAuras. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local _, addon = ...
 
-if not addon.isClass("MAGE") then return end
+if not addon.isClass('MAGE') then return end
 
 AdiButtonAuras:RegisterRules(function()
 	Debug('Adding mage rules')
 
 	return {
 		ImportPlayerSpells {
-			-- import all spells for
-			"MAGE",
-			-- except
+			-- import all spell for
+			'MAGE',
+			-- except for
+			  1459, -- Arcane Intellect
+			 12654, -- Ignite (Fire)
 			 41425, -- Hypothermia
 			 45438, -- Ice Block
-			110960, -- Greater Invisibility
-			113862, -- Greater Invisibility (dmg reduction)
-			116014, -- Rune of Power
-			199844, -- Glacial Spike!
-			205022, -- Arcane Familiar
+			116014, -- Rune of Power (talent)
+			205473, -- Icicles (Frost)
+			205708, -- Chilled (Frost)
+			205766, -- Bone Chilling (Frost talent)
 		},
 
 		ShowPower {
+			44425, -- Arcane Barrage (Arcane)
+			'ArcaneCharges',
+		},
+
+		-- show the stacks of Icicles on Glacial Spike and Ice Lance
+		ShowStacks {
 			{
-				 44425, -- Arcane Barrage
-				114923, -- Nether Tempest
+				 30455, -- Ice Lance (Frost)
+				199786, -- Glacial Spike (Frost talent)
 			},
-			"ARCANE_CHARGES",
-			5, -- an unreachable value, so that no hint is shown as the usage is situational
+			205473, -- Icicles (Frost)
+			5,
+			'player',
+			nil,
+			nil,
+			76613, -- Mastery: Icicles (Frost)
+		},
+
+		-- show Heating Up on Fire Blast if Hot Streak! is known
+		SelfBuffAliases {
+			108853, -- Fire Blast (Fire)
+			 48107, -- Heating Up (Fire)
+			195283, -- Hot Streak! (Fire)
 		},
 
 		Configure {
-			"RuneOfPower",
-			format(L["%s %s"],
-				BuildDesc("HELPFUL PLAYER", "good", "player", 116014), -- Rune of Power buff
-				L["Show the duration of @NAME."]
-			),
-			116011, -- Rune of Power
-			"player",
-			{ "UNIT_AURA", "PLAYER_TOTEM_UPDATE" },
-			(function()
-				local hasRuneOfPower = BuildAuraHandler_Single("HELPFUL PLAYER", "good", "player", 116014)
-				local hasTotem = function(_, model)
-					local found, _, start, duration = GetTotemInfo(1) -- Rune of Power is always the first totem
-					if found then
-						model.highlight = "bad" -- to signify you don't have the buff you strive for
-						model.expiration = start + duration
-					end
-				end
-				return function(units, model)
-					return hasRuneOfPower(units, model) or hasTotem(units, model)
-				end
-			end)(),
-		},
-
-		Configure {
-			"ArcaneFamiliar",
-			L["Show the duration of @NAME."],
-			205022, -- Arcane Familiar
-			"player",
-			"UNIT_AURA",
-			function(_, model)
-				local found, _, start, duration = GetTotemInfo(4) -- Arcane Familiar is always the forth totem
-				if found then
-					model.highlight = "good"
-					model.expiration = start + duration
-				end
-			end,
-		},
-
-		Configure {
-			"IceBlockHypothermia",
-			format(L["%s %s"],
-				BuildDesc("HELPFUL PLAYER", "good", "player", 45438), -- Ice Block
-				BuildDesc("HARMFUL PLAYER", "bad", "player", 41425) -- Hypothermia
+			'IceBlockHypothermia',
+			format(
+				'%s %s',
+				BuildDesc('HELPFUL PLAYER', 'good', 'player', 45438), -- Ice Block
+				BuildDesc('HARMFUL PLAYER', 'bad', 'player', 41425) -- Hypothermia
 			),
 			45438, -- Ice Block
-			"player",
-			"UNIT_AURA",
+			'player',
+			'UNIT_AURA',
 			(function()
-				local hasIceBlock = BuildAuraHandler_Single("HELPFUL PLAYER", "good", "player", 45438)
-				local hasHypothermia = BuildAuraHandler_Single("HARMFUL PLAYER", "bad", "player", 41425)
+				local hasIceBlock = BuildAuraHandler_Single('HELPFUL PLAYER', 'good', 'player', 45438)
+				local hasHypothermia = BuildAuraHandler_Single('HARMFUL PLAYER', 'bad', 'player', 41425)
 				return function(_, model)
 					return hasIceBlock(_, model) or hasHypothermia(_, model)
 				end
 			end)(),
 		},
 
+		-- track if the player is in range of Rune of Power
 		Configure {
-			"GreaterInvisibility",
-			BuildDesc("HELPFUL PLAYER", "good", "player", 110960), -- Greater Invisibility
-			110959, -- Greater Invisibility
-			"player",
-			"UNIT_AURA",
+			'RuneOfPower',
+			format(
+				'%s %s',
+				BuildDesc('HELPFUL PLAYER', 'good', 'player', 116014), -- Rune of Power
+				format(L['Show the "bad" border when your buff %s is not found on yourself.'], GetSpellInfo(116014))
+			),
+			116011, -- Rune of Power (talent)
+			'player',
+			{ 'UNIT_AURA', 'PLAYER_TOTEM_UPDATE' },
+			function(_, model)
+				local hasTotem, _, start, duration = GetTotemInfo(1) -- Rune of Power is always the first totem
+
+				if hasTotem then
+					local hasBuff = GetPlayerBuff('player', 116014) -- Rune of Power
+					model.highlight = hasBuff and 'good' or 'bad'
+					model.expiration = start + duration
+				end
+			end,
+		},
+
+		-- prioritize Bone Chilling (Frost talent) over Chilled (Frost)
+		Configure {
+			'ChilledBoneChilling',
+			format(
+				'%s %s',
+				BuildDesc('HELPFUL PLAYER', 'good', 'player', 205766), -- Bone Chilling (Frost talent)
+				BuildDesc('HARMFUL PLAYER', 'bad', 'enemy', 205708) -- Chilled (Frost)
+			),
+			{
+				   116, -- Frostbolt
+				 84714, -- Frozen Orb
+				190356, -- Blizzard
+			},
+			{ 'player', 'enemy' },
+			'UNIT_AURA',
 			(function()
-				local isInvisible = BuildAuraHandler_Single("HELPFUL PLAYER", "good", "player", 110960)
-				local hasDmgReduction = BuildAuraHandler_Single("HELPFUL PLAYER", "good", "player", 113862)
-				return function(_, model)
-					return isInvisible(_, model) or hasDmgReduction(_, model)
+				local hasBoneChilling = BuildAuraHandler_Single('HELPFUL PLAYER', 'good', 'player', 205766)
+				local isChilled = BuildAuraHandler_Single('HARMFUL PLAYER', 'bad', 'enemy', 205708)
+				return function(units, model)
+					return hasBoneChilling(units, model) or isChilled(units, model)
 				end
 			end)(),
 		},
-		-- Suggest using Fire Blast when you have Heating Up
-		Configure {
-			"HeatingUp",
-			BuildDesc("HELPFUL PLAYER", "hint", "player", 48107), -- Heating Up
-			108853, -- Fire Blast
-			"player",
-			"UNIT_AURA",
-			function(_, model)
-				local found, _, expiration = GetPlayerBuff("player", 48107) -- Heating Up
-				if found then
-					model.expiration = expiration
-					model.hint = true
-				end
-			end,
-			195283, -- Hot Streak (passive provider)
-		},
-		-- Suggest using Frostbolt when Water Jet in on the target
-		Configure {
-			"WaterJetFrostbolt",
-			BuildDesc("HARMFUL PLAYER", "hint", "enemy", 135029), -- Water Jet
-			116, -- Frostbolt
-			"enemy",
-			"UNIT_AURA",
-			function(units, model)
-				local found = GetPlayerDebuff(units.enemy, 135029) -- Water Jet
-				if found then
-					model.hint = true
-				end
-			end,
-			135029, -- Water Jet
-		},
 
-		ShowStacks {
-			199786, -- on Glacial Spikes
-			205473, -- the stacks of Icicles
-			5, -- max
-		}
+		Configure {
+			'ArcaneIntellect',
+			L['Show the number of group members missing @NAME.'],
+			1459, -- Arcane Intellect
+			'group',
+			'UNIT_AURA',
+			function(units, model)
+				local missing = 0
+				local shortest = 0
+				for unit in next, units.group do
+					local found, _, expiration = GetBuff(unit, 1459)
+					if found then
+						if shortest == 0 or expiration < shortest then
+							shortest = expiration
+						end
+					else
+						missing = missing + 1
+					end
+				end
+
+				model.expiration = shortest
+				model.count = missing
+				model.hint = missing ~= 0
+				model.highlight = shortest > 0 and 'good' or nil
+			end,
+		},
 	}
 end)

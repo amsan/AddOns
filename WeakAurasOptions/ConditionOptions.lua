@@ -416,7 +416,7 @@ local function addControlsForChange(args, order, data, conditionVariable, condit
         if (conditions[i].changes[j].value and type(conditions[i].changes[j].value) == "table") then
           return conditions[i].changes[j].value[1], conditions[i].changes[j].value[2], conditions[i].changes[j].value[3], conditions[i].changes[j].value[4];
         end
-        return nil;
+        return 1, 1, 1, 1;
       end,
       set = setValueColor
     }
@@ -648,7 +648,7 @@ local function addControlsForChange(args, order, data, conditionVariable, condit
 
     args["condition" .. i .. "value" .. j .. "custom"] = {
       type = "input",
-      width = "normal",
+      width = "double",
       name = blueIfNoValue2(data, conditions[i].changes[j], "value", "custom", L["Custom Code"], L["Custom Code"]),
       desc = descIfNoValue2(data, conditions[i].changes[j], "value", "custom", propertyType),
       order = order,
@@ -658,31 +658,30 @@ local function addControlsForChange(args, order, data, conditionVariable, condit
         return type(conditions[i].changes[j].value) == "table" and conditions[i].changes[j].value.custom;
       end,
       control = "WeakAurasMultiLineEditBox",
-      set = setValueComplex("custom")
+      set = setValueComplex("custom"),
+      arg = {
+        extraFunctions = {
+          {
+            buttonLabel = L["Expand"],
+            func = function()
+              if (data.controlledChildren) then
+                -- Collect multi paths
+                local multipath = {};
+                for id, reference in pairs(conditions[i].changes[j].references) do
+                  local conditionIndex = conditions[i].check.references[id].conditionIndex;
+                  local changeIndex = reference.changeIndex;
+                  multipath[id] = {"conditions", conditionIndex, "changes", changeIndex, "value", "custom"};
+                end
+                WeakAuras.OpenTextEditor(data, multipath, nil, true);
+              else
+                WeakAuras.OpenTextEditor(data, {"conditions", i, "changes", j, "value", "custom"});
+              end
+            end
+          }
+        }
+      }
     }
-    order = order + 1;
 
-    args["condition" .. i .. "value" .. j .. "custom_expand"] = {
-      type = "execute",
-      order = order,
-      name = L["Expand Text Editor"],
-      func = function()
-        if (data.controlledChildren) then
-          -- Collect multi paths
-          local multipath = {};
-          for id, reference in pairs(conditions[i].changes[j].references) do
-            local conditionIndex = conditions[i].check.references[id].conditionIndex;
-            local changeIndex = reference.changeIndex;
-            multipath[id] = {"conditions", conditionIndex, "changes", changeIndex, "value", "custom"};
-            print("Adding path", id, conditionIndex, changeIndex);
-          end
-          WeakAuras.OpenTextEditor(data, multipath, nil, true);
-        else
-          WeakAuras.OpenTextEditor(data, {"conditions", i, "changes", j, "value", "custom"});
-        end
-      end,
-      hidden = customHiden
-    }
     order = order + 1;
 
     args["condition" .. i .. "value" .. j .. "custom_error"] = {
@@ -727,7 +726,7 @@ local function addControlsForChange(args, order, data, conditionVariable, condit
 
     args["condition" .. i .. "value" .. j .. "custom"] = {
       type = "input",
-      width = "normal",
+      width = "double",
       name = blueIfNoValue2(data, conditions[i].changes[j], "value", "message_custom", L["Custom Code"], L["Custom Code"]),
       desc = descIfNoValue2(data, conditions[i].changes[j], "value", "message_custom", propertyType),
       order = order,
@@ -736,31 +735,31 @@ local function addControlsForChange(args, order, data, conditionVariable, condit
         return type(conditions[i].changes[j].value) == "table" and conditions[i].changes[j].value.custom;
       end,
       control = "WeakAurasMultiLineEditBox",
-      set = setValueComplex("custom")
-    }
-    order = order + 1;
-
-    args["condition" .. i .. "value" .. j .. "custom_expand"] = {
-      type = "execute",
-      order = order,
-      name = L["Expand Text Editor"],
-      func = function()
-        if (data.controlledChildren) then
-          -- Collect multi paths
-          local multipath = {};
-          for id, reference in pairs(conditions[i].changes[j].references) do
-            local conditionIndex = conditions[i].check.references[id].conditionIndex;
-            local changeIndex = reference.changeIndex;
-            local childData = WeakAuras.GetData(id);
-            childData.conditions[conditionIndex].changes[changeIndex].value = childData.conditions[conditionIndex].changes[changeIndex].value or {};
-            multipath[id] = {"conditions", conditionIndex, "changes", changeIndex, "value", "custom"};
-          end
-          WeakAuras.OpenTextEditor(data, multipath, true, true);
-        else
-          data.conditions[i].changes[j].value = data.conditions[i].changes[j].value or {};
-          WeakAuras.OpenTextEditor(data, {"conditions", i, "changes", j, "value", "custom"}, true);
-        end
-      end,
+      set = setValueComplex("custom"),
+      arg = {
+        extraFunctions = {
+          {
+            buttonLabel = L["Expand"],
+            func = function()
+              if (data.controlledChildren) then
+                -- Collect multi paths
+                local multipath = {};
+                for id, reference in pairs(conditions[i].changes[j].references) do
+                  local conditionIndex = conditions[i].check.references[id].conditionIndex;
+                  local changeIndex = reference.changeIndex;
+                  local childData = WeakAuras.GetData(id);
+                  childData.conditions[conditionIndex].changes[changeIndex].value = childData.conditions[conditionIndex].changes[changeIndex].value or {};
+                  multipath[id] = {"conditions", conditionIndex, "changes", changeIndex, "value", "custom"};
+                end
+                WeakAuras.OpenTextEditor(data, multipath, true, true);
+              else
+                data.conditions[i].changes[j].value = data.conditions[i].changes[j].value or {};
+                WeakAuras.OpenTextEditor(data, {"conditions", i, "changes", j, "value", "custom"}, true);
+              end
+            end
+          }
+        }
+      }
     }
     order = order + 1;
 
@@ -814,16 +813,147 @@ local function addControlsForCondition(args, order, data, conditionVariable, con
   if (not conditions[i].check) then
     return;
   end
+
   args["condition" .. i .. "header"] = {
-    type = "header",
+    type = "description",
+    name = L["Condition %i"]:format(i),
+    order = order,
+    width = 1.5,
+    fontSize = "large"
+  };
+  order = order + 1;
+
+  args["condition" .. i .. "up"] = {
+    type = "execute",
     name = "",
-    order = order
+    order = order,
+    disabled = function()
+      if (data.controlledChildren) then
+        for id, reference in pairs(conditions[i].check.references) do
+          local index = reference.conditionIndex;
+          if (index > 1) then
+            return false;
+          end
+        end
+        return true;
+      else
+        return i == 1;
+      end
+    end,
+    func = function()
+      if (data.controlledChildren) then
+        for id, reference in pairs(conditions[i].check.references) do
+          local auraData = WeakAuras.GetData(id);
+          local index = reference.conditionIndex;
+          if (index > 1) then
+            local tmp = auraData[conditionVariable][reference.conditionIndex];
+            tremove(auraData[conditionVariable], reference.conditionIndex);
+            tinsert(auraData[conditionVariable], reference.conditionIndex - 1, tmp);
+            WeakAuras.Add(auraData);
+          end
+        end
+        WeakAuras.ReloadTriggerOptions(data);
+      else
+        if (i > 1) then
+          local tmp = conditions[i];
+          tremove(conditions, i);
+          tinsert(conditions, i - 1, tmp);
+          WeakAuras.Add(data);
+          WeakAuras.ReloadTriggerOptions(data);
+        end
+      end
+    end,
+    width = 0.15,
+    image = "Interface\\AddOns\\WeakAuras\\Media\\Textures\\moveup",
+    imageWidth = 24,
+    imageHeight = 24
+  };
+  order = order + 1;
+
+  args["condition" .. i .. "down"] = {
+    type = "execute",
+    name = "",
+    order = order,
+    disabled = function()
+      if (data.controlledChildren) then
+        for id, reference in pairs(conditions[i].check.references) do
+          local index = reference.conditionIndex;
+          local auraData = WeakAuras.GetData(id);
+          if (index < #auraData[conditionVariable]) then
+            return false;
+          end
+        end
+        return true;
+      else
+        return i == #conditions;
+      end
+    end,
+    func = function()
+      if (data.controlledChildren) then
+        for id, reference in pairs(conditions[i].check.references) do
+          local auraData = WeakAuras.GetData(id);
+          local index = reference.conditionIndex;
+          if (index < #auraData[conditionVariable]) then
+            local tmp = auraData[conditionVariable][reference.conditionIndex];
+            tremove(auraData[conditionVariable], reference.conditionIndex);
+            tinsert(auraData[conditionVariable], reference.conditionIndex + 1, tmp);
+            WeakAuras.Add(auraData);
+          end
+        end
+        WeakAuras.ReloadTriggerOptions(data);
+        return;
+      else
+        if (i < #conditions) then
+          local tmp = conditions[i];
+          tremove(conditions, i);
+          tinsert(conditions, i + 1, tmp);
+          WeakAuras.Add(data);
+          WeakAuras.ReloadTriggerOptions(data);
+          return;
+        end
+      end
+    end,
+    width = 0.15,
+    image = "Interface\\AddOns\\WeakAuras\\Media\\Textures\\movedown",
+    imageWidth = 24,
+    imageHeight = 24
+  };
+  order = order + 1;
+
+  args["condition" .. i .. "delete"] = {
+    type = "execute",
+    name = "",
+    order = order,
+    func = function()
+      if (data.controlledChildren) then
+        for id, reference in pairs(conditions[i].check.references) do
+          local auraData = WeakAuras.GetData(id);
+          tremove(auraData[conditionVariable], reference.conditionIndex);
+          WeakAuras.Add(auraData);
+        end
+        WeakAuras.ReloadTriggerOptions(data);
+        return;
+      else
+        tremove(conditions, i);
+        WeakAuras.Add(data);
+        WeakAuras.ReloadTriggerOptions(data);
+        return;
+      end
+    end,
+    width = 0.15,
+    image = "Interface\\AddOns\\WeakAuras\\Media\\Textures\\delete",
+    imageWidth = 24,
+    imageHeight = 24
   };
   order = order + 1;
 
   local optionsName = blueIfSubset (data, conditions[i].check);
   if (conditions[i].check.trigger) then
-    optionsName = optionsName .. string.format(L["If Trigger %s"], conditions[i].check.trigger + 1);
+    if (conditions[i].check.trigger == -1) then
+      optionsName = optionsName .. L["If"];
+    else
+      optionsName = optionsName .. string.format(L["If Trigger %s"], conditions[i].check.trigger + 1);
+    end
   else
     optionsName = optionsName .. L["If"];
   end
@@ -993,7 +1123,7 @@ local function addControlsForCondition(args, order, data, conditionVariable, con
         desc = descIfNoValue(data, conditions[i].check, "op", currentConditionTemplate.type),
         type = "select",
         order = order,
-        values = WeakAuras.operator_types,
+        values = currentConditionTemplate.operator_types_without_equal and WeakAuras.operator_types_without_equal or  WeakAuras.operator_types,
         width = "half",
         get = function()
           return conditions[i].check.op;
@@ -1110,10 +1240,10 @@ local function addControlsForCondition(args, order, data, conditionVariable, con
     order = order,
     func = function()
       if (data.controlledChildren) then
-        for _, id in ipairs(data.controlledChildren) do
+        for id, reference in pairs(conditions[i].check.references) do
           local auradata = WeakAuras.GetData(id);
-          auradata[conditionVariable][i].changes = auradata[conditionVariable][i].changes or {};
-          auradata[conditionVariable][i].changes[#auradata[conditionVariable][i].changes + 1] = {};
+          auradata[conditionVariable][reference.conditionIndex].changes = auradata[conditionVariable][reference.conditionIndex].changes or {}
+          tinsert(auradata[conditionVariable][reference.conditionIndex].changes, {})
           WeakAuras.Add(auradata);
         end
         WeakAuras.ReloadTriggerOptions(data);
@@ -1177,6 +1307,8 @@ local function createConditionTemplates(data)
     numTriggers = data.numTriggers;
   end
 
+  allConditionTemplates[-1] = WeakAuras.GetGlobalConditions();
+
   local conditionTemplates = {};
   conditionTemplates.all = allConditionTemplates;
   conditionTemplates.indexToTrigger = {};
@@ -1185,7 +1317,7 @@ local function createConditionTemplates(data)
   conditionTemplates.display = {};
 
   local index = 1;
-  for triggernum = 0, numTriggers - 1 do
+  for triggernum = -1, numTriggers - 1 do
     local templatesForTrigger = allConditionTemplates[triggernum];
 
     -- Sort Conditions for one trigger
@@ -1199,7 +1331,11 @@ local function createConditionTemplates(data)
       end);
 
       if (#sorted > 0) then
-        conditionTemplates.display[index]  = string.format(L["Trigger %d"], triggernum + 1);
+        if (triggernum == -1) then
+          conditionTemplates.display[index]  = string.format(L["Global Conditions"]);
+        else
+          conditionTemplates.display[index]  = string.format(L["Trigger %d"], triggernum + 1);
+        end
         index = index + 1;
       end
 
@@ -1235,7 +1371,7 @@ local function buildAllPotentialProperies(data, category)
   if (data.controlledChildren) then
     for _, id in ipairs(data.controlledChildren) do
       local auradata = WeakAuras.GetData(id);
-      local regionProperties = WeakAuras.regionTypes[auradata.regionType] and WeakAuras.regionTypes[auradata.regionType].properties
+      local regionProperties = WeakAuras.GetProperties(auradata);
       if (regionProperties) then
         for k, v in pairs(regionProperties) do
           if (v.category == category) then
@@ -1261,7 +1397,7 @@ local function buildAllPotentialProperies(data, category)
       end
     end
   else
-    local regionProperties = WeakAuras.regionTypes[data.regionType] and WeakAuras.regionTypes[data.regionType].properties
+    local regionProperties = WeakAuras.GetProperties(data);
     if (regionProperties) then
       for k, v in pairs(regionProperties) do
         if (v.category == category) then
@@ -1503,6 +1639,7 @@ function WeakAuras.GetConditionOptions(data, args, conditionVariable, startorder
   for i = 1, #conditions do
     order = addControlsForCondition(args, order, data, conditionVariable, conditions, i, conditionTemplates, allProperties);
   end
+
   args["addCondition"] = {
     type = "execute",
     name = L["Add Condition"],

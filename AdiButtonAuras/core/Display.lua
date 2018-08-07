@@ -1,6 +1,6 @@
 --[[
 AdiButtonAuras - Display auras on action buttons.
-Copyright 2013-2016 Adirelle (adirelle@gmail.com)
+Copyright 2013-2018 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiButtonAuras.
@@ -16,7 +16,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with AdiButtonAuras.  If not, see <http://www.gnu.org/licenses/>.
+along with AdiButtonAuras. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -234,9 +234,9 @@ function overlayPrototype:SetCount(count, maxCount)
 	self:ApplyCount()
 end
 
-function overlayPrototype:SetHighlight(highlight)
-	if self.highlight == highlight then return end
-	self.highlight = highlight
+function overlayPrototype:SetHighlight(highlight, dispel)
+	if self.highlight == highlight and self.dispel == dispel then return end
+	self.highlight, self.dispel = highlight, dispel
 	self:ApplyHighlight()
 end
 
@@ -287,10 +287,6 @@ function overlayPrototype:ApplyCount()
 	end
 end
 
-function overlayPrototype:ApplyHighlight()
-	self:ApplyColoredHighlight()
-end
-
 function overlayPrototype:ApplyFlash()
 	if self:ShouldShowFlash() or self:ShouldShowHint("flash") then
 		return self:ShowFlash()
@@ -308,8 +304,8 @@ function overlayPrototype:ShouldShowFlash()
 	return self.flash
 end
 
-function overlayPrototype:ApplyColoredHighlight()
-	local type, highlight, overlay = self.highlight, self.Highlight, self.Overlay
+function overlayPrototype:ApplyHighlight()
+	local type, highlight, overlay, dispel = self.highlight, self.Highlight, self.Overlay, self.dispel
 	if type == "darken" or type == "lighten" then
 		overlay:SetBlendMode(type == "darken" and "MOD" or "ADD")
 		overlay:Show()
@@ -318,6 +314,9 @@ function overlayPrototype:ApplyColoredHighlight()
 	end
 	if type == "good" or type == "bad" then
 		highlight:SetVertexColor(unpack(addon.db.profile.colors[type], 1, 4))
+		highlight:Show()
+	elseif type == "dispel" and dispel then
+		highlight:SetVertexColor(unpack(addon.db.profile.colors[dispel], 1, 4))
 		highlight:Show()
 	else
 		highlight:Hide()
@@ -340,7 +339,7 @@ function overlayPrototype:ShouldShowHint(expectedSetting)
 end
 
 function overlayPrototype:UpdateDisplay(event)
-	self:Debug('UpdateDisplay' ,event)
+	self:Debug('UpdateDisplay', event)
 	self.inCombat = InCombatLockdown()
 	self:ApplyExpiration()
 	self:ApplyCount()

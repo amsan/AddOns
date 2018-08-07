@@ -1,6 +1,6 @@
 --[[
 AdiButtonAuras - Display auras on action buttons.
-Copyright 2013-2016 Adirelle (adirelle@gmail.com)
+Copyright 2013-2018 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiButtonAuras.
@@ -16,7 +16,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with AdiButtonAuras.  If not, see <http://www.gnu.org/licenses/>.
+along with AdiButtonAuras. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local _, addon = ...
@@ -57,6 +57,7 @@ L["AdiButtonAuras has no rule for this spell/item."] = true
 L["AdiButtonAuras provides custom rules to suggest the use of some spells. Choose how these hints are displayed below."] = true
 L["Check to show a border when the (de)buff is missing."] = true
 L["Check to show a flash instead of a colored border."] = true
+L['Show the missing highlight when the remaining duration is below this value.'] = true
 L["Color of the countdown text for values above 3."] = true
 L["Color of the countdown text for values around 0."] = true
 L["Color of the countdown text for values around 3."] = true
@@ -87,6 +88,7 @@ L["Rules:"] = true
 L["Select which rules should by applied."] = true
 L["Shift+click to toggle."] = true
 L["Show flash instead"] = true
+L['Show missing threshold'] = true
 L["Spell Hints"] = true
 L["Spells & items"] = true
 L["Status"] = true
@@ -100,6 +102,14 @@ L["\"Bad\" border"] = true
 L["\"Good\" border"] = true
 L["item"] = true
 L["spell"] = true
+L["Dispel border: Curse"] = true
+L["Dispel border: Disease"] = true
+L["Dispel border: Magic"] = true
+L["Dispel border: Poison"] = true
+L["The color used for dispels of type \"Curse\"."] = true
+L["The color used for dispels of type \"Disease\"."] = true
+L["The color used for dispels of type \"Magic\"."] = true
+L["The color used for dispels of type \"Poison\"."] = true
 
 -- RuleDSL.lua
 L["%s when %s %s is found on %s."] = true
@@ -114,6 +124,8 @@ L["lighten"] = true
 L["show duration and/or stack count"] = true
 L["show the \"bad\" border"] = true
 L["show the \"good\" border"] = true
+L["show the number of stacks"] = true
+L["show a colored border"] = true
 L["suggest"] = true
 L["the buff"] = true
 L["the debuff"] = true
@@ -133,6 +145,8 @@ L["a buff you can dispel"] = true
 L["a debuff you can dispel"] = true
 L["a debuff"] = true
 L["of type '%s'"] = true
+L["Show the \"bad\" border if the targeted enemy is %s."] = true
+L["%s when someone used their legendary ring."] = true
 
 -- rules/Deathknight.lua
 L["Shows Hint when target is below 35% health."] = true

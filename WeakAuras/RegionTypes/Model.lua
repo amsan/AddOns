@@ -60,8 +60,11 @@ local properties = {
   },
 }
 
-WeakAuras.regionPrototype.AddProperties(properties);
+WeakAuras.regionPrototype.AddProperties(properties, default);
 
+local function GetProperties(data)
+  return properties;
+end
 
 
 -- Called when first creating a new region/display
@@ -133,9 +136,11 @@ local function modify(parent, region, data)
       model:RegisterEvent("PLAYER_FOCUS_CHANGED");
     end
     model:SetScript("OnEvent", function(self, event, unitId)
+      WeakAuras.StartProfileSystem("model");
       if (event ~= "UNIT_MODEL_CHANGED" or UnitIsUnit(unitId, data.model_path)) then
         model:SetUnit(data.model_path);
       end
+      WeakAuras.StopProfileSystem("model");
     end
     );
   else
@@ -173,8 +178,10 @@ local function modify(parent, region, data)
   if(data.advance) then
     local elapsed = 0;
     model:SetScript("OnUpdate", function(self, elaps)
+      WeakAuras.StartProfileSystem("model");
       elapsed = elapsed + (elaps * 1000);
       model:SetSequenceTime(data.sequence, elapsed);
+      WeakAuras.StopProfileSystem("model");
     end);
   else
     model:SetScript("OnUpdate", nil);
@@ -257,24 +264,25 @@ local function modify(parent, region, data)
 end
 
 -- Register new region type with WeakAuras
-WeakAuras.RegisterRegionType("model", create, modify, default, properties);
+WeakAuras.RegisterRegionType("model", create, modify, default, GetProperties);
 
 -- Work around for movies and world map hiding all models
 do
   local function preShowModels(self, event)
+    WeakAuras.StartProfileSystem("model");
     if (event == "PLAYER_LOGIN") then
       C_Timer.After(2, preShowModels);
       return;
     end
 
-    for id, isLoaded in pairs(WeakAuras.loaded) do
-      if (isLoaded) then
-        local data = WeakAuras.regions[id];
-        if (data.regionType == "model") then
-          data.region:PreShow();
-        end
+    for id, data in pairs(WeakAuras.regions) do
+      WeakAuras.StartProfileAura(id);
+      if (data.regionType == "model") then
+        data.region:PreShow();
       end
+      WeakAuras.StopProfileAura(id);
     end
+    WeakAuras.StopProfileSystem("model");
   end
 
   local movieWatchFrame;

@@ -17,19 +17,20 @@
 --	limitations under the License.
 ----------------------------------------------------------------------------------
 
+---@type TRP3_API
+local _, TRP3_API = ...;
+local Ellyb = Ellyb(_);
+
 -- public accessor
 TRP3_API.configuration = {};
 
 -- imports
-local loc = TRP3_API.locale.getText;
+local loc = TRP3_API.loc;
 local Utils = TRP3_API.utils;
 local Config = TRP3_API.configuration;
 local _G, tonumber, math, tinsert, type, assert, tostring, pairs, sort, strconcat = _G, tonumber, math, tinsert, type, assert, tostring, pairs, table.sort, strconcat;
 local numberToHexa, hexaToNumber = Utils.color.numberToHexa, Utils.color.hexaToNumber;
 local CreateFrame = CreateFrame;
-local getLocaleText = TRP3_API.locale.getLocaleText;
-local getLocales = TRP3_API.locale.getLocales;
-local getCurrentLocale = TRP3_API.locale.getCurrentLocale;
 local setTooltipForFrame = TRP3_API.ui.tooltip.setTooltipForSameFrame;
 local setupListBox = TRP3_API.ui.listbox.setupListBox;
 local registerMenu, selectMenu = TRP3_API.navigation.menu.registerMenu, TRP3_API.navigation.menu.selectMenu;
@@ -81,6 +82,11 @@ local function getValue(key)
 	return TRP3_Configuration[key];
 end
 Config.getValue = getValue;
+
+function Config.getDefaultValue(key)
+	assert(defaultValues[key] ~= nil, "Unknown config key: " .. tostring(key));
+	return defaultValues[key]
+end
 
 local function registerConfigKey(key, defaultValue)
 	assert(type(key) == "string" and defaultValue ~= nil, "Must be a string key and a not nil default value.");
@@ -341,18 +347,8 @@ local function registerConfigurationPage(pageStructure)
 end
 Config.registerConfigurationPage = registerConfigurationPage;
 
---*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
--- GENERAL SETTINGS
---*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-local function changeLocale(newLocale)
-	if newLocale ~= getCurrentLocale() then
-		setValue("AddonLocale", newLocale);
-		TRP3_API.popup.showConfirmPopup(loc("CO_GENERAL_CHANGELOCALE_ALERT"):format(Utils.str.color("g")..getLocaleText(newLocale).."|r"),
-		function()
-			ReloadUI();
-		end);
-	end
+function Config.refreshPage(pageID)
+	buildConfigurationPage(registeredConfiPage[pageID]);
 end
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -371,73 +367,43 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 	-- Page and menu
 	registerMenu({
 		id = "main_90_config",
-		text = loc("CO_CONFIGURATION"),
+		text = loc.CO_CONFIGURATION,
 		onSelected = function() selectMenu("main_91_config_main_config_aaa_general") end,
 	});
 
 	TRP3_API.configuration.CONFIG_FRAME_PAGE = {
 		id = "main_config_toolbar",
-		menuText = loc("CO_TOOLBAR"),
-		pageText = loc("CO_TOOLBAR"),
+		menuText = loc.CO_TOOLBAR,
+		pageText = loc.CO_TOOLBAR,
 		elements = {},
 	};
 	
 	-- GENERAL SETTINGS INIT
 	-- localization
 	local localeTab = {};
-	for _, locale in pairs(getLocales()) do
-		tinsert(localeTab, {getLocaleText(locale), locale});
+	for _, locale in pairs(loc:GetLocales(true)) do
+		tinsert(localeTab, { locale:GetName(), locale:GetCode() });
 	end
 
-	registerConfigKey("comm_broad_use", true);
 	registerConfigKey("heavy_profile_alert", true);
 	registerConfigKey("new_version_alert", true);
 	registerConfigKey("ui_sounds", true);
 	registerConfigKey("ui_animations", true);
-	registerConfigKey("comm_broad_chan", "xtensionxtooltip2");
+	registerConfigKey("default_color_picker", false);
 
 	-- Build widgets
 	TRP3_API.configuration.CONFIG_STRUCTURE_GENERAL = {
 		id = "main_config_aaa_general",
-		menuText = loc("CO_GENERAL"),
-		pageText = loc("CO_GENERAL"),
+		menuText = loc.CO_GENERAL,
+		pageText = loc.CO_GENERAL,
 		elements = {
 			{
 				inherit = "TRP3_ConfigH1",
-				title = loc("CO_GENERAL_LOCALE"),
-			},
-			{
-				inherit = "TRP3_ConfigDropDown",
-				widgetName = "TRP3_ConfigurationGeneral_LangWidget",
-				title = loc("CO_GENERAL_LOCALE"),
-				listContent = localeTab,
-				listCallback = changeLocale,
-				listDefault = getLocaleText(getCurrentLocale()),
-				listCancel = true,
-			},
-			{
-				inherit = "TRP3_ConfigH1",
-				title = loc("CO_GENERAL_COM"),
-			},
-			{
-				inherit = "TRP3_ConfigCheck",
-				title = loc("CO_GENERAL_BROADCAST"),
-				configKey = "comm_broad_use",
-				help = loc("CO_GENERAL_BROADCAST_TT"),
-			},
-			{
-				inherit = "TRP3_ConfigEditBox",
-				title = loc("CO_GENERAL_BROADCAST_C"),
-				configKey = "comm_broad_chan",
-				dependentOnOptions = {"comm_broad_use"},
-			},
-			{
-				inherit = "TRP3_ConfigH1",
-				title = loc("CO_GENERAL_MISC"),
+				title = loc.CO_GENERAL_MISC,
 			},
 			{
 				inherit = "TRP3_ConfigSlider",
-				title = loc("CO_GENERAL_TT_SIZE"),
+				title = loc.CO_GENERAL_TT_SIZE,
 				configKey = TRP3_API.ui.tooltip.CONFIG_TOOLTIP_SIZE,
 				min = 6,
 				max = 25,
@@ -446,27 +412,44 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 			},
 			{
 				inherit = "TRP3_ConfigCheck",
-				title = loc("CO_GENERAL_HEAVY"),
+				title = loc.CO_GENERAL_HEAVY,
 				configKey = "heavy_profile_alert",
-				help = loc("CO_GENERAL_HEAVY_TT"),
+				help = loc.CO_GENERAL_HEAVY_TT,
 			},
 			{
 				inherit = "TRP3_ConfigCheck",
-				title = loc("CO_GENERAL_NEW_VERSION"),
+				title = loc.CO_GENERAL_NEW_VERSION,
 				configKey = "new_version_alert",
-				help = loc("CO_GENERAL_NEW_VERSION_TT"),
+				help = loc.CO_GENERAL_NEW_VERSION_TT,
 			},
 			{
 				inherit = "TRP3_ConfigCheck",
-				title = loc("CO_GENERAL_UI_SOUNDS"),
+				title = loc.CO_GENERAL_UI_SOUNDS,
 				configKey = "ui_sounds",
-				help = loc("CO_GENERAL_UI_SOUNDS_TT"),
+				help = loc.CO_GENERAL_UI_SOUNDS_TT,
 			},
 			{
 				inherit = "TRP3_ConfigCheck",
-				title = loc("CO_GENERAL_UI_ANIMATIONS"),
+				title = loc.CO_GENERAL_UI_ANIMATIONS,
 				configKey = "ui_animations",
-				help = loc("CO_GENERAL_UI_ANIMATIONS_TT"),
+				help = loc.CO_GENERAL_UI_ANIMATIONS_TT,
+			},
+			{
+				inherit = "TRP3_ConfigCheck",
+				title = loc.CO_GENERAL_DEFAULT_COLOR_PICKER,
+				configKey = "default_color_picker",
+				help = loc.CO_GENERAL_DEFAULT_COLOR_PICKER_TT,
+			},
+			{
+				inherit = "TRP3_ConfigButton",
+				title = loc.CO_GENERAL_RESET_CUSTOM_COLORS,
+				help = loc.CO_GENERAL_RESET_CUSTOM_COLORS_TT,
+				text = loc.CM_RESET,
+				callback = function()
+					TRP3_API.popup.showConfirmPopup(loc.CO_GENERAL_RESET_CUSTOM_COLORS_WARNING, function()
+						TRP3_Colors = {};
+					end);
+				end,
 			},
 		}
 	}

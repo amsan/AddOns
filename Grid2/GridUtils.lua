@@ -7,13 +7,6 @@ local Grid2 = Grid2
 function Grid2.Dummy()
 end
 
-function Grid2:HideBlizzardRaidFrames()
-	CompactRaidFrameManager:UnregisterAllEvents()
-	CompactRaidFrameManager:Hide()
-	CompactRaidFrameContainer:UnregisterAllEvents()
-	CompactRaidFrameContainer:Hide()
-end
-
 local defaultColors = {
 	TRANSPARENT = {r=0,g=0,b=0,a=0},
 	BLACK       = {r=0,g=0,b=0,a=1},
@@ -117,7 +110,6 @@ end
 -- Hellfire Citadel Velhari Encounter Health Fix
 -- Grid2Utils:FixVelhariEncounterHealth(true | false)
 do
-	local CONTEMPT_AURA = GetSpellInfo(179986)
 	local velhari_fix = false
 	local velhari_percent = -1
 	local floor = math.floor
@@ -129,7 +121,7 @@ do
 	end
 	local function VelhariUpdate()
 		if velhari_percent~=-1 then
-			local p = select(15, UnitAura("boss1", CONTEMPT_AURA))
+			local p = select(14, UnitAura("boss1", 179986)) -- CONTEMPT_AURA
 			p = p and p/100 or 1
 			if velhari_percent ~= p then
 				velhari_percent = p

@@ -1,6 +1,6 @@
 --[[
 AdiButtonAuras - Display auras on action buttons.
-Copyright 2013-2016 Adirelle (adirelle@gmail.com)
+Copyright 2013-2018 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiButtonAuras.
@@ -16,7 +16,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with AdiButtonAuras.  If not, see <http://www.gnu.org/licenses/>.
+along with AdiButtonAuras. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -40,6 +40,7 @@ local GetSpellLink = _G.GetSpellLink
 local GetTime = _G.GetTime
 local gsub = _G.gsub
 local ipairs = _G.ipairs
+local math = _G.math
 local next = _G.next
 local pairs = _G.pairs
 local SecureCmdOptionParse = _G.SecureCmdOptionParse
@@ -54,7 +55,8 @@ local tonumber = _G.tonumber
 local tostring = _G.tostring
 local type = _G.type
 local UnitGUID = _G.UnitGUID
-local UnitIsUnit = _G.UnitIsUnit
+local UnitIsEnemy = _G.UnitIsEnemy
+local UnitIsFriend = _G.UnitIsFriend
 local wipe = _G.wipe
 
 local LibSpellbook = addon.GetLib('LibSpellbook-1.0')
@@ -84,9 +86,9 @@ local unitIdentityMeta = { __index = unitIdentity }
 ------------------------------------------------------------------------------
 
 local function GetMacroAction(macroId)
-	local macroSpell, _, macroSpellId = GetMacroSpell(macroId)
-	if macroSpell or macroSpellId then
-		return "spell", macroSpellId or LibSpellbook:Resolve(macroSpell)
+	local spellId = GetMacroSpell(macroId)
+	if spellId then
+		return "spell", spellId
 	else
 		local _, itemLink = GetMacroItem(macroId)
 		local itemId = itemLink and tonumber(itemLink:match('item:(%d+):'))
@@ -377,7 +379,9 @@ function overlayPrototype:UpdateCooldown(event)
 		self:Debug('cooldownStart=', start, 'cooldownDuration=', duration)
 		self.cooldownStart, self.cooldownDuration = start, duration
 		if inCooldown then
-			C_Timer.After(start + duration + 0.1 - GetTime(), function() return self:UpdateCooldown() end)
+			-- BUG: sometimes the API returns cooldowns beyond 50 days
+			local delay = math.min(start + duration + 0.1 - GetTime(), 24 * 3600)
+			C_Timer.After(delay, function() return self:UpdateCooldown() end)
 		end
 	end
 	if self.inCooldown ~= inCooldown then
@@ -397,7 +401,15 @@ function overlayPrototype:UpdateDynamicUnits(event, unit)
 	for token, conditional in pairs(self.unitConditionals) do
 		local _, unit = SecureCmdOptionParse(conditional)
 		if not unit or unit == "" then
-			unit = "target"
+			if token == "enemy" then
+				unit = not conditional:find("help") and not conditional:find("noharm")
+					and UnitIsEnemy("target", "player") and "target" or ""
+			elseif token == "ally" then
+				unit = not conditional:find("harm") and not conditional:find("nohelp")
+					and UnitIsFriend("target", "player") and "target" or "player"
+			else
+				unit = ""
+			end
 		elseif unit == "mouseover" then
 			local mouseoverUnit = addon:GetMouseoverUnit()
 			if mouseoverUnit == "mouseover" then
@@ -448,8 +460,15 @@ local modelProxy = setmetatable({}, {
 		elseif key == "highlight" then
 			if value == "flash" then
 				key, value = value, true
-			elseif value ~= nil and value ~= "good" and value ~= "bad" and value ~= "darken" and value ~= "lighten" then
-				return error(format('Invalid %s, should be one of "flash", "good", "bad", "darken", "lighten" or nil, not %s', key, tostring(value)), 2)
+			elseif value ~= nil and value ~= "good" and value ~= "bad"
+					and value ~= "darken" and value ~= "lighten" and value ~= "dispel" then
+				return error(
+					format(
+						'Invalid %s, should be one of "flash", "good", "bad", "darken", "lighten", "dispel" or nil, not %s',
+						key, tostring(value)
+					),
+					2
+				)
 			end
 		elseif key == "flash" then
 			if type(value) ~= "boolean" then
@@ -459,8 +478,24 @@ local modelProxy = setmetatable({}, {
 			if type(value) ~= "boolean" then
 				return error(format("Invalid %s, should be false or true, not %s", key, type(value)), 2)
 			end
+		elseif key == "dispel" then
+			if value ~= 'Curse' and value ~= 'Disease' and value ~= 'Magic' and value ~= 'Poison' and value ~= nil then
+				return error(
+					format(
+						'Invalid %s, should be one of "Curse", "Disease", "Magic", "Posion" or nil, not %s',
+						key, tostring(value)
+					),
+					2
+				)
+			end
 		else
-			return error(format('Unknown model property: %s, must be one of: count, maxCount, expiration, highlight or hint', tostring(key)), 2)
+			return error(
+				format(
+					'Unknown model property: %s, must be one of: count, maxCount, expiration, highlight or hint',
+					tostring(key)
+				),
+				2
+			)
 		end
 		model[key] = value
 	end,
@@ -469,40 +504,50 @@ local modelProxy = setmetatable({}, {
 function overlayPrototype:UpdateState(event)
 	self:SetScript('OnUpdate', nil)
 
-	model.count, model.maxCount, model.expiration, model.highlight, model.hint, model.flash  = 0, 0, 0, nil, false, false
+	model.count, model.maxCount, model.expiration = 0, 0, 0
+	model.highlight, model.hint, model.flash, model.dispel = nil, false, false, nil
 
 	if self.handlers then
 		model.spellId, model.actionType, model.actionId = self.spellId, self.actionType, self.actionId
 
 		local unitMap = self.unitMap
-		for i, handler in ipairs(self.handlers) do
+		for _, handler in ipairs(self.handlers) do
 			handler(unitMap, modelProxy)
 		end
 
-		if addon.db.profile.missing[self.spellId] == "highlight" then
-			if model.highlight then
-				model.highlight = nil
+		local prefs = addon.db.profile
+		local missing = prefs.missing[self.spellId]
+		if missing ~= "none" then
+			local missingThreshold = prefs.missingThreshold[self.spellId]
+			local timeLeft = (model.expiration or 0) - GetTime()
+			if timeLeft <= missingThreshold then
+				if missing == "highlight" then
+					model.highlight = self.units.enemy and "bad" or "good"
+				elseif missing == "hint" then
+					model.hint = true
+				elseif missing == "flash" then
+					model.flash = true
+				end
 			else
-				model.highlight = self.units.enemy and "bad" or "good"
+				if missing == "highlight" then
+					model.highlight = nil
+				elseif missing == "hint" then
+					model.hint = nil
+				elseif missing == "flash" then
+					model.flash = nil
+				end
+				C_Timer.After(math.max(0.1, timeLeft - missingThreshold), function() self:UpdateState() end)
 			end
 		end
 
-		if not model.highlight then
-			if addon.db.profile.missing[self.spellId] == "hint" then
-				model.hint = true
-			elseif addon.db.profile.missing[self.spellId] == "flash" then
-				model.flash = true
-			end
-		end
-
-		if addon.db.profile.flashPromotion[self.spellId] and (model.highlight == "good" or model.highlight == "bad") then
+		if prefs.flashPromotion[self.spellId] and (model.highlight == "good" or model.highlight == "bad") then
 			model.highlight, model.flash = nil, true
 		end
 	end
 
 	self:SetCount(model.count, model.maxCount)
 	self:SetExpiration(model.expiration)
-	self:SetHighlight(model.highlight)
+	self:SetHighlight(model.highlight, model.dispel)
 	self:SetFlash(model.flash)
 	self:SetHint(model.hint)
 
@@ -568,11 +613,8 @@ local stanceButtonPrototype = setmetatable({}, overlayMeta)
 local stanceButtonMeta = { __index = stanceButtonPrototype }
 
 function stanceButtonPrototype:GetAction()
-	local _, name = GetShapeshiftFormInfo(self.button:GetID())
-	local ids = LibSpellbook:GetAllIds(name)
-	if ids then
-		return 'spell', (next(ids))
-	end
+	local _, _, _, id = GetShapeshiftFormInfo(self.button:GetID())
+	return 'spell', id
 end
 
 function stanceButtonPrototype:GetActionCooldown()
@@ -587,7 +629,7 @@ local petActionButtonPrototype = setmetatable({}, overlayMeta)
 local petActionButtonMeta = { __index = petActionButtonPrototype }
 
 function petActionButtonPrototype:GetAction()
-	local spellId = select(8, GetPetActionInfo(self.button:GetID()))
+	local spellId = select(7, GetPetActionInfo(self.button:GetID()))
 	if spellId and spellId ~= 0 then
 		return 'spell', spellId
 	end

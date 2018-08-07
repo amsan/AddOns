@@ -14,7 +14,10 @@ local default = {
   font = "Friz Quadrata TT",
   fontSize = 12,
   frameStrata = 1,
-  customTextUpdate = "update"
+  customTextUpdate = "update",
+  automaticWidth = "Auto",
+  fixedWidth = 200,
+  wordWrap = "WordWrap"
 };
 
 local properties = {
@@ -33,7 +36,11 @@ local properties = {
   }
 }
 
-WeakAuras.regionPrototype.AddProperties(properties);
+WeakAuras.regionPrototype.AddProperties(properties, default);
+
+local function GetProperties(data)
+  return properties;
+end
 
 local function create(parent)
   local region = CreateFrame("FRAME", nil, parent);
@@ -41,6 +48,7 @@ local function create(parent)
 
   local text = region:CreateFontString(nil, "OVERLAY");
   region.text = text;
+  text:SetWordWrap(true);
   text:SetNonSpaceWrap(true);
 
   region.values = {};
@@ -66,9 +74,7 @@ local function modify(parent, region, data)
     text:SetFont("Fonts\\FRIZQT__.TTF", data.fontSize, data.outline);
   end
   if text:GetFont() then
-    text:SetWidth(0); -- This makes the text use its internal text size calculation
-    text:SetText(data.displayText);
-    text:SetWidth(text:GetWidth() + 1); -- But that internal text size calculation is wrong, see ticket 1014
+    WeakAuras.regionPrototype.SetTextOnText(text, data.displayText);
   end
   text.displayText = data.displayText;
   text:SetJustifyH(data.justify);
@@ -86,24 +92,56 @@ local function modify(parent, region, data)
   text:ClearAllPoints();
   text:SetPoint(data.justify, region, data.justify);
 
-  local function SetText(textStr)
-    if(textStr ~= text.displayText) then
+  local SetText;
+
+  if (data.automaticWidth == "Fixed") then
+    if (data.wordWrap == "WordWrap") then
+      text:SetWordWrap(true);
+      text:SetNonSpaceWrap(true);
+    else
+      text:SetWordWrap(false);
+      text:SetNonSpaceWrap(false);
+    end
+
+    text:SetWidth(data.fixedWidth);
+    region:SetWidth(data.fixedWidth);
+    SetText = function(textStr)
       if text:GetFont() then
-        text:SetWidth(0);
         text:SetText(textStr);
-        text:SetWidth(text:GetWidth() + 1);
+      end
+
+      local height = text:GetHeight();
+
+      if(data.height ~= height) then
+        data.height = text:GetHeight();
+        region:SetHeight(data.height);
+        if(data.parent and WeakAuras.regions[data.parent].region.ControlChildren) then
+          WeakAuras.regions[data.parent].region:ControlChildren();
+        end
       end
     end
-    if(#textStr ~= #text.displayText) then
-      data.width = text:GetWidth();
-      data.height = text:GetHeight();
-      region:SetWidth(data.width);
-      region:SetHeight(data.height);
-      if(data.parent and WeakAuras.regions[data.parent].region.ControlChildren) then
-        WeakAuras.regions[data.parent].region:ControlChildren();
+  else
+    text:SetWidth(0);
+    text:SetWordWrap(true);
+    text:SetNonSpaceWrap(true);
+    SetText = function(textStr)
+      if(textStr ~= text.displayText) then
+        if text:GetFont() then
+          WeakAuras.regionPrototype.SetTextOnText(text, textStr);
+        end
+      end
+      local width = text:GetWidth();
+      local height = text:GetHeight();
+      if(width ~= data.width or height ~= data.height ) then
+        data.width = width;
+        data.height = height;
+        region:SetWidth(data.width);
+        region:SetHeight(data.height);
+        if(data.parent and WeakAuras.regions[data.parent].region.ControlChildren) then
+          WeakAuras.regions[data.parent].region:ControlChildren();
+        end
       end
     end
-    text.displayText = textStr;
   end
 
   local UpdateText;
@@ -129,14 +167,10 @@ local function modify(parent, region, data)
     local values = region.values;
     region.UpdateCustomText = function()
       WeakAuras.ActivateAuraEnvironment(region.id, region.cloneId, region.state);
-      local custom = customTextFunc(region.expirationTime, region.duration,
-        values.progress, values.duration, values.name, values.icon, values.stacks);
+      values.custom = {select(2, xpcall(customTextFunc, geterrorhandler(), region.expirationTime, region.duration,
+        values.progress, values.duration, values.name, values.icon, values.stacks))}
       WeakAuras.ActivateAuraEnvironment(nil);
-      custom = WeakAuras.EnsureString(custom);
-      if(custom ~= values.custom) then
-        values.custom = custom;
-        UpdateText();
-      end
+      UpdateText();
     end
     if(data.customTextUpdate == "update") then
       WeakAuras.RegisterCustomTextUpdates(region);
@@ -230,7 +264,7 @@ local function modify(parent, region, data)
   end
 end
 
-WeakAuras.RegisterRegionType("text", create, modify, default, properties);
+WeakAuras.RegisterRegionType("text", create, modify, default, GetProperties);
 
 -- Fallback region type
 

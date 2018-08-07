@@ -5,11 +5,11 @@ Created by Grid2 original authors, modified by Michael
 local Grid2 = Grid2
 
 function Grid2:SetupShutdown()
-	-- remove indicators 
+	-- remove indicators
 	for _, indicator in Grid2:IterateIndicators() do
 		Grid2:UnregisterIndicator(indicator)
 	end
-  	-- remove statuses
+	-- remove statuses
 	for _, status in Grid2:IterateStatuses() do
 		Grid2:UnregisterStatus(status)
 	end
@@ -31,8 +31,8 @@ function Grid2:SetupIndicators(setup)
 				Grid2:Debug("SetupIndicators setupFunc not found for indicator: ", dbx.type)
 			end
 		else
-			Grid2:Debug("SetupIndicators child indicator not loaded due to failed dependencies: ", parent, dbx.type)
-		end	
+			Grid2:Debug("SetupIndicators child indicator not loaded due to failed dependencies: ", baseKey, dbx.type)
+		end
 	end
 	-- add new indicator types
 	for baseKey, dbx in pairs(setup) do

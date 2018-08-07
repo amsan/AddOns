@@ -2,12 +2,12 @@ local L = Grid2Options.L
 
 Grid2Options:RegisterStatusOptions( "direction", "target", function(self, status, options)
 	local mask = L["%d yards"]
-	self:MakeStatusColorOptions( status, options, status.dbx.colorCount and { 
-		color1 = string.format( mask, 10), 
-		color2 = string.format( mask, 20), 
-		color3 = string.format( mask, 30), 
-		color4 = string.format( mask, 40), 
-		color5 = string.format( "+"..mask, 40), 
+	self:MakeStatusColorOptions( status, options, status.dbx.colorCount and {
+		color1 = string.format( mask, 10),
+		color2 = string.format( mask, 20),
+		color3 = string.format( mask, 30),
+		color4 = string.format( mask, 40),
+		color5 = string.format( "+"..mask, 40),
 	} or nil )
 	options.colorCount = {
 		type = "toggle",
@@ -100,45 +100,10 @@ Grid2Options:RegisterStatusOptions( "direction", "target", function(self, status
 		order = 125,
 		name = L["Sticky Units"],
 	}
-	options.stickyTarget = {
-		type = "toggle",
-		order = 130,
-		name = L["Target"],
-		desc = L["Always display direction for target"],
-		tristate = false,
-		get = function ()	return status.dbx.StickyTarget end,
-		set = function (_, v)
-			status.dbx.StickyTarget = v or nil
-			status:UpdateDB()
-		end,
-	}
-	options.stickyMouseover = {
-		type = "toggle",
-		order = 140,
-		name = L["Mouseover"],
-		desc = L["Always display direction for mouseover"],
-		tristate = false,
-		get = function ()	return status.dbx.StickyMouseover end,
-		set = function (_, v)
-			status.dbx.StickyMouseover = v or nil
-			status:UpdateDB()
-		end,
-	}
-	options.stickyFocus = {
-		type = "toggle",
-		order = 150,
-		name = L["Focus"],
-		desc = L["Always display direction for focus"],
-		tristate = false,
-		get = function ()	return status.dbx.StickyFocus end,
-		set = function (_, v)
-			status.dbx.StickyFocus = v or nil
-			status:UpdateDB()
-		end,
-	}
 	options.stickyTanks = {
 		type = "toggle",
-		order = 160,
+		order = 130,
+		width = "half",
 		name = L["Tanks"],
 		desc = L["Always display direction for tanks"],
 		tristate = false,
@@ -148,10 +113,44 @@ Grid2Options:RegisterStatusOptions( "direction", "target", function(self, status
 			status:UpdateDB()
 		end,
 	}
-	options.spacer3 = {
-		type = "header",
-		order = 165,
-		name = "",
+	options.stickyTarget = {
+		type = "toggle",
+		order = 140,
+		width = "half",
+		name = L["Target"],
+		desc = L["Always display direction for target"],
+		tristate = false,
+		get = function ()	return status.dbx.StickyTarget end,
+		set = function (_, v)
+			status.dbx.StickyTarget = v or nil
+			status:UpdateDB()
+		end,
+	}
+	options.stickyFocus = {
+		type = "toggle",
+		order = 150,
+		width = "half",
+		name = L["Focus"],
+		desc = L["Always display direction for focus"],
+		tristate = false,
+		get = function ()	return status.dbx.StickyFocus end,
+		set = function (_, v)
+			status.dbx.StickyFocus = v or nil
+			status:UpdateDB()
+		end,
+	}
+	options.stickyMouseover = {
+		type = "toggle",
+		order = 160,
+		width = "half",
+		name = L["Mouseover"],
+		desc = L["Always display direction for mouseover"],
+		tristate = false,
+		get = function ()	return status.dbx.StickyMouseover end,
+		set = function (_, v)
+			status.dbx.StickyMouseover = v or nil
+			status:UpdateDB()
+		end,
 	}
 	options.showOnlyStickyUnits = {
 		type = "toggle",
@@ -163,6 +162,30 @@ Grid2Options:RegisterStatusOptions( "direction", "target", function(self, status
 		set = function (_, v)
 			status.dbx.showOnlyStickyUnits = v or nil
 			status:UpdateDB()
+		end,
+		hidden = function()
+			return not (status.dbx.StickyMouseover or status.dbx.StickyFocus or status.dbx.StickyTarget or status.dbx.StickyTanks)
+		end,
+	}
+	options.spacer3 = {
+		type = "header",
+		order = 180,
+		name = "",
+	}
+	options.guessDirections = {
+		type = "toggle",
+		order = 190,
+		width = "full",
+		name = L["Estimate directions"],
+		desc = L["Try to display directions when inside Instances. Experimental, only works with melee classes."],
+		tristate = false,
+		get = function ()	return status.dbx.guessDirections end,
+		set = function (_, v)
+			status.dbx.guessDirections = v or nil
+			if status.enabled then
+				status:OnDisable()
+				status:OnEnable()
+			end
 		end,
 	}
 end, {

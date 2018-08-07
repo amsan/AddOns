@@ -1,6 +1,6 @@
 --[[
 AdiButtonAuras - Display auras on action buttons.
-Copyright 2013-2016 Adirelle (adirelle@gmail.com)
+Copyright 2013-2018 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiButtonAuras.
@@ -16,7 +16,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with AdiButtonAuras.  If not, see <http://www.gnu.org/licenses/>.
+along with AdiButtonAuras. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 AdiButtonAuras:RegisterRules(function()
@@ -88,8 +88,8 @@ AdiButtonAuras:RegisterRules(function()
 				  2825, -- Bloodlust (Horde shaman)
 				 32182, -- Heroism (Alliance shaman)
 				 80353, -- Time Warp (mage)
-				 90355, -- Ancient Hysteria (hunter exotic pet ability)
-				160452, -- Netherwinds (hunter pet)
+				264667, -- Primal Rage (hunter ferocity pets)
+				272678, -- Primal Rage (hunter command pet ability)
 				"item:102351", -- Drums of Rage
 				"item:120257", -- Drums of Fury
 			},
@@ -100,48 +100,20 @@ AdiButtonAuras:RegisterRules(function()
 					  2825, -- Bloodlust (Horde shaman)
 					 32182, -- Heroism (Alliance shaman)
 					 80353, -- Time Warp (mage)
-					 90355, -- Ancient Hysteria (hunter exotic pet ability)
 					146555, -- Drums of Rage
-					160452, -- Netherwinds (hunter pet)
 					178207, -- Drums of Fury
+					264667, -- Primal Rage (hunter ferocity pets)
 				})
 				local isSated = BuildAuraHandler_Longest("HARMFUL", "bad", "ally", {
 					 57723, -- Exhaustion (Drums of Rage/Fury debuff)
 					 57724, -- Sated (Bloodlst/Heroism debuff),
 					 80354, -- Temporal Displacement (Time Warp debuff)
-					 95809, -- Insanity (Ancient Hysteria debuff)
-					160455, -- Fatigued (Netherwinds debuff)
+					264689, -- Fatigued (Primal Rage debuff)
 				})
 				return function(units, model)
 					return hasBloodlust(units, model) or isSated(units, model)
 				end
 			end)(),
-		},
-
-	--------------------------------------------------------------------------
-	-- Battle Resurrection (Surrendered Soul)
-	--------------------------------------------------------------------------
-
-		Configure {
-			"SurrenderedSoul",
-			BuildDesc("HARMFUL", "bad", "ally", 212570), -- Surrendered Soul
-			{
-				 20484, -- Rebirth
-				 20707, -- Soulstone
-				 61999, -- Raise Ally
-				126393, -- Eternal Guardian (Quilen)
-				159931, -- Gift of Chi-Ji (Crane)
-				159956, -- Dust of Life (Moth)
-			},
-			"ally",
-			"UNI_AURA",
-			function(units, model)
-				local found, _, expiration = GetDebuff(units.ally, 212570) -- Surrendered Soul
-				if found then
-					model.highlight = "bad"
-					model.expiration = expiration
-				end
-			end,
 		},
 	}
 
@@ -151,43 +123,45 @@ AdiButtonAuras:RegisterRules(function()
 
 	local LibPlayerSpells = GetLib('LibPlayerSpells-1.0')
 	local band, bor = bit.band, bit.bor
-	local classMask = LibPlayerSpells.constants[PLAYER_CLASS]
-	local racialMask = LibPlayerSpells.constants.RACIAL
+	local classFlag = LibPlayerSpells.constants[PLAYER_CLASS]
+	local racialFlag = LibPlayerSpells.constants.RACIAL
 
 	local debuffs, ccSpells = {}, {}
 
-	for aura, flags, _, target, ccMask in LibPlayerSpells:IterateSpells("CROWD_CTRL") do
-		debuffs[ccMask] = debuffs[ccMask] or {} -- associative array to avoid duplicates
-		debuffs[ccMask][aura] = true
-		if band(flags, classMask) > 0 or band(flags, racialMask) > 0 then
-			ccSpells[ccMask] = ccSpells[ccMask] or {} -- associative array to avoid duplicates
-			local spells = ccSpells[ccMask]
-			if type(target) == "table" then
-				for i = 1, #target do
-					spells[target[i]] = true
+	for aura, flags, providers, modified, ccFlags in LibPlayerSpells:IterateSpells('CROWD_CTRL') do
+		debuffs[ccFlags] = debuffs[ccFlags] or {} -- assoviative array to avoid duplicates
+		debuffs[ccFlags][aura] = true
+
+		if band(flags, classFlag) > 0 or band(flags, racialFlag) > 0 then
+			ccSpells[ccFlags] = ccSpells[ccFlags] or {}
+			local spells = ccSpells[ccFlags]
+			if type(modified) == 'table' then
+				for i = 1, #modified do
+					spells[modified[i]] = providers
 				end
 			else
-				spells[target] = true
+				spells[modified] = providers
 			end
 		end
 	end
+
 	-- associative to simple array
-	for mask, spells in pairs(debuffs) do
+	for flag, auras in next, debuffs do
 		local list = {}
-		for spell in pairs(spells) do
-			list[#list + 1] = spell
+		for aura in next, auras do
+			list[#list + 1] = aura
 		end
-		debuffs[mask] = list
+		debuffs[flag] = list
 	end
 
-	for mask, spells in pairs(ccSpells) do
-		local key = "CrowdControl:"..mask
-		local name = LibPlayerSpells:GetCrowdControlCategoryName(mask)
-		local desc = format(L["Show the \"bad\" border if the targeted enemy is %s."], name:lower())
-		local handler = BuildAuraHandler_Longest("HARMFUL", "bad", "enemy", debuffs[mask])
-		for spell in pairs(spells) do
+	for flag, spells in next, ccSpells do
+		local name = LibPlayerSpells:GetCrowdControlCategoryName(flag)
+		local desc = format(L['Show the "bad" border if the targeted enemy is %s.'], name:lower())
+		local handler = BuildAuraHandler_Longest('HARMFUL', 'bad', 'enemy', debuffs[flag])
+		for spell, providers in next, spells do
+			local key = format('CrowdControl:%s:%d', name, spell)
 			rules[#rules + 1] = function()
-				AddRuleFor(key, desc, spell, "enemy", "UNIT_AURA", handler)
+				AddRuleFor(key, desc, spell, 'enemy', 'UNIT_AURA', handler, providers)
 			end
 		end
 	end
@@ -195,33 +169,44 @@ AdiButtonAuras:RegisterRules(function()
 	--------------------------------------------------------------------------
 	-- Dispels
 	--------------------------------------------------------------------------
-	-- Use LibDispellable and LibPlayerSpells
-	local LibDispellable, LDVer = GetLib('LibDispellable-1.0')
 
-	local HELPFUL = LibPlayerSpells.constants.HELPFUL
-	for spell, flags, _, _, _, category in LibPlayerSpells:IterateSpells("DISPEL", PLAYER_CLASS) do
-		local offensive = bit.band(flags, HELPFUL) == 0
-		local token = offensive and "enemy" or "ally"
-		tinsert(rules, Configure {
-			"Dispel",
-			(offensive
-				and BuildDesc(L["a buff you can dispel"], "good", "enemy")
-				or BuildDesc(L["a debuff you can dispel"], "bad", "ally")
-			)..format(" [LD-%d,%s]", LDVer, DescribeLPSSource(category)),
-			spell,
-			token,
-			"UNIT_AURA",
-			function(units, model)
-				local unit = units[token]
-				if not unit then return end
-				for i, dispel, _, _, _, count, _, _, expiration in LibDispellable:IterateDispellableAuras(unit, offensive) do
-					if dispel == spell then
-						model.highlight, model.count, model.expiration = offensive and "good" or "bad", count, expiration
-						return
-					end
-				end
+	local TARGETING = LibPlayerSpells.masks.TARGETING
+	local PERSONAL  = LibPlayerSpells.constants.PERSONAL
+	local HARMFUL   = LibPlayerSpells.constants.HARMFUL
+	local CURSE     = LibPlayerSpells.constants.CURSE
+	local DISEASE   = LibPlayerSpells.constants.DISEASE
+	local MAGIC     = LibPlayerSpells.constants.MAGIC
+	local POISON    = LibPlayerSpells.constants.POISON
+	local inclusionMask = bor(LibPlayerSpells.constants[PLAYER_CLASS], LibPlayerSpells.constants.RACIAL)
+
+	for spell, flags, _, _, _, category, dispelFlags in LibPlayerSpells:IterateSpells('DISPEL') do
+		if band(inclusionMask, flags) > 0 then
+			local filter, highlight, token = 'HARMFUL', 'dispel', 'ally'
+			local targeting = band(flags, TARGETING)
+			if targeting == HARMFUL then
+				filter, token = 'HELPFUL', 'enemy'
+			elseif targeting == PERSONAL then
+				token = 'player'
 			end
-		})
+			local desc = filter == 'HARMFUL' and L['a debuff you can dispel'] or L['a buff you can dispel']
+			local dispellable = {
+				Curse   = band(dispelFlags, CURSE) > 0 or nil,
+				Disease = band(dispelFlags, DISEASE) > 0 or nil,
+				Magic   = band(dispelFlags, MAGIC) > 0 or nil,
+				Poison  = band(dispelFlags, POISON) > 0 or nil,
+			}
+
+			if next(dispellable) then
+				rules[#rules + 1] = Configure {
+					'Dispel:' .. spell,
+					BuildDesc(desc, highlight, token) .. format(' [%s]', DescribeLPSSource(category)),
+					spell,
+					token,
+					'UNIT_AURA',
+					BuildDispelHandler(filter, highlight, token, dispellable),
+				}
+			end
+		end
 	end
 
 	--------------------------------------------------------------------------
@@ -239,7 +224,7 @@ AdiButtonAuras:RegisterRules(function()
 		local source = DescribeLPSSource(PLAYER_CLASS)
 		tinsert(rules, Configure {
 			"Interrupt",
-			format(L["%s when %s is casting/channelling a spell that you can interrupt."].." [%s]",
+			format(L["%s when %s is casting/channeling a spell that you can interrupt."].." [%s]",
 				DescribeHighlight("flash"),
 				DescribeAllTokens("enemy"),
 				source
@@ -260,11 +245,11 @@ AdiButtonAuras:RegisterRules(function()
 			function(units, model)
 				local unit = units.enemy
 				if unit and UnitCanAttack("player", unit) then
-					local name, _, _, _, _, endTime, _, _, notInterruptible = UnitCastingInfo(unit)
+					local name, _, _, _, endTime, _, _, notInterruptible = UnitCastingInfo(unit)
 					if name and not notInterruptible then
 						model.flash, model.expiration = true, endTime / 1000
 					end
-					name, _, _, _, _, endTime, _, notInterruptible = UnitChannelInfo(unit)
+					name, _, _, _, endTime, _, notInterruptible = UnitChannelInfo(unit)
 					if name and not notInterruptible then
 						model.flash, model.expiration = true, endTime / 1000
 					end

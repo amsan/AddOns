@@ -36,10 +36,32 @@
 	<Script file="main\register_exchange.lua" />
 	<Script file="main\register_tooltip.lua" />
 	<Script file="main\register_list.lua" />
+	<Script file="main\RegisterPlayerChatLinksModule.lua" />
+	<Script file="main\RegisterCompanionChatLinksModule.lua" />
+	<Script file="main\AtFirstGlanceChatLinksModule.lua" />
 
 	<Script file="main\register_glance.lua" />
 	
 	<Script file="msp\register_msp.lua" />
+
+	<Frame name="TRP3_CursorFrame" parent="UIParent" hidden="true">
+		<Size x="30" y="30" />
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Icon" file="Interface\Cursor\WorkOrders">
+					<Size x="30" y="30" />
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
+
+	<Script file="main\register_cursor.lua" />
 
 	<Include file="filter\register_mature_filter.xml" />
 

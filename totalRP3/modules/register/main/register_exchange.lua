@@ -17,12 +17,15 @@
 --	limitations under the License.
 ----------------------------------------------------------------------------------
 
+---@type AddOn_TotalRP3
+local AddOn_TotalRP3 = AddOn_TotalRP3;
+
 -- TRP3 imports
 local Globals = TRP3_API.globals;
 local Utils = TRP3_API.utils;
 local get = TRP3_API.profile.getData;
-local Comm = TRP3_API.communication;
-local loc = TRP3_API.locale.getText;
+local Comm = AddOn_TotalRP3.Communications;
+local loc = TRP3_API.loc;
 local log = Utils.log.log;
 local Events = TRP3_API.events;
 local getPlayerCharacter = TRP3_API.profile.getPlayerCharacter;
@@ -32,7 +35,7 @@ local isIDIgnored, shouldUpdateInformation = TRP3_API.register.isIDIgnored, TRP3
 local addCharacter = TRP3_API.register.addCharacter;
 local saveCurrentProfileID, saveClientInformation, saveInformation = TRP3_API.register.saveCurrentProfileID, TRP3_API.register.saveClientInformation, TRP3_API.register.saveInformation;
 local getPlayerCurrentProfileID = TRP3_API.profile.getPlayerCurrentProfileID;
-local isUnitIDKnown = TRP3_API.register.isUnitIDKnown;
+local isUnitIDKnown, hasProfile = TRP3_API.register.isUnitIDKnown, TRP3_API.register.hasProfile;
 local playerAPI = TRP3_API.register.player;
 local getCharExchangeData = playerAPI.getCharacteristicsExchangeData;
 local getAboutExchangeData = playerAPI.getAboutExchangeData;
@@ -44,24 +47,29 @@ local getCompanionData = TRP3_API.companions.player.getCompanionData;
 local saveCompanionInformation = TRP3_API.companions.register.saveInformation;
 local getConfigValue = TRP3_API.configuration.getValue;
 local showAlertPopup = TRP3_API.popup.showAlertPopup;
+local displayMessage = TRP3_API.utils.message.displayMessage;
+local msp = _G.msp;
+
+---@type AddOn_TotalRP3
+local AddOn_TotalRP3 = AddOn_TotalRP3;
 
 -- WoW imports
-local UnitName, UnitIsPlayer, UnitFactionGroup, CheckInteractDistance = UnitName, UnitIsPlayer, UnitFactionGroup, CheckInteractDistance;
+local UnitName, UnitIsPlayer, CheckInteractDistance, UnitFullName = UnitName, UnitIsPlayer, CheckInteractDistance, UnitFullName;
 local tinsert, time, type, pairs, tonumber = tinsert, GetTime, type, pairs, tonumber;
+local newTimer = C_Timer.NewTimer;
 
 -- Config keys
-local CONFIG_REGISTRE_AUTO_ADD = "register_auto_add";
 local CONFIG_NEW_VERSION = "new_version_alert";
+
+-- Character name for profile opening command
+local characterToOpen = "";
+local commandOpeningTimerHandle;
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 -- Utils
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 local has_seen_update_alert, has_seen_extended_update_alert = false, false;
-
-local function configIsAutoAdd()
-	return getConfigValue(CONFIG_REGISTRE_AUTO_ADD);
-end
 
 local function configShowVersionAlert()
 	return getConfigValue(CONFIG_NEW_VERSION);
@@ -77,9 +85,9 @@ local VERNUM_QUERY_PREFIX = "VQ";
 local VERNUM_R_QUERY_PREFIX = "VR";
 local INFO_TYPE_QUERY_PREFIX = "GI";
 local INFO_TYPE_SEND_PREFIX = "SI";
-local VERNUM_QUERY_PRIORITY = "NORMAL";
-local INFO_TYPE_QUERY_PRIORITY = "NORMAL";
-local INFO_TYPE_SEND_PRIORITY = "BULK";
+local VERNUM_QUERY_PRIORITY = Comm.PRIORITIES.MEDIUM;
+local INFO_TYPE_QUERY_PRIORITY = Comm.PRIORITIES.MEDIUM;
+local INFO_TYPE_SEND_PRIORITY = Comm.PRIORITIES.LOW;
 
 local VERNUM_QUERY_INDEX_VERSION = 1;
 local VERNUM_QUERY_INDEX_VERSION_DISPLAY = 2;
@@ -98,6 +106,7 @@ local VERNUM_QUERY_INDEX_COMPANION_MOUNT = 14;
 local VERNUM_QUERY_INDEX_COMPANION_MOUNT_V1 = 15;
 local VERNUM_QUERY_INDEX_COMPANION_MOUNT_V2 = 16;
 local VERNUM_QUERY_INDEX_EXTENDED = 17;
+local VERNUM_QUERY_INDEX_TRIALS = 18;
 
 local queryInformationType, createVernumQuery;
 
@@ -130,6 +139,8 @@ function createVernumQuery()
 	if Globals.extended_version then
 		query[VERNUM_QUERY_INDEX_EXTENDED] = Globals.extended_version;
 	end
+	-- Trial accounts
+	query[VERNUM_QUERY_INDEX_TRIALS] = Globals.is_trial_account;
 
 	return query;
 end
@@ -182,7 +193,7 @@ local function checkVersion(sender, senderVersion, senderVersionText, extendedVe
 		-- Test for TRP3
 		if  senderVersion > Globals.version and not has_seen_update_alert then
 			if Utils.table.size(newVersionAlerts[senderVersionText]) >= 15 then
-				TRP3_UpdateFrame.popup.text:SetText(loc("NEW_VERSION"):format(senderVersionText:sub(1, 15)));
+				TRP3_UpdateFrame.popup.text:SetText(loc.NEW_VERSION:format(senderVersionText:sub(1, 15)));
 				TRP3_UpdateFrame:Show();
 				has_seen_update_alert = true;
 			end
@@ -191,7 +202,7 @@ local function checkVersion(sender, senderVersion, senderVersionText, extendedVe
 		-- Test for Extended
 		if extendedVersion and Globals.extended_version and extendedVersion > Globals.extended_version and not has_seen_extended_update_alert then
 			if Utils.table.size(extendedNewVersionAlerts[extendedVersion]) >= 3 then
-				Utils.message.displayMessage(loc("NEW_EXTENDED_VERSION"):format(extendedVersion));
+				Utils.message.displayMessage(loc.NEW_EXTENDED_VERSION:format(extendedVersion));
 				has_seen_extended_update_alert = true;
 			end
 		end
@@ -255,6 +266,7 @@ local function incomingVernumQuery(structure, senderID, sendBack)
 	local senderVersionText = structure[VERNUM_QUERY_INDEX_VERSION_DISPLAY];
 	local senderProfileID = structure[VERNUM_QUERY_INDEX_CHARACTER_PROFILE];
 	local senderExtendedVersion = structure[VERNUM_QUERY_INDEX_EXTENDED];
+	local senderIsTrial = structure[VERNUM_QUERY_INDEX_TRIALS];
 
 	senderVersion = tonumber(senderVersion) or 0;
 	senderExtendedVersion = tonumber(senderExtendedVersion) or 0;
@@ -266,41 +278,39 @@ local function incomingVernumQuery(structure, senderID, sendBack)
 
 	checkVersion(senderID, senderVersion, senderVersionText, senderExtendedVersion);
 
-	if isUnitIDKnown(senderID) or configIsAutoAdd() then
-		if not isUnitIDKnown(senderID) then
-			addCharacter(senderID);
-		end
-		saveClientInformation(senderID, clientName, senderVersionText, false, senderExtendedVersion);
-		saveCurrentProfileID(senderID, senderProfileID);
-
-		-- Query specific data, depending on version number.
-		local index = VERNUM_QUERY_INDEX_CHARACTER_CHARACTERISTICS_V;
-		for _, infoType in pairs(infoTypeTab) do
-			if shouldUpdateInformation(senderID, infoType, structure[index]) then
-				log(("Should update: %s's %s"):format(senderID, infoType));
-				queryInformationType(senderID, infoType);
-			end
-			index = index + 1;
-		end
-
-		-- Battle pet
-		local battlePetLine = structure[VERNUM_QUERY_INDEX_COMPANION_BATTLE_PET];
-		local battlePetV1 = structure[VERNUM_QUERY_INDEX_COMPANION_BATTLE_PET_V1];
-		local battlePetV2 = structure[VERNUM_QUERY_INDEX_COMPANION_BATTLE_PET_V2];
-		parseCompanionInfo(senderID, senderProfileID, battlePetLine, battlePetV1, battlePetV2);
-
-		-- Pet
-		local petLine = structure[VERNUM_QUERY_INDEX_COMPANION_PET];
-		local petV1 = structure[VERNUM_QUERY_INDEX_COMPANION_PET_V1];
-		local petV2 = structure[VERNUM_QUERY_INDEX_COMPANION_PET_V2];
-		parseCompanionInfo(senderID, senderProfileID, petLine, petV1, petV2);
-
-		-- Mount
-		local mountLine = structure[VERNUM_QUERY_INDEX_COMPANION_MOUNT];
-		local mountV1 = structure[VERNUM_QUERY_INDEX_COMPANION_MOUNT_V1];
-		local mountV2 = structure[VERNUM_QUERY_INDEX_COMPANION_MOUNT_V2];
-		parseCompanionInfo(senderID, senderProfileID, mountLine, mountV1, mountV2);
+	if not isUnitIDKnown(senderID) then
+		addCharacter(senderID);
 	end
+	saveClientInformation(senderID, clientName, senderVersionText, false, senderExtendedVersion, senderIsTrial);
+	saveCurrentProfileID(senderID, senderProfileID);
+
+	-- Query specific data, depending on version number.
+	local index = VERNUM_QUERY_INDEX_CHARACTER_CHARACTERISTICS_V;
+	for _, infoType in pairs(infoTypeTab) do
+		if shouldUpdateInformation(senderID, infoType, structure[index]) then
+			log(("Should update: %s's %s"):format(senderID, infoType));
+			queryInformationType(senderID, infoType);
+		end
+		index = index + 1;
+	end
+
+	-- Battle pet
+	local battlePetLine = structure[VERNUM_QUERY_INDEX_COMPANION_BATTLE_PET];
+	local battlePetV1 = structure[VERNUM_QUERY_INDEX_COMPANION_BATTLE_PET_V1];
+	local battlePetV2 = structure[VERNUM_QUERY_INDEX_COMPANION_BATTLE_PET_V2];
+	parseCompanionInfo(senderID, senderProfileID, battlePetLine, battlePetV1, battlePetV2);
+
+	-- Pet
+	local petLine = structure[VERNUM_QUERY_INDEX_COMPANION_PET];
+	local petV1 = structure[VERNUM_QUERY_INDEX_COMPANION_PET_V1];
+	local petV2 = structure[VERNUM_QUERY_INDEX_COMPANION_PET_V2];
+	parseCompanionInfo(senderID, senderProfileID, petLine, petV1, petV2);
+
+	-- Mount
+	local mountLine = structure[VERNUM_QUERY_INDEX_COMPANION_MOUNT];
+	local mountV1 = structure[VERNUM_QUERY_INDEX_COMPANION_MOUNT_V1];
+	local mountV2 = structure[VERNUM_QUERY_INDEX_COMPANION_MOUNT_V2];
+	parseCompanionInfo(senderID, senderProfileID, mountLine, mountV1, mountV2);
 end
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -342,7 +352,7 @@ local function incomingInformationType(informationType, senderID)
 	end
 	if data then
 		log(("Send %s info to %s"):format(informationType, senderID));
-		Comm.sendObject(INFO_TYPE_SEND_PREFIX, {informationType, data}, senderID, INFO_TYPE_SEND_PRIORITY);
+		AddOn_TotalRP3.Communications.sendObject(INFO_TYPE_SEND_PREFIX, {informationType, data}, senderID, INFO_TYPE_SEND_PRIORITY, nil, true);
 	end
 end
 
@@ -350,7 +360,10 @@ end
 -- Received information
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-local function incomingInformationTypeSent(structure, senderID)
+local function incomingInformationTypeSent(structure, senderID, channel)
+	if not channel:find("LOGGED", nil, true) and not channel:find("BATTLENET", nil, true) then
+		return -- ignore non logged profiles
+	end
 	local informationType = structure[1];
 	local data = structure[2];
 
@@ -384,21 +397,19 @@ end
 local companionIDToInfo = Utils.str.companionIDToInfo;
 
 local function onMouseOverCharacter(unitID)
-	if UnitFactionGroup("player") == UnitFactionGroup("mouseover") then
-		sendQuery(unitID);
-	end
+	sendQuery(unitID);
 end
 
 local function onMouseOverCompanion(companionFullID)
 	local ownerID, companionID = companionIDToInfo(companionFullID);
-	if UnitFactionGroup("player") == UnitFactionGroup("mouseover") and isUnitIDKnown(ownerID) then
+	if isUnitIDKnown(ownerID) then
 		sendQuery(ownerID);
 	end
 end
 
 local function onTargetChanged()
 	local unitID = Utils.str.getUnitID("target");
-	if UnitIsPlayer("target") and UnitFactionGroup("player") == UnitFactionGroup("target") then
+	if UnitIsPlayer("target") then
 		sendQuery(unitID);
 	end
 end
@@ -415,7 +426,7 @@ local function checkPlayerDataWeight()
 	if computedSize > ALERT_FOR_SIZE then
 		log(("Profile too heavy ! It would take %s messages to send."):format(computedSize));
 		if getConfigValue("heavy_profile_alert") then
-			TRP3_API.ui.tooltip.toast(loc("REG_PLAYER_ALERT_HEAVY_SMALL"), 5);
+			TRP3_API.ui.tooltip.toast(loc.REG_PLAYER_ALERT_HEAVY_SMALL, 5);
 		end
 	end
 end
@@ -451,17 +462,17 @@ function TRP3_API.register.inits.dataExchangeInit()
 	Utils.event.registerHandler("PLAYER_TARGET_CHANGED", onTargetChanged);
 
 	-- Register prefix for data exchange
-	Comm.registerProtocolPrefix(VERNUM_QUERY_PREFIX, function(structure, senderID)
+	AddOn_TotalRP3.Communications.registerSubSystemPrefix(VERNUM_QUERY_PREFIX, function(structure, senderID)
 		incomingVernumQuery(structure, senderID, true);
 	end);
-	Comm.registerProtocolPrefix(VERNUM_R_QUERY_PREFIX, function(structure, senderID)
+	AddOn_TotalRP3.Communications.registerSubSystemPrefix(VERNUM_R_QUERY_PREFIX, function(structure, senderID)
 		incomingVernumQuery(structure, senderID, false);
 	end);
-	Comm.registerProtocolPrefix(INFO_TYPE_QUERY_PREFIX, incomingInformationType);
-	Comm.registerProtocolPrefix(INFO_TYPE_SEND_PREFIX, incomingInformationTypeSent);
+	AddOn_TotalRP3.Communications.registerSubSystemPrefix(INFO_TYPE_QUERY_PREFIX, incomingInformationType);
+	AddOn_TotalRP3.Communications.registerSubSystemPrefix(INFO_TYPE_SEND_PREFIX, incomingInformationTypeSent);
 
 	-- When receiving HELLO from someone else (from the other side ?)
-	Comm.broadcast.registerCommand(Comm.broadcast.HELLO_CMD, function(sender, version, versionDisplay, extendedVersion)
+	AddOn_TotalRP3.Communications.broadcast.registerCommand(Comm.broadcast.HELLO_CMD, function(sender, version, versionDisplay, extendedVersion)
 		version = tonumber(version) or 0;
 		extendedVersion = tonumber(extendedVersion) or 0;
 		-- Only treat the message if it does not come from us
@@ -470,3 +481,76 @@ function TRP3_API.register.inits.dataExchangeInit()
 		end
 	end);
 end
+
+local UNIT_TOKENS = { "target", "mouseover", "player", "focus" };
+UNIT_TOKENS = tInvert(UNIT_TOKENS);
+TRP3_API.slash.registerCommand({
+	id = "open",
+	helpLine = " " .. loc.PR_SLASH_OPEN_HELP,
+	handler = function(...)
+		local args = {...};
+
+		if commandOpeningTimerHandle then
+			commandOpeningTimerHandle:Cancel();
+		end
+
+		if #args > 1 then
+			displayMessage(loc.PR_SLASH_OPEN_EXAMPLE);
+			return
+		elseif #args == 1 then
+			characterToOpen = table.concat(args, " ");
+
+			if UNIT_TOKENS[characterToOpen:lower()] then
+				-- If we typed a unit token we resolve it
+				characterToOpen = Utils.str.getUnitID(characterToOpen:lower());
+			else
+				-- Capitalizing first letter of the name, just in case someone is lazy.
+				-- We don't have a solution for "I'm lazy but need someone from another realm" yet.
+				characterToOpen = characterToOpen:gsub("^%l", string.upper);
+			end
+
+			-- If no realm has been entered, we use the player's realm automatically
+			if not characterToOpen:find("-") then
+				characterToOpen = characterToOpen .. "-" .. TRP3_API.globals.player_realm_id;
+			end
+		else
+			-- If no name is provided, we use the target ID
+			if UnitIsPlayer("target") then
+				characterToOpen = Utils.str.getUnitID("target");
+			else
+				displayMessage(loc.PR_SLASH_OPEN_EXAMPLE);
+				return
+			end
+		end
+
+		sendQuery(characterToOpen);
+		local request = {"TT", "HH", "AG", "AE", "HB", "DE", "HI", "AH", "AW", "MO", "NH", "IC", "CO"};
+		msp:Request(characterToOpen, request);
+		-- If we already have a profile for that user in the registry, we open it and reset the name (so it doesn't try to open again afterwards)
+		if characterToOpen == TRP3_API.globals.player_id or (isUnitIDKnown(characterToOpen) and hasProfile(characterToOpen)) then
+			TRP3_API.navigation.openMainFrame();
+			TRP3_API.register.openPageByUnitID(characterToOpen);
+			characterToOpen = "";
+		else
+			displayMessage(loc.PR_SLASH_OPEN_WAITING);
+
+			-- If after 1 minute they didn't reply, abort
+			commandOpeningTimerHandle = newTimer(60, function()
+				displayMessage(loc.PR_SLASH_OPEN_ABORTING);
+				characterToOpen = "";
+			end)
+		end
+	end
+})
+
+-- Event for the "/trp3 open" command
+Events.listenToEvent(Events.REGISTER_DATA_UPDATED, function(unitID, profileID, dataType)
+	if unitID == characterToOpen and (not dataType or dataType == "character") then
+		TRP3_API.navigation.openMainFrame();
+		TRP3_API.register.openPageByUnitID(characterToOpen);
+		if commandOpeningTimerHandle then
+			commandOpeningTimerHandle:Cancel();
+		end
+		characterToOpen = "";
+	end
+end);

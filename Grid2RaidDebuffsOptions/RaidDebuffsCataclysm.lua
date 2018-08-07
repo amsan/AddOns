@@ -1,12 +1,13 @@
 local RDDB= Grid2Options:GetRaidDebuffsTable()
 
 RDDB["Cataclysm"] = {
-	[754] = {
+	[669] = {
+		{ id = 73, name = "Blackwing Descent" },
 		["Magmaw"]= {
 		order = 2, ejid = 170,
 		89773, -- Mangle
 		88287, -- Massive Crash
-        78199, -- Sweltering Armor		
+        78199, -- Sweltering Armor
 		},
 		["Omnitron Defense System"]= {
 		order = 1, ejid = 169,
@@ -16,7 +17,7 @@ RDDB["Cataclysm"] = {
 		91829, -- Fixate
         92053, -- Shadow Conductor
         92048, -- Shadow Infusion
-        92023, -- Encasing Shadows		
+        92023, -- Encasing Shadows
 		},
 		["Maloriak"]= {
 		order = 5, ejid = 173,
@@ -39,19 +40,20 @@ RDDB["Cataclysm"] = {
 		89084, -- Low Health
 		82934, -- Mortality
 		82881, -- Break
-        91307, -- Mocking Shadows		
+        91307, -- Mocking Shadows
 		},
 		["Nefarian"]={
 		order = 6, ejid = 174,
 		77827, -- Tail Lash
         79339, -- Explosive Cinders
-        79318, -- Dominion		
+        79318, -- Dominion
 		},
 	},
-	[758] = {
+	[671] = {
+		{ id = 72, name = "The Bastion of Twilight" },
 		["Halfus Wyrmbreaker"]= {
 		order = 1, ejid = 156,
-		83710, -- Furious Roar		
+		83710, -- Furious Roar
 		83908, -- Malevolent Strike
 		83603, -- Stone Touch
 		},
@@ -78,7 +80,7 @@ RDDB["Cataclysm"] = {
 		order = 4, ejid = 167,
         81836, -- Corruption: Accelerated
         82125, -- Corruption: Malformation
-        82170, -- Corruption: Absolute		
+        82170, -- Corruption: Absolute
 		82523, -- Gall's Blast
 		82518, -- Cho's Blast
 		},
@@ -87,7 +89,8 @@ RDDB["Cataclysm"] = {
 		89299, -- Twilight Spit
 		},
 	},
-	[773] = {
+	[754] = {
+		{ id = 74, name = "Throne of the Four Winds" },
 		["Conclave of Wind"]= {
 		order = 1, ejid = 154,
 		84645, -- Wind Chill
@@ -97,7 +100,7 @@ RDDB["Cataclysm"] = {
 		86281, -- Toxic Spores
 		85573, -- Deafening Winds
 		85576, -- Withering Winds
-		93057, -- Slicing Gale		
+		93057, -- Slicing Gale
 		},
 		["Al'Akir"]= {
 		order = 2, ejid = 155,
@@ -105,10 +108,11 @@ RDDB["Cataclysm"] = {
 		87873, -- Static Shock
 		88427, -- Electrocute
 		89668, -- Lightning Rod
-        87856, -- Squall Line		
+        87856, -- Squall Line
 		},
 	},
-    [752] = {
+    [757] = {
+        { id = 75, name = "Baradin Hold" },
         ["Argaloth"]= {
 		order = 1, ejid = 139,
         88942, -- Meteor Slash
@@ -122,9 +126,10 @@ RDDB["Cataclysm"] = {
 		order = 3, ejid = 339,
 		104936, -- Skewer
 		105067, -- Seething Hate
-		},		
-    },	
-	[800] = {
+		},
+    },
+	[720] = {
+		{ id = 78, name = "Firelands" },
 		["Beth'tilac"]= {
 		order = 1, ejid = 192,
 		49026, -- Fixate
@@ -181,9 +186,10 @@ RDDB["Cataclysm"] = {
 		99800, -- Ensnare
 		99993,  -- Fiery Blood
 		100767, -- Melt Armor
-		},		
+		},
 	},
-	[824] = {
+	[967] = {
+		{ id = 187, name = "Dragon Soul" },
 		["Morchok"] = {
 		order = 1, ejid = 311,
 		103687, -- Crush Armor
@@ -194,7 +200,7 @@ RDDB["Cataclysm"] = {
 		105285,  -- Target (next Ice Lance)
 		105316,  -- Ice Lance
 		105289,  -- Shattered Ice
-		105259,  -- Watery Entrenchment	
+		105259,  -- Watery Entrenchment
 		105465,  -- Lightning Storm
 		105369,  -- Lightning Conduit
 		},
@@ -217,7 +223,7 @@ RDDB["Cataclysm"] = {
 		order = 3, ejid = 325,
 		104849, -- Void bolt
 		109389, -- Deep Corruption
-		105695, -- Fixate 
+		105695, -- Fixate
 		},
 		["Warlord Zon'ozz"] = {
 		order = 2, ejid = 324,
@@ -238,6 +244,6 @@ RDDB["Cataclysm"] = {
 		106385, -- Crush
 		105841, -- Degenerative bite
 		105445, -- Blistering heat
-		},		
+		},
 	}
 }

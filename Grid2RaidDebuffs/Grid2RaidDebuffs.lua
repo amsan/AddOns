@@ -13,6 +13,7 @@ local UnitDebuff = UnitDebuff
 local GetSpellInfo = GetSpellInfo
 local UnitName = UnitName
 local UnitLevel = UnitLevel
+local UnitMap   = C_Map.GetBestMapForUnit
 local UnitClassification = UnitClassification
 local UnitAffectingCombat = UnitAffectingCombat
 
@@ -24,6 +25,9 @@ local curzonetype
 local statuses = {}
 local spells_order = {}
 local spells_status = {}
+
+-- old map ids table
+local MapIDToInstID
 
 -- autdetect debuffs variables
 local status_auto
@@ -40,7 +44,7 @@ frame:SetScript("OnEvent", function (self, event, unit)
 	if not next(Grid2:GetUnitFrames(unit)) then return end
 	local index = 1
 	while true do
-		local name, _, te, co, ty, du, ex, ca, _, _, id, _, isBoss = UnitDebuff(unit, index)
+		local name, te, co, ty, du, ex, ca, _, _, id, _, isBoss = UnitDebuff(unit, index)
 		if not name then break end
 		local order = spells_order[name]
 		if not order then
@@ -70,9 +74,9 @@ function GSRD:OnModuleDisable()
 end
 
 function GSRD:UpdateZoneSpells(event)
-	local zone = self:GetCurrentZone()
+	local zone, type = self:GetCurrentZone()
 	if zone==curzone and event then return end
-	curzonetype = select(2,GetInstanceInfo())
+	curzonetype = type
 	self:ResetZoneSpells(zone)
 	for status in next,statuses do
 		status:LoadZoneSpells()
@@ -85,13 +89,8 @@ function GSRD:UpdateZoneSpells(event)
 end
 
 function GSRD:GetCurrentZone()
-	local current_zone_on_worldmap = GetCurrentMapAreaID()
-	SetMapToCurrentZone()
-	local zone = GetCurrentMapAreaID()
-	if zone ~= current_zone_on_worldmap then 
-		SetMapByID(current_zone_on_worldmap) 
-	end
-	return zone
+	local _,type,_,_,_,_,_,zone = GetInstanceInfo()
+	return zone, type
 end
 
 function GSRD:ClearAllIndicators()
@@ -151,7 +150,7 @@ function GSRD:RegisterNewDebuff(spellId, caster, te, co, ty, du, ex, isBoss)
 		boss_auto = self:CheckBossUnit(caster) 
 	end
 	--
-	local zone_name = curzone .. '@' .. EJ_GetCurrentInstance()
+	local zone_name = curzone .. '@' .. EJ_GetInstanceForMap( UnitMap("player") )
 	if boss_auto then
 		self.db.profile.autodetect.debuffs[spellId] = zone_name .. '@' .. boss_auto
 	else
@@ -240,7 +239,7 @@ function GSRD:PLAYER_REGEN_DISABLED()
 	time_auto = GetTime()
 	-- It's more correct to collect zone bosses from RegisterNewZone(), but EJ_GetCurrentInstance() returns a wrong instanceID 
 	-- (the previous instanceID) just after a zone change, so we cannot collect known boses in the zone_change event.
-	bosses_known = get_known_bosses(EJ_GetCurrentInstance()) 
+	bosses_known = get_known_bosses( EJ_GetInstanceForMap( UnitMap("player") ) ) 
 	boss_auto = self:CheckBossFrame() or self:CheckBossUnit("target") or self:CheckBossUnit("targettarget") or self:CheckBossUnit("focus")
 	self:CreateBossTimer()
 end
@@ -251,6 +250,20 @@ function GSRD:PLAYER_REGEN_ENABLED()
 		self:CancelBossTimer()
 		time_auto = nil
 		boss_auto = nil
+	end	
+end
+
+-- Old databases fix
+function GSRD:FixOldDatabase(db, key)
+	if db[key] then
+		local fixed = {}
+		for mapID, data in pairs(db[key]) do
+			local instID = MapIDToInstID[mapID]
+			if instID then
+				fixed[instID] = data	
+			end
+		end
+		db[key] = fixed
 	end	
 end
 
@@ -273,9 +286,9 @@ function class:ClearAllIndicators()
 end
 
 function class:LoadZoneSpells()
-	if curzone then		
+	if curzone then
 		local count = 0
-		local db = self.dbx.debuffs[curzone]
+		local db = self.dbx.debuffs[ curzone ]
 		if db then
 			for index, spell in ipairs(db) do
 				local name = spell<0 and -spell or GetSpellInfo(spell)
@@ -387,8 +400,144 @@ end
 local prev_UpdateDefaults = Grid2.UpdateDefaults
 function Grid2:UpdateDefaults()
 	prev_UpdateDefaults(self)
-	if not Grid2:DbGetValue("versions", "Grid2RaidDebuffs") then 
+	local version = Grid2:DbGetValue("versions", "Grid2RaidDebuffs") or 0
+	if version >= 3 then return end
+	if version == 0 then 
 		Grid2:DbSetMap( "icon-center", "raid-debuffs", 155)
-		Grid2:DbSetValue("versions","Grid2RaidDebuffs",1)
-	end	
+	else 
+		-- Upgrade statuses debuffs databases: convert mapIDs to InstanceIDs
+		for name,db in pairs(Grid2.db.profile.statuses) do
+			if db.type == "raid-debuffs" then
+				GSRD:FixOldDatabase( db, "debuffs" )
+			end
+		end
+		-- Upgrade custom debuffs
+		GSRD:FixOldDatabase( GSRD.db.profile, "debuffs" )
+	end
+	Grid2:DbSetValue("versions","Grid2RaidDebuffs",3)
 end
+
+-- Battle for Azeroth upgrade stuff: mapID_to_InstID[ mapID ] = InstanceID
+-- InstanceID = select(8,GetInstanceInfo())
+-- mapID      = GetCurrentMapAreaID() // this function was removed from api, we must convert mapID to InstanceID
+MapIDToInstID = {
+-- Burning Crusade Dungeons
+[733] = 269, -- Opening of the Dark Portal
+[710] = 540, -- Hellfire Citadel: The Shattered Halls
+[725] = 542, -- Hellfire Citadel: The Blood Furnace
+[797] = 543, -- Hellfire Citadel: Ramparts
+[727] = 545, -- Coilfang: The Steamvault
+[726] = 546, -- Coilfang: The Underbog
+[728] = 547, -- Coilfang: The Slave Pens
+[731] = 552, -- Tempest Keep: The Arcatraz
+[729] = 553, -- Tempest Keep: The Botanica
+[730] = 554, -- Tempest Keep: The Mechanar
+[724] = 555, -- Auchindoun: Shadow Labyrinth
+[723] = 556, -- Auchindoun: Sethekk Halls
+[732] = 557, -- Auchindoun: Mana-Tombs
+[722] = 558, -- Auchindoun: Auchenai Crypts
+[734] = 560, -- The Escape from Durnholde
+[798] = 585, -- Magister's Terrace
+-- Burning Crusade Raids
+[799] = 532, -- Karazhan
+[775] = 534, -- The Battle for Mount Hyjal
+[779] = 544, -- Magtheridon's Lair
+[780] = 548, -- Coilfang: Serpentshrine Cavern
+[782] = 550, -- Tempest Keep
+[796] = 564, -- Black Temple
+[776] = 565, -- Gruul's Lair
+[789] = 580, -- The Sunwell
+-- WotLK Dungeons
+[523] = 574, -- Utgarde Keep
+[524] = 575, -- Utgarde Pinnacle
+[520] = 576, -- The Nexus
+[528] = 578, -- The Oculus
+[521] = 595, -- The Culling of Stratholme
+[526] = 599, -- Halls of Stone
+[534] = 600, -- Drak'Tharon Keep
+[533] = 601, -- Azjol-Nerub
+[525] = 602, -- Halls of Lightning
+[530] = 604, -- Gundrak
+[536] = 608, -- Violet Hold
+[522] = 619, -- Ahn'kahet: The Old Kingdom
+[601] = 632, -- The Forge of Souls
+[542] = 650, -- Trial of the Champion
+[602] = 658, -- Pit of Saron
+[603] = 668, -- Halls of Reflection
+-- WotLK Raids
+[535] = 533, -- Naxxramas
+[529] = 603, -- Ulduar
+[531] = 615, -- The Obsidian Sanctum
+[527] = 616, -- The Eye of Eternity
+[532] = 624, -- Vault of Archavon
+[604] = 631, -- Icecrown Citadel
+[543] = 649, -- Trial of the Crusader
+[609] = 724, -- The Ruby Sanctum
+-- Cataclysm Dungeons
+[781] = 568, -- Zul'Aman
+[767] = 643, -- Throne of the Tides
+[759] = 644, -- Halls of Origination
+[753] = 645, -- Blackrock Caverns
+[769] = 657, -- The Vortex Pinnacle
+[757] = 670, -- Grim Batol
+[768] = 725, -- The Stonecore
+[747] = 755, -- Lost City of the Tol'vir
+[793] = 859, -- Zul'Gurub
+[820] = 938, -- End Time
+[816] = 939, -- Well of Eternity
+[819] = 940, -- Hour of Twilight
+[803] = 951, -- Nexus Legendary
+-- Cataclysm Raids
+[754] = 669, -- Blackwing Descent
+[758] = 671, -- The Bastion of Twilight
+[800] = 720, -- Firelands
+[773] = 754, -- Throne of the Four Winds
+[752] = 757, -- Baradin Hold
+[824] = 967, -- Dragon Soul
+-- Pandaria Dungeons
+[877] = 959, -- Shado-Pan Monastery
+[867] = 960, -- Temple of the Jade Serpent
+[876] = 961, -- Stormstout Brewery
+[875] = 962, -- Gate of the Setting Sun
+[885] = 994, -- Mogu'shan Palace
+[887] = 1011, -- Siege of Niuzao Temple
+-- Pandaria Raids
+[886] = 996, -- Terrace of Endless Spring
+[896] = 1008, -- Mogu'shan Vaults
+[897] = 1009, -- Heart of Fear
+[930] = 1098, -- Throne of Thunder
+[953] = 1136, -- Siege of Orgrimmar
+-- Warlords Dungeons
+[964] = 1175, -- Bloodmaul Slag Mines
+[969] = 1176, -- Shadowmoon Burial Grounds
+[984] = 1182, -- Auchindoun
+[987] = 1195, -- Iron Docks
+[993] = 1208, -- Grimrail Depot
+[989] = 1209, -- Skyreach
+[1008] = 1279, -- The Everbloom
+[995] = 1358, -- Upper Blackrock Spire
+-- Warlords Raids
+[988] = 1205, -- Blackrock Foundry
+[994] = 1228, -- Highmaul
+[1026] = 1448, -- Hellfire Citadel
+-- Legion Dungeons
+[1046] = 1456, -- Eye of Azshara
+[1065] = 1458, -- Neltharion's Lair
+[1067] = 1466, -- Darkheart Thicket
+[1041] = 1477, -- Halls of Valor
+[1042] = 1492, -- Maw of Souls
+[1045] = 1493, -- Vault of the Wardens
+[1081] = 1501, -- Black Rook Hold
+[1079] = 1516, -- The Arcway
+[1066] = 1544, -- Assault on Violet Hold
+[1087] = 1571, -- Court of Stars
+[1115] = 1651, -- Return to Karazhan
+[1146] = 1677, -- Cathedral of Eternal Night
+[1178] = 1753, -- Seat of the Triumvirate
+-- Legion Raids
+[1094] = 1520, -- The Emerald Nightmare
+[1088] = 1530, -- The Nighthold
+[1114] = 1648, -- Trial of Valor
+[1147] = 1676, -- Tomb of Sargeras
+[1188] = 1712, -- Antorus, the Burning Throne
+}

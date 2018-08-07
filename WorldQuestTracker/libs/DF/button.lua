@@ -155,6 +155,14 @@ local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 	local smember_function = function (_object, _value)
 		return _rawset (_object, "func", _value)
 	end
+	--> param1
+	local smember_param1 = function (_object, _value)
+		return _rawset (_object, "param1", _value)
+	end
+	--> param2
+	local smember_param2 = function (_object, _value)
+		return _rawset (_object, "param2", _value)
+	end
 	--> text color
 	local smember_textcolor = function (_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
@@ -225,6 +233,8 @@ local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 	ButtonMetaFunctions.SetMembers ["height"] = smember_height
 	ButtonMetaFunctions.SetMembers ["text"] = smember_text
 	ButtonMetaFunctions.SetMembers ["clickfunction"] = smember_function
+	ButtonMetaFunctions.SetMembers ["param1"] = smember_param1
+	ButtonMetaFunctions.SetMembers ["param2"] = smember_param2
 	ButtonMetaFunctions.SetMembers ["textcolor"] = smember_textcolor
 	ButtonMetaFunctions.SetMembers ["textfont"] = smember_textfont
 	ButtonMetaFunctions.SetMembers ["textsize"] = smember_textsize
@@ -394,6 +404,12 @@ local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 	end
 
 -- icon
+	function ButtonMetaFunctions:GetIconTexture()
+		if (self.icon) then
+			return self.icon:GetTexture()
+		end
+	end
+	
 	function ButtonMetaFunctions:SetIcon (texture, width, height, layout, texcoord, overlay, textdistance, leftpadding, textheight, short_method)
 		if (not self.icon) then
 			self.icon = self:CreateTexture (nil, "artwork")
@@ -861,9 +877,21 @@ local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 			(button.mouse_down+0.5 > GetTime() and button:IsMouseOver())
 		) then
 			if (buttontype == "LeftButton") then
-				button.MyObject.func (button, buttontype, button.MyObject.param1, button.MyObject.param2)
+			
+				local success, errorText = pcall (button.MyObject.func, button, buttontype, button.MyObject.param1, button.MyObject.param2)
+				if (not success) then
+					error ("Details! Framework: button " .. button:GetName() ..  " error: " .. errorText)
+				end
+			
+				--button.MyObject.func (button, buttontype, button.MyObject.param1, button.MyObject.param2)
 			else
-				button.MyObject.funcright (button, buttontype, button.MyObject.param1, button.MyObject.param2)
+			
+				local success, errorText = pcall (button.MyObject.funcright, button, buttontype, button.MyObject.param1, button.MyObject.param2)
+				if (not success) then
+					error ("Details! Framework: button " .. button:GetName() ..  " error: " .. errorText)
+				end
+			
+				--button.MyObject.funcright (button, buttontype, button.MyObject.param1, button.MyObject.param2)
 			end
 		end
 	end
@@ -918,10 +946,49 @@ function ButtonMetaFunctions:SetTemplate (template)
 		self:SetIcon (i.texture, i.width, i.height, i.layout, i.texcoord, i.color, i.textdistance, i.leftpadding)
 	end
 	
+	if (template.textsize) then
+		self.textsize = template.textsize
+	end
+	
+	if (template.textfont) then
+		self.textfont = template.textfont
+	end
+	
+	if (template.textcolor) then
+		self.textcolor = template.textcolor
+	end
+	
+	if (template.textalign) then
+		self.textalign = template.textalign
+	end
 end
 
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
+
+local build_button = function (self)
+	self:SetSize (100, 20)
+	
+	self.text = self:CreateFontString ("$parent_Text", "ARTWORK", "GameFontNormal")
+	self.text:SetJustifyH ("CENTER")
+	DF:SetFontSize (self.text, 10)
+	self.text:SetPoint ("CENTER", self, "CENTER", 0, 0)
+	
+	self.texture_disabled = self:CreateTexture ("$parent_TextureDisabled", "OVERLAY")
+	self.texture_disabled:SetAllPoints()
+	self.texture_disabled:Hide()
+	self.texture_disabled:SetTexture ("Interface\\Tooltips\\UI-Tooltip-Background")
+	
+	self:SetScript ("OnDisable", function (self)
+		self.texture_disabled:Show()
+		self.texture_disabled:SetVertexColor (0, 0, 0)
+		self.texture_disabled:SetAlpha (.5)
+	end)
+	
+	self:SetScript ("OnEnable", function (self)
+		self.texture_disabled:Hide()
+	end)
+end
 
 function DF:CreateButton (parent, func, w, h, text, param1, param2, texture, member, name, short_method, button_template, text_template)
 	return DF:NewButton (parent, parent, name, member, w, h, func, param1, param2, texture, text, short_method, button_template, text_template)
@@ -963,7 +1030,9 @@ function DF:NewButton (parent, container, name, member, w, h, func, param1, para
 		ButtonObject.container = container
 		ButtonObject.options = {OnGrab = false}
 
-	ButtonObject.button = CreateFrame ("button", name, parent, "DetailsFrameworkButtonTemplate")
+	ButtonObject.button = CreateFrame ("button", name, parent)
+	build_button (ButtonObject.button)
+	
 	ButtonObject.widget = ButtonObject.button
 
 	--ButtonObject.button:SetBackdrop ({bgFile = DF.folder .. "background", tileSize = 64, edgeFile = DF.folder .. "border_2", edgeSize = 10, insets = {left = 1, right = 1, top = 1, bottom = 1}})

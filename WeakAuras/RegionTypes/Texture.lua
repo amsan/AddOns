@@ -22,6 +22,8 @@ local default = {
   frameStrata = 1
 };
 
+WeakAuras.regionPrototype.AddAlphaToDefault(default);
+
 local screenWidth, screenHeight = math.ceil(GetScreenWidth() / 20) * 20, math.ceil(GetScreenHeight() / 20) * 20;
 
 local properties = {
@@ -53,7 +55,11 @@ local properties = {
   },
 }
 
-WeakAuras.regionPrototype.AddProperties(properties);
+WeakAuras.regionPrototype.AddProperties(properties, default);
+
+local function GetProperties(data)
+  return properties;
+end
 
 local function create(parent)
   local frame = CreateFrame("FRAME", nil, UIParent);
@@ -66,13 +72,13 @@ local function create(parent)
   texture:SetAllPoints(frame);
 
   WeakAuras.regionPrototype.create(frame);
+  frame.values = {};
   return frame;
 end
 
 local function modify(parent, region, data)
   WeakAuras.regionPrototype.modify(parent, region, data);
-
-  region.texture:SetTexture(data.texture);
+  WeakAuras.SetTextureOrAtlas(region.texture, data.texture);
   region.texture:SetDesaturated(data.desaturate)
   region:SetWidth(data.width);
   region:SetHeight(data.height);
@@ -161,7 +167,7 @@ local function modify(parent, region, data)
 
   function region:SetTexture(path)
     local texturePath = path;
-    region.texture:SetTexture(texturePath);
+    WeakAuras.SetTextureOrAtlas(region.texture, texturePath);
   end
 
   function region:Color(r, g, b, a)
@@ -212,4 +218,4 @@ local function modify(parent, region, data)
   end
 end
 
-WeakAuras.RegisterRegionType("texture", create, modify, default, properties);
+WeakAuras.RegisterRegionType("texture", create, modify, default, GetProperties);

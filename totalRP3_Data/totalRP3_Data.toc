@@ -1,4 +1,4 @@
-## Interface: 70300
+﻿## Interface: 80000
 ## Title: Total RP 3: Data
 ## Author: Telkostrasz & Ellypse
 ## Notes: Data storage

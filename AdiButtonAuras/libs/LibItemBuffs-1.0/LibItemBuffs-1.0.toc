@@ -1,10 +1,10 @@
-## Interface: 70300
+## Interface: 80000
 ## Title: Lib: ItemBuffs-1.0
 ## Notes: Buff-to-item database.
 ## Author: Adirelle
-## Version: wod-last-12-g63105bc
+## Version: 3750e1a
 ## LoadOnDemand: 1
-## X-Date: 2017-09-05T4:33:41Z
+## X-Date: 2018-07-29T12:19:51+0000
 ## X-Category: Library
 ## X-License: GPL v3
 ## X-eMail: adirelle@gmail.com

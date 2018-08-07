@@ -66,15 +66,34 @@ local function CreateDecorationWide(frame)
   return deco1
 end
 
-local function CreateFrameSizer(frame, callback)
+local function CreateFrameSizer(frame, callback, position)
   callback = callback or (function() end)
 
+  local left, right, top, bottom, xOffset1, yOffset1, xOffset2, yOffset2;
+  if (position == "BOTTOMLEFT") then
+    left, right, top, bottom = 1, 0, 0, 1
+    xOffset1, yOffset1 = 6, 6
+    xOffset2, yOffset2 = 0, 0
+  elseif (position == "BOTTOMRIGHT") then
+    left, right, top, bottom = 0, 1, 0, 1
+    xOffset1, yOffset1 = 0, 6
+    xOffset2, yOffset2 = -6, 0
+  elseif (position == "TOPLEFT") then
+    left, right, top, bottom = 1, 0, 1, 0
+    xOffset1, yOffset1 = 6, 0
+    xOffset2, yOffset2 = 0, -6
+  elseif (position == "TOPRIGHT") then
+    left, right, top, bottom = 0, 1, 1, 0
+    xOffset1, yOffset1 = 0, 0
+    xOffset2, yOffset2 = -6, -6
+  end
+
   local handle = CreateFrame("BUTTON", nil, frame)
-  handle:SetPoint("BOTTOMLEFT", frame)
+  handle:SetPoint(position, frame)
   handle:SetSize(25, 25)
   handle:EnableMouse()
 
-  handle:SetScript("OnMouseDown", function() frame:StartSizing("BOTTOMLEFT") end)
+  handle:SetScript("OnMouseDown", function() frame:StartSizing(position) end)
   handle:SetScript("OnMouseUp", function()
     frame:StopMovingOrSizing()
     callback()
@@ -82,23 +101,23 @@ local function CreateFrameSizer(frame, callback)
 
   local normal = handle:CreateTexture(nil, "OVERLAY")
   normal:SetTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-  normal:SetTexCoord(1, 0, 0, 1)
-  normal:SetPoint("BOTTOMLEFT", handle, 6, 6)
-  normal:SetPoint("TOPRIGHT", handle)
+  normal:SetTexCoord(left, right, top, bottom)
+  normal:SetPoint("BOTTOMLEFT", handle, xOffset1, yOffset1)
+  normal:SetPoint("TOPRIGHT", handle, xOffset2, yOffset2)
   handle:SetNormalTexture(normal)
 
   local pushed = handle:CreateTexture(nil, "OVERLAY")
   pushed:SetTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
-  pushed:SetTexCoord(1, 0, 0, 1)
-  pushed:SetPoint("BOTTOMLEFT", handle, 6, 6)
-  pushed:SetPoint("TOPRIGHT", handle)
+  pushed:SetTexCoord(left, right, top, bottom)
+  pushed:SetPoint("BOTTOMLEFT", handle, xOffset1, yOffset1)
+  pushed:SetPoint("TOPRIGHT", handle, xOffset2, yOffset2)
   handle:SetPushedTexture(pushed)
 
   local highlight = handle:CreateTexture(nil, "OVERLAY")
   highlight:SetTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
-  highlight:SetTexCoord(1, 0, 0, 1)
-  highlight:SetPoint("BOTTOMLEFT", handle, 6, 6)
-  highlight:SetPoint("TOPRIGHT", handle)
+  highlight:SetTexCoord(left, right, top, bottom)
+  highlight:SetPoint("BOTTOMLEFT", handle, xOffset1, yOffset1)
+  highlight:SetPoint("TOPRIGHT", handle, xOffset2, yOffset2)
   handle:SetHighlightTexture(highlight)
 
   return handle
@@ -110,7 +129,8 @@ function WeakAuras.CreateFrame()
   local db = savedVars.db;
   local odb = savedVars.odb;
   -------- Mostly Copied from AceGUIContainer-Frame--------
-  frame = CreateFrame("FRAME", nil, UIParent);
+  frame = CreateFrame("FRAME", "WeakAurasOptions", UIParent);
+  tinsert(UISpecialFrames, frame:GetName());
   frame:SetBackdrop({
     bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
     edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
@@ -137,6 +157,34 @@ function WeakAuras.CreateFrame()
   end
   frame:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", xOffset, yOffset);
   frame:Hide();
+
+  frame:SetScript("OnHide", function()
+    WeakAuras.UnlockUpdateInfo();
+    WeakAuras.SetDragging()
+
+    local tutFrame = WeakAuras.TutorialsFrame and WeakAuras.TutorialsFrame();
+    if(tutFrame and tutFrame:IsVisible()) then
+      tutFrame:Hide();
+    end
+
+    WeakAuras.PauseAllDynamicGroups();
+
+    for id, data in pairs(WeakAuras.regions) do
+      data.region:Collapse();
+    end
+
+    WeakAuras.ResumeAllDynamicGroups();
+
+    WeakAuras.ReloadAll();
+    WeakAuras.Resume();
+
+    if (WeakAuras.mouseFrame) then
+      WeakAuras.mouseFrame:OptionsClosed();
+    end
+    if (WeakAuras.personalRessourceDisplayFrame) then
+      WeakAuras.personalRessourceDisplayFrame:OptionsClosed();
+    end
+  end);
 
   local width, height;
   if(db.frame) then
@@ -173,17 +221,17 @@ function WeakAuras.CreateFrame()
 
   importbutton:SetScript("PostClick", function(self)
     if self:GetChecked() then
-      PlaySound("igMainMenuOptionCheckBoxOn")
+      PlaySound(856)
       db.import_disabled = true
     else
-      PlaySound("igMainMenuOptionCheckBoxOff")
+      PlaySound(857)
       db.import_disabled = nil
     end
   end)
   importbutton:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
-    GameTooltip:SetText("Disable Import")
-    GameTooltip:AddLine("If this option is enabled, you are no longer able to import auras.", 1, 1, 1)
+    GameTooltip:SetText(L["Disable Import"])
+    GameTooltip:AddLine(L["If this option is enabled, you are no longer able to import auras."], 1, 1, 1)
     GameTooltip:Show()
   end)
   importbutton:SetScript("OnLeave", GameTooltip_Hide)
@@ -228,9 +276,10 @@ function WeakAuras.CreateFrame()
 
   local titletext = title:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   titletext:SetPoint("TOP", titlebg, "TOP", 0, -14)
-  titletext:SetText(L["WeakAurasOptions"]);
+  titletext:SetText("WeakAuras " .. WeakAuras.versionString);
 
-  frame.sizer = CreateFrameSizer(frame, commitWindowChanges);
+  CreateFrameSizer(frame, commitWindowChanges, "BOTTOMLEFT");
+  CreateFrameSizer(frame, commitWindowChanges, "BOTTOMRIGHT");
 
   local minimize = CreateDecoration(frame)
   minimize:SetPoint("TOPRIGHT", -65, 12)
@@ -312,7 +361,8 @@ function WeakAuras.CreateFrame()
       if not(IsAddOnLoaded("WeakAurasTutorials")) then
         local loaded, reason = LoadAddOn("WeakAurasTutorials");
         if not(loaded) then
-          print("|cff9900FF".."WeakAurasTutorials"..FONT_COLOR_CODE_CLOSE.." could not be loaded: "..RED_FONT_COLOR_CODE.._G["ADDON_"..reason]);
+          reason = string.lower("|cffff2020" .. _G["ADDON_" .. reason] .. "|r.")
+          print(WeakAuras.printPrefix .. "Tutorials could not be loaded, the addon is " .. reason);
           return;
         end
       end
@@ -323,7 +373,7 @@ function WeakAuras.CreateFrame()
   local container = AceGUI:Create("InlineGroup");
   container.frame:SetParent(frame);
   container.frame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -17, 12);
-  container.frame:SetPoint("TOPLEFT", frame, "TOPRIGHT", -423, -10);
+  container.frame:SetPoint("TOPLEFT", frame, "TOPRIGHT", -423, -14);
   container.frame:Show();
   container.frame:SetClipsChildren(true);
   container.titletext:Hide();
@@ -342,7 +392,7 @@ function WeakAuras.CreateFrame()
   buttonsContainer:SetWidth(170);
   buttonsContainer.frame:SetParent(frame);
   buttonsContainer.frame:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 17, 12);
-  buttonsContainer.frame:SetPoint("TOP", frame, "TOP", 0, -10);
+  buttonsContainer.frame:SetPoint("TOP", frame, "TOP", 0, -14);
   buttonsContainer.frame:SetPoint("right", container.frame, "left", -17);
   buttonsContainer.frame:Show();
   frame.buttonsContainer = buttonsContainer;
@@ -359,8 +409,8 @@ function WeakAuras.CreateFrame()
   filterInput:SetScript("OnEnterPressed", function(...) filterInput:ClearFocus() end);
   filterInput:SetScript("OnEscapePressed", function(...) filterInput:SetText(""); filterInput:ClearFocus() end);
   filterInput:SetWidth(150);
-  filterInput:SetPoint("BOTTOMLEFT", buttonsContainer.frame, "TOPLEFT", 2, -18);
-  filterInput:SetPoint("TOPLEFT", buttonsContainer.frame, "TOPLEFT", 2, -2);
+  filterInput:SetPoint("BOTTOMLEFT", buttonsContainer.frame, "TOPLEFT", 6, -14);
+  filterInput:SetPoint("TOPLEFT", buttonsContainer.frame, "TOPLEFT", 6, -2);
   filterInput:SetTextInsets(16, 0, 0, 0);
 
   local searchIcon = filterInput:CreateTexture(nil, "overlay");
@@ -368,7 +418,7 @@ function WeakAuras.CreateFrame()
   searchIcon:SetVertexColor(0.6, 0.6, 0.6);
   searchIcon:SetWidth(14);
   searchIcon:SetHeight(14);
-  searchIcon:SetPoint("left", filterInput, "left", 3, -1);
+  searchIcon:SetPoint("left", filterInput, "left", 2, -2);
   filterInput:SetFont("Fonts\\FRIZQT__.TTF", 10);
   frame.filterInput = filterInput;
   filterInput:Hide();
@@ -377,7 +427,7 @@ function WeakAuras.CreateFrame()
   frame.filterInputClear = filterInputClear;
   filterInputClear:SetWidth(12);
   filterInputClear:SetHeight(12);
-  filterInputClear:SetPoint("left", filterInput, "right", 0, -1);
+  filterInputClear:SetPoint("left", filterInput, "right", 4, -1);
   filterInputClear:SetNormalTexture("Interface\\Common\\VoiceChat-Muted");
   filterInputClear:SetHighlightTexture("Interface\\BUTTONS\\UI-Panel-MinimizeButton-Highlight.blp");
   filterInputClear:SetScript("OnClick", function() filterInput:SetText(""); filterInput:ClearFocus() end);
@@ -410,7 +460,7 @@ function WeakAuras.CreateFrame()
   buttonsScroll.SetScroll = function(self, value)
     if (self:GetScrollPos() ~= value) then
       oldSetScroll(self, value);
-      self:DoLayout();
+      self.LayoutFunc(self.content, self.children, true);
     end
   end
 
@@ -437,8 +487,6 @@ function WeakAuras.CreateFrame()
     self.content:SetPoint("TOPRIGHT", 0, status.offset);
 
     status.scrollvalue = status.offset / ((height - viewheight) / 1000.0);
-
-    self:FixScroll();
   end
 
   local newButton = AceGUI:Create("WeakAurasNewHeaderButton");
@@ -478,6 +526,7 @@ function WeakAuras.CreateFrame()
   loadedButton:SetExpandDescription(L["Expand all loaded displays"]);
   loadedButton:SetCollapseDescription(L["Collapse all loaded displays"]);
   loadedButton:SetViewClick(function()
+    WeakAuras.PauseAllDynamicGroups();
     if(loadedButton.view.func() == 2) then
       for id, child in pairs(displayButtons) do
         if(loaded[id] ~= nil) then
@@ -491,6 +540,7 @@ function WeakAuras.CreateFrame()
         end
       end
     end
+    WeakAuras.ResumeAllDynamicGroups();
   end);
   loadedButton:SetViewTest(function()
     local none, all = true, true;
@@ -537,13 +587,13 @@ function WeakAuras.CreateFrame()
   unloadedButton:SetViewClick(function()
     if(unloadedButton.view.func() == 2) then
       for id, child in pairs(displayButtons) do
-        if(loaded[id] == nil) then
+        if (loaded[id] == nil) then
           child:PriorityHide(2);
         end
       end
     else
       for id, child in pairs(displayButtons) do
-        if not(loaded[id] == nil) then
+        if (loaded[id] == nil) then
           child:PriorityShow(2);
         end
       end
@@ -576,6 +626,22 @@ function WeakAuras.CreateFrame()
     AceConfig:RegisterOptionsTable("WeakAuras", optionTable);
     AceConfigDialog:Open("WeakAuras", container);
     container:SetTitle("");
+  end
+
+  frame.ClearPick = function(self, id)
+    local index = nil;
+    for i, childId in pairs(tempGroup.controlledChildren) do
+      if (childId == id) then
+        index = i;
+        break;
+      end
+    end
+
+    tremove(tempGroup.controlledChildren, index);
+    displayButtons[id]:ClearPick();
+
+    WeakAuras.ReloadTriggerOptions(tempGroup);
+    self:FillOptions(displayOptions[tempGroup.id]);
   end
 
   frame.ClearPicks = function(self, except)

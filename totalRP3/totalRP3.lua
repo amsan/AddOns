@@ -17,9 +17,18 @@
 --	limitations under the License.
 ----------------------------------------------------------------------------------
 
+---@type TRP3_API
+local _, TRP3_API = ...;
+---@type AddOn_TotalRP3
+local AddOn_TotalRP3 = AddOn_TotalRP3;
+
+-- Ellyb imports
+local COLORS = TRP3_API.Ellyb.ColorManager;
+
 -- Imports
 local Globals = TRP3_API.globals;
 local Log = TRP3_API.utils.log;
+local loc = TRP3_API.loc;
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 -- LOADING SEQUENCE
@@ -46,8 +55,8 @@ local function loadingSequence()
 	TRP3_API.flyway.applyPatches();
 
 	-- Inits locale
-	MAIN_SEQUENCE_DETAIL = "TRP3_API.locale.init";
-	TRP3_API.locale.init();
+	MAIN_SEQUENCE_DETAIL = "TRP3_API.Locale.init";
+	TRP3_API.Locale.init();
 
 	MAIN_SEQUENCE_DETAIL = "TRP3_API.module.init";
 	TRP3_API.module.init();
@@ -58,12 +67,10 @@ local function loadingSequence()
 	
 	-- Welcome \o/
 	MAIN_SEQUENCE_DETAIL = "Welcome message";
-	TRP3_API.utils.message.displayMessage(TRP3_API.locale.getText("GEN_WELCOME_MESSAGE"):format(Globals.version_display));
-	
-	MAIN_SEQUENCE_DETAIL = "TRP3_API.communication.init";
-	TRP3_API.communication.init();
-	MAIN_SEQUENCE_DETAIL = "TRP3_API.communication.broadcast.init";
-	TRP3_API.communication.broadcast.init();
+	TRP3_API.utils.message.displayMessage(loc.GEN_WELCOME_MESSAGE:format(Globals.version_display));
+
+	MAIN_SEQUENCE_DETAIL = "AddOn_TotalRP3.Communications.broadcast.init";
+	AddOn_TotalRP3.Communications.broadcast.init();
 	MAIN_SEQUENCE_DETAIL = "TRP3_API.profile.init";
 	TRP3_API.profile.init();
 	MAIN_SEQUENCE_DETAIL = "TRP3_API.dashboard.init";
@@ -96,11 +103,10 @@ local function loadingSequence()
 
 	TRP3_API.events.fireEvent(TRP3_API.events.NAVIGATION_RESIZED, TRP3_MainFramePageContainer:GetWidth(), TRP3_MainFramePageContainer:GetHeight());
 
-	LoadAddOn("Blizzard_SocialUI");
-
 	Log.log("OnEnable() DONE");
 end
 
+local MAIN_SEQUENCE_ERROR;
 -- Called upon PLAYER_LOGIN after all addons are loaded.
 function Globals.addon:OnEnable()
 	MAIN_SEQUENCE_ID = "Globals.addon:OnEnable";
@@ -117,7 +123,9 @@ function Globals.addon:OnEnable()
 end
 
 function TRP3_ShowErrorMessage()
-	if DEFAULT_CHAT_FRAME then
-		DEFAULT_CHAT_FRAME:AddMessage(("[|cffffaa00TRP3|r] |cffff0000Error during addon loading sequence:\n|cffff7700Sequence ID: |r%s\n|cffff7700Sub-sequence ID: |r%s\n|cffff7700Error message: |r%s"):format(MAIN_SEQUENCE_ID, MAIN_SEQUENCE_DETAIL, tostring(MAIN_SEQUENCE_ERROR)), 1, 1, 1);
-	end
+	print(COLORS.ORANGE("[TRP3]") .. " " .. COLORS.RED("Error during addon loading sequence:"));
+	print(COLORS.ORANGE("Sequence ID: ") .. " " .. MAIN_SEQUENCE_ID);
+	print(COLORS.ORANGE("Sub-sequence ID: ") .. " " .. MAIN_SEQUENCE_DETAIL);
+	print(COLORS.ORANGE("Error message: ") .. " " .. tostring(MAIN_SEQUENCE_ERROR));
+	print(COLORS.ITEM_ARTIFACT("Note: If you just recently updated the add-on, remember that you need to fully relaunch the game client. Updating while the game client is open will not load new files."));
 end

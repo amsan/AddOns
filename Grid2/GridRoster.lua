@@ -112,10 +112,6 @@ do
 		-- this is needed to trigger an update when switching from one BG directly to another
 		groupType = nil
 		self:GroupChanged("PLAYER_ENTERING_WORLD")
-		--
-		if self.db.profile.hideBlizzardRaidFrames then
-			Grid2:HideBlizzardRaidFrames()
-		end
 	end
 	-- partyTypes = solo party arena raid
 	-- instTypes  = none pvp lfr flex mythic other
@@ -163,8 +159,8 @@ do
 		end
 		if maxPlayers == nil or maxPlayers == 0 then
 			maxPlayers = 40
-		end	
-		self:Debug("GroupChanged", groupType, instType, "=>", newGroupType, newInstType, maxPlayers)
+		end
+		self:Debug("GroupChanged", groupType, instType, instMaxPlayers, "=>", newGroupType, newInstType, maxPlayers)
 		if groupType ~= newGroupType or instType ~= newInstType or instMaxPlayers ~= maxPlayers then
 			groupType, instType, instMaxPlayers = newGroupType, newInstType, maxPlayers
 			self:SendMessage("Grid_GroupTypeChanged", groupType, instType, maxPlayers)

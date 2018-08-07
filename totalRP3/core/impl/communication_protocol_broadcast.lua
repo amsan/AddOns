@@ -1,48 +1,54 @@
 ----------------------------------------------------------------------------------
--- Total RP 3
--- Broadcast communication system
---	---------------------------------------------------------------------------
---	Copyright 2014 Sylvain Cossement (telkostrasz@telkostrasz.be)
---
---	Licensed under the Apache License, Version 2.0 (the "License");
---	you may not use this file except in compliance with the License.
---	You may obtain a copy of the License at
---
---		http://www.apache.org/licenses/LICENSE-2.0
---
---	Unless required by applicable law or agreed to in writing, software
---	distributed under the License is distributed on an "AS IS" BASIS,
---	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
---	See the License for the specific language governing permissions and
---	limitations under the License.
+--- Total RP 3
+--- Broadcast communication system
+---	---------------------------------------------------------------------------
+---	Copyright 2014 Sylvain Cossement (telkostrasz@telkostrasz.be)
+---
+---	Licensed under the Apache License, Version 2.0 (the "License");
+---	you may not use this file except in compliance with the License.
+---	You may obtain a copy of the License at
+---
+---		http://www.apache.org/licenses/LICENSE-2.0
+---
+---	Unless required by applicable law or agreed to in writing, software
+---	distributed under the License is distributed on an "AS IS" BASIS,
+---	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+---	See the License for the specific language governing permissions and
+---	limitations under the License.
 ----------------------------------------------------------------------------------
+
+---@type TRP3_API
+local _, TRP3_API = ...;
+local Ellyb = Ellyb(_);
+---@type AddOn_TotalRP3
+local AddOn_TotalRP3 = AddOn_TotalRP3;
 
 -- imports
 local GetChannelRosterInfo = GetChannelRosterInfo;
 local GetChannelDisplayInfo = GetChannelDisplayInfo;
 local GetChannelName = GetChannelName;
 local JoinChannelByName = JoinChannelByName;
-local RegisterAddonMessagePrefix = RegisterAddonMessagePrefix;
+local RegisterAddonMessagePrefix = C_ChatInfo.RegisterAddonMessagePrefix;
 local wipe, string, pairs, strsplit, assert, tinsert, type, tostring = wipe, string, pairs, strsplit, assert, tinsert, type, tostring;
 local time = time;
-local ChatThrottleLib = ChatThrottleLib;
+local Chomp = AddOn_Chomp;
 local Globals = TRP3_API.globals;
 local Utils = TRP3_API.utils;
 local Log = Utils.log;
-local Comm, isIDIgnored = TRP3_API.communication, nil;
+local Comm, isIDIgnored = AddOn_TotalRP3.Communications, nil;
 local unitIDToInfo = Utils.str.unitIDToInfo;
 local getConfigValue = TRP3_API.configuration.getValue;
-local loc = TRP3_API.locale.getText;
+local loc = TRP3_API.loc;
 
 Comm.broadcast = {};
 local ticker;
 
 local function config_UseBroadcast()
-	return getConfigValue("comm_broad_use");
+	return getConfigValue(TRP3_API.ADVANCED_SETTINGS_KEYS.USE_BROADCAST_COMMUNICATIONS);
 end
 
 local function config_BroadcastChannel()
-	return getConfigValue("comm_broad_chan");
+	return getConfigValue(TRP3_API.ADVANCED_SETTINGS_KEYS.BROADCAST_CHANNEL);
 end
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -83,7 +89,7 @@ local function broadcast(command, ...)
 	end
 	if message:len() < 254 then
 		local channelName = GetChannelName(config_BroadcastChannel());
-		ChatThrottleLib:SendAddonMessage("NORMAL", BROADCAST_HEADER, message, "CHANNEL", channelName);
+		Chomp.SendAddonMessage(BROADCAST_HEADER, message, "CHANNEL", channelName);
 		Comm.totalBroadcast = Comm.totalBroadcast + BROADCAST_HEADER:len() + message:len();
 	else
 		Log.log(("Trying a broadcast with a message with lenght %s. Abord !"):format(message:len()), Log.level.WARNING);
@@ -145,7 +151,7 @@ local function sendP2PMessage(target, command, ...)
 		message = message .. BROADCAST_SEPARATOR .. arg;
 	end
 	if message:len() < 254 then
-		ChatThrottleLib:SendAddonMessage("NORMAL", BROADCAST_HEADER, message, "WHISPER", target);
+		Chomp.SendAddonMessage(BROADCAST_HEADER, message, "WHISPER", target);
 		Comm.totalBroadcastP2P = Comm.totalBroadcastP2P + BROADCAST_HEADER:len() + message:len();
 	else
 		Log.log(("Trying a P2P message with a message with lenght %s. Abord !"):format(message:len()), Log.level.WARNING);
@@ -234,13 +240,14 @@ Comm.broadcast.init = function()
 	isIDIgnored = TRP3_API.register.isIDIgnored;
 
 	-- First, register prefix
-	Utils.event.registerHandler("PLAYER_ENTERING_WORLD", function()
-		RegisterAddonMessagePrefix(BROADCAST_HEADER);
-	end);
+	RegisterAddonMessagePrefix(BROADCAST_HEADER);
 
 	-- Then, launch the loop
 	TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 		if config_UseBroadcast() then
+			-- We'll send out the event nice and early to say we're setting up.
+			TRP3_API.events.fireEvent(TRP3_API.events.BROADCAST_CHANNEL_CONNECTING);
+
 			local firstTime = true;
 			ticker = C_Timer.NewTicker(5, function(self)
 				if firstTime then firstTime = false; return; end
@@ -254,6 +261,9 @@ Comm.broadcast.init = function()
 					end
 				end
 			end, 9);
+		else
+			-- Broadcast isn't enabled so we should probably say it's offline.
+			TRP3_API.events.fireEvent(TRP3_API.events.BROADCAST_CHANNEL_OFFLINE, loc.BROADCAST_OFFLINE_DISABLED);
 		end
 	end);
 
@@ -264,23 +274,32 @@ Comm.broadcast.init = function()
 	Utils.event.registerHandler("CHANNEL_PASSWORD_REQUEST", function(channel)
 		if channel == config_BroadcastChannel() then
 			Log.log("Passworded !");
-			Utils.message.displayMessage(loc("BROADCAST_PASSWORD"):format(channel));
+
+			local message = loc.BROADCAST_PASSWORD:format(channel);
+			Utils.message.displayMessage(message);
 			ticker:Cancel();
+
+			-- Notify that it's unlikely broadcast will work due to the password.
+			TRP3_API.events.fireEvent(TRP3_API.events.BROADCAST_CHANNEL_OFFLINE, message);
 		end
 	end);
 
 	-- For when someone just places a password
 	Utils.event.registerHandler("CHAT_MSG_CHANNEL_NOTICE_USER", function(mode, user, _, _, _, _, _, _, channel)
 		if mode == "PASSWORD_CHANGED" and channel == config_BroadcastChannel() then
-			Utils.message.displayMessage(loc("BROADCAST_PASSWORDED"):format(user, channel));
+			Utils.message.displayMessage(loc.BROADCAST_PASSWORDED:format(user, channel));
 		end
 	end);
 
 	-- When you are already in 10 channel
 	Utils.event.registerHandler("CHAT_MSG_SYSTEM", function(message)
 		if config_UseBroadcast() and message == ERR_TOO_MANY_CHAT_CHANNELS and not helloWorlded then
-			Utils.message.displayMessage(loc("BROADCAST_10"));
+			local message = loc.BROADCAST_10;
+			Utils.message.displayMessage(message);
 			ticker:Cancel();
+
+			-- Notify that broadcast won't work due to the channel limit.
+			TRP3_API.events.fireEvent(TRP3_API.events.BROADCAST_CHANNEL_OFFLINE, message);
 		end
 	end);
 
@@ -294,6 +313,9 @@ Comm.broadcast.init = function()
 			Log.log("Step 3: HELLO command sent and parsed. Broadcast channel initialized.");
 			helloWorlded = true;
 			ticker:Cancel();
+
+			-- Notify our other bits and pieces that we're all good to go.
+			TRP3_API.events.fireEvent(TRP3_API.events.BROADCAST_CHANNEL_READY);
 		end
 	end);
 end
