@@ -30,7 +30,7 @@ do
 		local i = 1
 		while true do
 			local name, texture, count, debuffType, duration, expiration, caster, spellId, isBossDebuff, _
-			name, _, texture, count, debuffType, duration, expiration, caster, _, _, spellId, _, isBossDebuff, _, values[1], values[2], values[3] = UnitDebuff(unit, i)
+			name, texture, count, debuffType, duration, expiration, caster, _, _, spellId, _, isBossDebuff, _, values[1], values[2], values[3] = UnitDebuff(unit, i)
 			if not name then break end
 			local statuses = DebuffHandlers[name] or DebuffHandlers[spellId]
 			if statuses then
@@ -46,7 +46,7 @@ do
 				end
 			end
 			if debuffType then
-				status = DebuffTypeHandlers[debuffType]
+				local status = DebuffTypeHandlers[debuffType]
 				if status and (not status.seen) then
 					if( status.dispellableOnly ) then
 						foundDispellableOnly = true;
@@ -115,7 +115,7 @@ do
 		i = 1
 		while true do
 			local name, texture, count, debuffType, duration, expiration, caster, spellId, isBossBuff, _
-			name, _, texture, count, debuffType, duration, expiration, caster, _, _, spellId, _, isBossBuff, _, values[1], values[2], values[3] = UnitBuff(unit, i)
+			name, texture, count, debuffType, duration, expiration, caster, _, _, spellId, _, isBossBuff, _, values[1], values[2], values[3] = UnitBuff(unit, i)
 			if not name then break end
 			
 			local statuses = BuffHandlers[name] or BuffHandlers[spellId]
@@ -288,7 +288,7 @@ do
 				handlerArray[#handlerArray+1] = (" if count == %d then return %s, %s, %s, %s end"):format(i, color.r, color.g, color.b, color.a)
 			end
 		end
-		color = dbx["color" .. colorCount]
+		local color = dbx["color" .. colorCount]
 		handlerArray[#handlerArray+1] = (" return %s, %s, %s, %s end"):format(color.r, color.g, color.b, color.a)
 		status.GetColor = assert(loadstring(table.concat(handlerArray)))()
 		wipe(handlerArray)

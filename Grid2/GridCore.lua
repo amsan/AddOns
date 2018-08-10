@@ -129,7 +129,6 @@ function Grid2:OnInitialize()
 end
 
 function Grid2:OnEnable()
-	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "GroupChanged")
 	self:RegisterEvent("GROUP_ROSTER_UPDATE", "GroupChanged")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("UNIT_PET")

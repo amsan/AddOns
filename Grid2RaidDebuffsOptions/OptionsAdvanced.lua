@@ -1,10 +1,7 @@
 -- Raid Debuffs Management options
-
 local L = LibStub("AceLocale-3.0"):GetLocale("Grid2Options")
 local GSRD = Grid2:GetModule("Grid2RaidDebuffs")
 local RDO = Grid2Options.RDO
-			 
--- modules databases
 local RDDB = RDO.RDDB
 -- raid-debuffs statuses
 local statuses         = RDO.statuses
@@ -46,6 +43,18 @@ end
 local function SetBossTag(bossKey, field, value)
 	DbSetValue(value, RDO.db.profile.debuffs, visibleInstance, bossKey, field)
 end	
+
+local function GetInstanceName(module, instance)
+	if module and instance then
+		local name
+		local info = RDDB[module][instance][1]
+		if info then
+			name = info.id and EJ_GetInstanceInfo(info.id) or info.name
+		end
+		return name or string.format( "unknown(%d)", instance )		
+	end
+	return ""
+end
 
 --=================================================================
 -- Options interface management
@@ -97,7 +106,7 @@ do
 		local function Load(db)
 			if db then
 				for boss in pairs(db) do
-					if not bossesIndexes[boss] then
+					if not tonumber(boss) and not bossesIndexes[boss] then
 						bossesIndexes[boss] = GetBossTag(boss, "order") or 100
 						bosses[#bosses+1] = boss
 					end
@@ -119,8 +128,10 @@ do
 	LoadModuleInstance = function(force)
 		local module = RDO.db.profile.lastSelectedModule 
 		module = module and RDO.db.profile.enabledModules[module] and module or "[Custom Debuffs]"
-		local instance = RDO.db.profile.lastSelectedInstance	
-		instance = instance and RDDB[module][instance] and instance or nil
+		local instance = RDO.db.profile.lastSelectedInstance
+		if instance and not RDDB[module][instance] then
+			instance, RDO.db.profile.lastSelectedInstance = nil, nil  
+		end
 		if visibleModule ~= module or visibleInstance ~= instance or force then
 			visibleModule,   RDO.db.profile.lastSelectedModule   = module, module
 			visibleInstance, RDO.db.profile.lastSelectedInstance = instance, instance
@@ -263,7 +274,7 @@ function RDO:RefreshAdvancedOptions()
 end
 
 function RDO:InitAdvancedOptions()
-	RDDB["[Custom Debuffs]"] = RDO.db.profile.debuffs 
+	RDDB["[Custom Debuffs]"] = RDO.db.profile.debuffs
 	self:RegisterAutodetectedDebuffs()
 	self:RefreshAdvancedOptions()
 end
@@ -277,7 +288,7 @@ local function OpenJournal(info)
 	if not IsAddOnLoaded("Blizzard_EncounterJournal") then LoadAddOn("Blizzard_EncounterJournal") end
 	local instanceID, encounterID, sectionID = EJ_HandleLinkPath(1, EJ_ID)
 	local _,_,difficulty = GetInstanceInfo()
-	if instanceID ~= EJ_GetCurrentInstance()  then
+	if instanceID ~=  EJ_GetInstanceForMap( C_Map.GetBestMapForUnit("player") ) then
 		difficulty = RDO.db.profile.defaultEJ_difficulty or 14
 	end
 	if InterfaceOptionsFrame:IsShown() then
@@ -366,10 +377,10 @@ do
 			end,
 			values = function()
 				wipe(list)
-				local visibleModule = RDO.db.profile.lastSelectedModule
-				if visibleModule and RDDB[visibleModule] then
-					for id,_ in pairs(RDDB[visibleModule]) do
-						list[id] = GetMapNameByID(id)
+				local module = RDO.db.profile.lastSelectedModule
+				if module and RDDB[module] then
+					for instance in pairs(RDDB[module]) do
+						list[instance] = GetInstanceName(module, instance)
 					end
 				end
 				return list
@@ -404,7 +415,7 @@ do
 
 	options.instance = {
 		type = "group",
-		name = function() return visibleInstance and GetMapNameByID(visibleInstance) or "" end,
+		name = function() return GetInstanceName(visibleModule,visibleInstance) end,
 		order = 35,
 		childGroups = "tree",
 		args = RDO.OPTIONS_ITEMS, -- Here Instance options and Bosses/Debuffs items are injected
@@ -420,9 +431,7 @@ do
 	options.spacer = {
 		type = "header", 
 		order = 10, 
-		name = function()
-			return visibleInstance and GetMapNameByID(visibleInstance) or ""
-		end, 
+		name = function() return GetInstanceName(visibleModule,visibleInstance) end,
 		hidden = function(info) 
 			return (not info.handler.ejid) and visibleModule~="[Custom Debuffs]"
 		end

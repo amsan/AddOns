@@ -1,89 +1,64 @@
-# Changelog
+# Changelog for version 1.4.3
 
-## [1.2.11.3]  - 2018-01-02
+## Fixed
 
-Happy new year! The Total RP 3 team wishes you the best for 2018.
+- Fixed an issue brought by yesterday's hotfixes that would prevent Battle.net communications from working.
+- Fixed an issue where un-selecting profiles in the directory would not actually deselect them, and improved consistency when purging profiles while having some profiles already selected - [Issue #160](https://github.com/Ellypse/Total-RP-3/issues/160)
+- Fixed an issue introduced with the 8.0.1 pre-patch preventing mount profiles from being displayed properly in the tooltips and on the target frame - [Issue #164](https://github.com/Ellypse/Total-RP-3/issues/164)
+- Fixed a layout in the profiles UI that would prevent the Additional information parts from being rendered properly - [Issue #162](https://github.com/Ellypse/Total-RP-3/issues/162)
+- Fixed an issue that would render the chat links tooltip lines in a random order, instead of the correct one.
+- Fixed an issue that would render some profile informations (Additional information, Personality traits) in a random order, instead of the correct one.
 
-### Updated
 
-- Updated list of Patreon supporters inside the add-on for the month of December.
+# Changelog for version 1.4.2
 
-## [1.2.11.2] - 2017-12-26
+## Fixed
 
-### Fixed
+- Fixed another rare Lua error that could randomly happen on login (with the `getPlayerCompleteName()` function) - [Issue #159](https://github.com/Ellypse/Total-RP-3/issues/159)
 
-- Fixed a Lua overflow error with the ChatThrottleLib that could occur in rare cases.
-- Fixed an issue that would cause the tooltip to reload all the data too frequently.
-- Fixed an issue that could cause a larger than usual amount of Unknown profiles to be listed in the Directory.
+# Changelog for version 1.4.1
 
-### Removed
+Fixed a rare Lua error that could randomly happen on login.
 
-- Removed the downloading progression indicator in the tooltip for now as it was the cause of some of these issues. It will be brought back later with a better implementation.
+# Changelog for version 1.4
 
-## [1.2.11.1] - 2017-12-08
+**This version requires Battle for Azeroth, patch 8.0.1.**
 
-### Fixed
+## Add-on communications improvement
+ 
+ Total RP 3 implements the next version of the Mary Sue Protocol. This improved version bring the following improvements:
+ 
+- **Profiles are now logged on Blizzard's servers** when sent to other players. This enables Blizzard to view the content of RP profiles in cases of abuse, such as harassment or doxxing. **This means you should now treat the contents of your profile as you would public chat in /say, for example.** (_Goldshire_)
+- **Cross server and cross faction support with Battle.net friends:** the add-on can now use Battle.net to transfer data between two Battle.net friends, even if they are from a server that is not connected to yours or if they are from the opposite faction.
+- **Improved performance:** thanks to looser limitations and newer compression algorithms, all data transfer should be faster (sometimes up to 8 times faster for big Extended campaigns).
+ 
+ **_It was not possible to make this newer protocol backward compatible with older versions (which will not work with patch 8.0 anyway) and cross add-on communications will only work between people using this newer version of the protocol._**
 
-- Fixed an issue where the Mary Sue Protocol downloading indicator would get stuck for Total RP 3 profiles.
+## New logos
 
-## [1.2.11] - 2017-11-09
+![](http://totalrp3.info/documentation/TRP3_Logo_small.png)  
+Total RP 3 has a new, original logo, to replace the modified game logo (which we obviously did not own). It was commissioned to [EbonFeathers@Tumblr](https://ebonfeathers.tumblr.com/). Using the theme of classic D&D, this logo showcases that role-playing is all about picking the role _you_ want to play.
 
-### Added
 
-- Added support for the profile downloading indicator from and to the XRP add-on.
+A new minimap icon also replaces the older one and showcases a classic D&D die.  
+![](https://www.dropbox.com/s/ri35tugtkj0g2c7/trp_icon.png?raw=1)
 
-### Fixed
+## Added
 
-- Fixed an error when trying to whitelist a profile that has been flagged as containing mature content when the profile hasn't been entirely downloaded yet ([ticket #133](https://wow.curseforge.com/projects/total-rp-3/issues/133)).
-- Fixed an issue allowing the user to send empty NPC messages when using the Enter key ([ticket #124](https://wow.curseforge.com/projects/total-rp-3/issues/124)).
-- Fixed an error when targeting battle pets that are participating in a pet battle ([ticket #96](https://wow.curseforge.com/projects/total-rp-3/issues/96)).
-- Fixed an issue where if you used a single space character for your class (like to indicate you have none) it would be considered as empty and your character's real class would be used instead ([ticket #103](https://wow.curseforge.com/projects/total-rp-3/issues/103)).
-- Fixed an issue where players with custom RP status from other add-ons sent via the Mary Sue Protocol would be shown as Out Of Character.
+- Added a new settings category called Advanced. Changing the settings on this page may break your experience of the add-on, so a warning message will be displayed to warn you when you modify something, and a reset button will allow you to reset all advanced settings to their default values. Amongst these new advanced settings you can find the settings for the broadcast channel, NPC talk prefix, disable the option to remember the last language used between session, and more.
+- Resources added to the browsers: 369 musics, 1698 icons and 178 images from the Battle for Azeroth expansion.
 
-### Removed
+## Modified
 
-- Removed workaround for the text box issue introduced in patch 7.3 as this issue has been fixed in patch 7.3.2.
+- You can no longer set your residence marker inside an instanced zone.
+- Fixed several issues related to patch 8.0.1.
 
-## [1.2.10] - 2017-09-28
+## Fixed
 
-### Added
+- Added support for other add-ons through the Mary Sue Protocol when using `/trp3 open [playerName]` command.
 
-- Added 494 icons to our icon browser, from the latest patches.
-- Added 185 musics to our music browser. We were finally able to find the musics for patch 7.1, 7.2 and 7.3, including Karazhan, Winter Veil, Diablo Anniversary, Tomb of Sargeras, Argus and more!
-- Added 142 images to our image browser, including the new prestige icons, PvP emblems, the new dressing room backgrounds, and even the calendar icon for the [Running of the Gnomes event](http://bit.ly/GnomeRun2k17)!
-- Added thank you message for Ellypse's Patreon supporters.
+## Removed
 
-### Fixed
-
-- Improved the workaround for the text cursor misalignment issue brought by patch 7.3 in the EditBox. The text no longer go beyond the limits of the EditBox.
-
-## [1.2.9.2] - 2017-09-14
-
-### Fixed
-
-- Implemented a temporary workaround for the issue introduced by patch 7.3 in the game's code that cause the misalignment of the text cursor in multi lines text fields. Note that this workaround is not perfect, and result in empty lines visible at the bottom of the text, but at least the cursor is actually on the right line. But Blizzard is aware of the issue and is working on fixing it properly on their end.
-
-## [1.2.9.1] - 2017-08-29
-
-### Added
-
-- Added Traditional Chinese and Korean localizations.
-
-### Changed
-
-- Renamed Chinese localization to Simplified Chinese.
-
-### Removed
-- Removed the option to change the detection pattern for NPC speeches, as it created many issues and there really wasn't a need for it.
-
-### Fixed
-
-- Fixed issues with patch 7.3.
-
-[1.2.11.3]: https://github.com/Ellypse/Total-RP-3/compare/1.2.11.2...1.2.11.3
-[1.2.11.2]: https://github.com/Ellypse/Total-RP-3/compare/1.2.11.1...1.2.11.2
-[1.2.11.1]: https://github.com/Ellypse/Total-RP-3/compare/1.2.11...1.2.11.1
-[1.2.11]: https://github.com/Ellypse/Total-RP-3/compare/1.2.10...1.2.11
-[1.2.10]: https://github.com/Ellypse/Total-RP-3/compare/1.2.9.2...1.2.10
-[1.2.9.2]: https://github.com/Ellypse/Total-RP-3/compare/1.2.9.1...1.2.9.2
-[1.2.9.1]: https://github.com/Ellypse/Total-RP-3/compare/1.2.9...1.2.9.1
+- Map features have been temporarily disabled while we keep working on fixing them for Battle for Azeroth. The entire world map UI has been re-implemented by Blizzard and it requires more or less a complete rewrite of our map code.
+- We have disabled the button to show the residence location of players from the profile page while we are re-implementing the map features for patch 8.0.
+- The system to upvote or downvote profiles have been removed. The system was confusing to new players and was incorrectly used by groups of people to downvote targeted people.

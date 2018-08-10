@@ -1,6 +1,6 @@
 --[[
 AdiButtonAuras - Display auras on action buttons.
-Copyright 2013-2016 Adirelle (adirelle@gmail.com)
+Copyright 2013-2018 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiButtonAuras.
@@ -16,7 +16,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with AdiButtonAuras.  If not, see <http://www.gnu.org/licenses/>.
+along with AdiButtonAuras. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -77,10 +77,15 @@ addon.DEFAULT_SETTINGS = {
 		enabled = { ['*'] = true },
 		rules = { ['*'] = true },
 		missing = { ['*'] = "none" },
+		missingThreshold = { ['*'] = 0 },
 		flashPromotion = { ['*'] = false },
 		colors = {
 			good            = { 0.0, 1.0, 0.0, 0.7 },
 			bad             = { 1.0, 0.0, 0.0, 0.7 },
+			Curse           = { 0.6, 0.0, 1.0, 1.0 },
+			Disease         = { 0.6, 0.4, 0.0, 1.0 },
+			Magic           = { 0.2, 0.6, 1.0, 1.0 },
+			Poison          = { 0.0, 0.6, 0.0, 1.0 },
 			countdownLow    = { 1.0, 0.0, 0.0 },
 			countdownMedium = { 1.0, 1.0, 0.0 },
 			countdownHigh   = { 1.0, 1.0, 1.0 },

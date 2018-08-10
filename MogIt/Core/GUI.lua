@@ -17,6 +17,12 @@ local races = {
    "Blood Elf",
    "Goblin",
    "Pandaren",
+   "Lightforged Draenei",
+   "Void Elf",
+   "Dark Iron Dwarf",
+   "Highmountain Tauren",
+   "Nightborne",
+   "Mag'har Orc",
 }
 
 local raceID = {
@@ -33,12 +39,20 @@ local raceID = {
    ["Draenei"] = 11,
    ["Worgen"] = 22,
    ["Pandaren"] = 24,
+   ["Nightborne"] = 27,
+   ["Highmountain Tauren"] = 28,
+   ["Void Elf"] = 29,
+   ["Lightforged Draenei"] = 30,
+   ["Dark Iron Dwarf"] = 34,
+   ["Mag'har Orc"] = 36,
 }
 
 -- UnitRace returns differently for the following races, so need to include exceptions
-raceID["NightElf"] = raceID["Night Elf"]
 raceID["Scourge"] = raceID["Undead"]
-raceID["BloodElf"] = raceID["Blood Elf"]
+-- most are just with the space removed
+for i, race in ipairs(races) do
+	raceID[race:gsub("[%A]", "")] = raceID[race]
+end
 
 local gender = {
 	[0] = MALE,
@@ -138,6 +152,7 @@ function mog:CreateModelFrame(parent)
 	f.model = CreateFrame("DressUpModel",nil,f);
 	f.model:SetAllPoints(f);
 	f.model:SetModelScale(2);
+	f.model:SetAutoDress(false);
 	f.model:SetUnit("PLAYER");
 	f.model:SetPosition(0,0,0);
 	f.model:SetLight(true, false, 0, 0.8, -1, 1, 1, 1, 1, 0.3, 1, 1, 1);

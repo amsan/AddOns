@@ -17,8 +17,12 @@
 --	limitations under the License.
 ----------------------------------------------------------------------------------
 
+---@type TRP3_API
+local _, TRP3_API = ...;
+local Ellyb = Ellyb(...);
+
 -- imports
-local Globals, loc, Utils, Events = TRP3_API.globals, TRP3_API.locale.getText, TRP3_API.utils, TRP3_API.events;
+local Globals, loc, Utils, Events = TRP3_API.globals, TRP3_API.loc, TRP3_API.utils, TRP3_API.events;
 local tinsert, _G, pairs, type, tostring = tinsert, _G, pairs, type, tostring;
 local tsize = Utils.table.size;
 local unregisterMenu = TRP3_API.navigation.menu.unregisterMenu;
@@ -63,7 +67,7 @@ local currentlyOpenedProfilePrefix = TRP3_API.navigation.menu.id.COMPANIONS_PAGE
 
 local function uiCheckNameAvailability(profileName)
 	if not isProfileNameAvailable(profileName) then
-		showAlertPopup(loc("PR_PROFILEMANAGER_ALREADY_IN_USE"):format(Utils.str.color("g")..profileName.."|r"));
+		showAlertPopup(loc.PR_PROFILEMANAGER_ALREADY_IN_USE:format(Utils.str.color("g")..profileName.."|r"));
 		return false;
 	end
 	return true;
@@ -90,7 +94,7 @@ end
 TRP3_API.companions.openPage = openProfile;
 
 local function uiCreateProfile()
-	showTextInputPopup(loc("PR_PROFILEMANAGER_CREATE_POPUP"),
+	showTextInputPopup(loc.PR_PROFILEMANAGER_CREATE_POPUP,
 	function(newName)
 		if newName and #newName ~= 0 then
 			if not uiCheckNameAvailability(newName) then return end
@@ -99,14 +103,14 @@ local function uiCreateProfile()
 		end
 	end,
 	nil,
-	loc("PR_CO_NEW_PROFILE")
+	loc.PR_CO_NEW_PROFILE
 	);
 end
 
 local function uiDuplicateProfile(profileID)
 	local profile = getProfiles()[profileID];
 	showTextInputPopup(
-	loc("PR_PROFILEMANAGER_DUPP_POPUP"):format(Utils.str.color("g").. profile.profileName .. "|r"),
+	loc.PR_PROFILEMANAGER_DUPP_POPUP:format(Utils.str.color("g").. profile.profileName .. "|r"),
 	function(newName)
 		if newName and #newName ~= 0 then
 			if not uiCheckNameAvailability(newName) then return end
@@ -121,7 +125,7 @@ end
 
 -- Promps profile delete confirmation
 local function uiDeleteProfile(profileID)
-	showConfirmPopup(loc("PR_CO_PROFILEMANAGER_DELETE_WARNING"):format(Utils.str.color("g")..getProfiles()[profileID].profileName.."|r"),
+	showConfirmPopup(loc.PR_CO_PROFILEMANAGER_DELETE_WARNING:format(Utils.str.color("g")..getProfiles()[profileID].profileName.."|r"),
 	function()
 		deleteProfile(profileID);
 		uiInitProfileList();
@@ -133,7 +137,7 @@ local getMenuItem = TRP3_API.navigation.menu.getMenuItem;
 local function uiEditProfile(profileID)
 	local profile = getProfiles()[profileID];
 	showTextInputPopup(
-	loc("PR_CO_PROFILEMANAGER_EDIT_POPUP"):format(Utils.str.color("g") .. profile.profileName .. "|r"),
+	loc.PR_CO_PROFILEMANAGER_EDIT_POPUP:format(Utils.str.color("g") .. profile.profileName .. "|r"),
 	function(newName)
 		if newName and #newName ~= 0 then
 			if not uiCheckNameAvailability(newName) then return end
@@ -166,14 +170,14 @@ local function uiBoundTargetProfile(profileID)
 			return;
 		end
 	end
-	TRP3_API.ui.tooltip.toast("|cffff0000" .. loc("REG_COMPANION_TARGET_NO"), 4);
+	TRP3_API.ui.tooltip.toast("|cffff0000" .. loc.REG_COMPANION_TARGET_NO, 4);
 end
 
 local unboundPlayerCompanion = TRP3_API.companions.player.unboundPlayerCompanion;
 local function uiUnboundTargetProfile(profileID, companionInfo)
 	local companionID, companionType = companionInfo:sub(1, companionInfo:find("|") - 1), companionInfo:sub(companionInfo:find("|") + 1);
 	unboundPlayerCompanion(companionID, companionType);
-	TRP3_API.ui.tooltip.toast(loc("REG_COMPANION_LINKED_NO"):format("|cff00ff00" .. getCompanionNameFromSpellID(companionID) .. "|r"), 4);
+	TRP3_API.ui.tooltip.toast(loc.REG_COMPANION_LINKED_NO:format("|cff00ff00" .. getCompanionNameFromSpellID(companionID) .. "|r"), 4);
 	uiInitProfileList();
 end
 
@@ -186,11 +190,11 @@ local wipe, table = wipe, table;
 
 local function getCompanionTypeText(companionType)
 	if companionType == TYPE_PET then
-		return loc("PR_CO_PET");
+		return loc.PR_CO_PET;
 	elseif companionType == TYPE_BATTLE_PET then
-		return loc("PR_CO_BATTLE");
+		return loc.PR_CO_BATTLE;
 	elseif companionType == TYPE_MOUNT then
-		return loc("PR_CO_MOUNT");
+		return loc.PR_CO_MOUNT;
 	end
 	return "";
 end
@@ -212,20 +216,22 @@ local function decorateProfileList(widget, index)
 				.. "|cffff9900 (" .. getCompanionTypeText(companionType) .. ")|r\n";
 		i = i + 1;
 	end
-	_G[widget:GetName().."Count"]:SetText(loc("PR_CO_COUNT"):format(i));
+	_G[widget:GetName().."Count"]:SetText(loc.PR_CO_COUNT:format(i));
 
 	local text = "";
 	if i > 0 then
-		text = text..loc("PR_CO_PROFILE_DETAIL")..":\n"..listText;
+		text = text..loc.PR_CO_PROFILE_DETAIL..":\n"..listText;
 	else
-		text = text..loc("PR_CO_UNUSED_PROFILE");
+		text = text..loc.PR_CO_UNUSED_PROFILE;
 	end
 
 	setTooltipForSameFrame(
 	_G[widget:GetName().."Info"], "RIGHT", 0, 0,
-	loc("PR_PROFILE"),
+	loc.PR_PROFILE,
 	text
 	)
+
+	Ellyb.Tooltips.getTooltip(widget):SetTitle(mainText)
 end
 
 local function profileSortingByProfileName(profileID1, profileID2)
@@ -273,11 +279,11 @@ local function onBoundClicked(button)
 	local profileID = button:GetParent().profileID;
 	local profile = getCompanionProfiles()[profileID];
 	local values = {};
-	tinsert(values, {loc("REG_COMPANION_BOUND_TO"),
+	tinsert(values, {loc.REG_COMPANION_BOUND_TO,
 		{
-			{loc("PR_CO_BATTLE"), 4},
-			{loc("PR_CO_MOUNT"), 5},
-			{loc("REG_COMPANION_BOUND_TO_TARGET"), 6},
+			{loc.PR_CO_BATTLE, 4},
+			{loc.PR_CO_MOUNT, 5},
+			{loc.REG_COMPANION_BOUND_TO_TARGET, 6},
 		}
 	});
 	if profile.links and tsize(profile.links) > 0 then
@@ -285,7 +291,7 @@ local function onBoundClicked(button)
 		for companionID, companionType in pairs(profile.links) do
 			tinsert(linksTab, {getCompanionNameFromSpellID(companionID), companionID .. "|" .. companionType});
 		end
-		tinsert(values, {loc("REG_COMPANION_UNBOUND"), linksTab});
+		tinsert(values, {loc.REG_COMPANION_UNBOUND, linksTab});
 	end
 
 	displayDropDown(button, values, onActionSelected, 0, true);
@@ -294,9 +300,9 @@ end
 local function onActionClicked(button)
 	local profileID = button:GetParent().profileID;
 	local values = {};
-	tinsert(values, {loc("PR_DELETE_PROFILE"), 1});
-	tinsert(values, {loc("PR_PROFILEMANAGER_RENAME"), 2});
-	tinsert(values, {loc("PR_DUPLICATE_PROFILE"), 3});
+	tinsert(values, {loc.PR_DELETE_PROFILE, 1});
+	tinsert(values, {loc.PR_PROFILEMANAGER_RENAME, 2});
+	tinsert(values, {loc.PR_DUPLICATE_PROFILE, 3});
 	displayDropDown(button, values, onActionSelected, 0, true);
 end
 
@@ -315,7 +321,7 @@ local getCurrentContext, getCurrentPageID = TRP3_API.navigation.page.getCurrentC
 
 ui_boundPlayerCompanion = function (companionID, profileID, targetType)
 	if targetType == TYPE_PET and UnitName("pet") == companionID and PetCanBeRenamed() then
-		showConfirmPopup(loc("PR_CO_WARNING_RENAME"), function()
+		showConfirmPopup(loc.PR_CO_WARNING_RENAME, function()
 			boundPlayerCompanion(companionID, profileID, targetType);
 		end);
 	else
@@ -323,18 +329,18 @@ ui_boundPlayerCompanion = function (companionID, profileID, targetType)
 	end
 	local profile = getProfiles()[profileID];
 	local companionName = getCompanionNameFromSpellID(companionID);
-	displayMessage(loc("REG_COMPANION_LINKED"):format("|cff00ff00" .. companionName .. "|r", "|cff00ff00" .. profile.profileName .. "|r"));
+	displayMessage(loc.REG_COMPANION_LINKED:format("|cff00ff00" .. companionName .. "|r", "|cff00ff00" .. profile.profileName .. "|r"));
 	if getCurrentPageID() == TRP3_API.navigation.page.id.COMPANIONS_PROFILES then
 		uiInitProfileList();
 	end
 end
 
 local function createNewAndBound(companionID, targetType)
-	showTextInputPopup(loc("PR_PROFILEMANAGER_CREATE_POPUP"),
+	showTextInputPopup(loc.PR_PROFILEMANAGER_CREATE_POPUP,
 	function(newName)
 		if newName and #newName ~= 0 then
 			if not isProfileNameAvailable(newName) then
-				showAlertPopup(loc("PR_PROFILEMANAGER_ALREADY_IN_USE"):format(Utils.str.color("g")..newName.."|r"));
+				showAlertPopup(loc.PR_PROFILEMANAGER_ALREADY_IN_USE:format(Utils.str.color("g")..newName.."|r"));
 				return;
 			end
 			local profileID = createProfile(newName);
@@ -358,7 +364,7 @@ local function onCompanionProfileSelection(value, companionID, targetType)
 		if getCurrentPageID() == TRP3_API.navigation.page.id.COMPANIONS_PROFILES then
 			uiInitProfileList();
 		end
-		displayMessage(loc("REG_COMPANION_LINKED_NO"):format("|cff00ff00" .. getCompanionNameFromSpellID(companionID) .. "|r"));
+		displayMessage(loc.REG_COMPANION_LINKED_NO:format("|cff00ff00" .. getCompanionNameFromSpellID(companionID) .. "|r"));
 	elseif value == 2 then
 		createNewAndBound(companionID, targetType);
 	elseif type(value) == "string" then
@@ -368,7 +374,7 @@ end
 
 local function getPlayerCompanionProfilesAsList(companionID)
 	local list = {};
-	tinsert(list, {loc("REG_COMPANION_TF_CREATE"), 2});
+	tinsert(list, {loc.REG_COMPANION_TF_CREATE, 2});
 	for profileID, profile in pairs(getProfiles()) do
 		if getCompanionProfileID(companionID) == profileID then
 			tinsert(list, {profile.profileName, nil});
@@ -407,10 +413,10 @@ local function companionProfileSelectionList(unitID, targetType, buttonStructure
 	if ownerID == Globals.player_id then
 		local list = {};
 		if getCompanionProfile(companionID) then
-			tinsert(list, {loc("REG_COMPANION_TF_OPEN"), 0});
-			tinsert(list, {loc("REG_COMPANION_TF_UNBOUND"), 1});
+			tinsert(list, {loc.REG_COMPANION_TF_OPEN, 0});
+			tinsert(list, {loc.REG_COMPANION_TF_UNBOUND, 1});
 		end
-		tinsert(list, {loc("REG_COMPANION_TF_BOUND_TO"), getPlayerCompanionProfilesAsList(companionID)});
+		tinsert(list, {loc.REG_COMPANION_TF_BOUND_TO, getPlayerCompanionProfilesAsList(companionID)});
 
 		displayDropDown(button, list, function(value) onCompanionProfileSelection(value, companionID, targetType) end, 0, true);
 	else
@@ -440,7 +446,7 @@ local function constructTutorialStructure()
 			},
 			button = {
 				x = 0, y = -150, anchor = "CENTER",
-				text = loc("PR_CO_PROFILE_HELP"),
+				text = loc.PR_CO_PROFILE_HELP,
 				textWidth = 400,
 				arrow = "UP"
 			},
@@ -451,7 +457,7 @@ local function constructTutorialStructure()
 			},
 			button = {
 				x = 0, y = 15, anchor = "CENTER",
-				text = loc("PR_CO_PROFILE_HELP2"),
+				text = loc.PR_CO_PROFILE_HELP2,
 				textWidth = 400,
 				arrow = "DOWN"
 			},
@@ -486,23 +492,43 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 	for i=1,5 do
 		local widget = _G["TRP3_CompanionsProfilesListLine"..i];
 		widget:SetScript("OnMouseUp",function (self)
-			onOpenProfile(widget);
-			playUISound("gsCharacterSelection");
+			if IsShiftKeyDown() then
+				TRP3_API.ChatLinks:OpenMakeImportablePrompt(loc.CL_COMPANION_PROFILE, function(canBeImported)
+					TRP3_API.CompanionProfileChatLinksModule:InsertLink(widget.profileID, canBeImported)
+				end);
+			else
+				onOpenProfile(widget);
+				playUISound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+			end
 		end);
 		_G[widget:GetName().."Action"]:SetScript("OnClick", onActionClicked);
-		_G[widget:GetName().."Bound"]:SetText(loc("REG_COMPANION_BOUNDS"));
+		_G[widget:GetName().."Bound"]:SetText(loc.REG_COMPANION_BOUNDS);
 		_G[widget:GetName().."Bound"]:Show();
 		_G[widget:GetName().."Bound"]:SetScript("OnClick", onBoundClicked);
-		setTooltipAll(_G[widget:GetName().."Action"], "TOP", 0, 0, loc("PR_PROFILEMANAGER_ACTIONS"));
 		tinsert(widgetTab, widget);
+
+
+		Ellyb.Tooltips.getTooltip(_G[widget:GetName().."Action"])
+			:SetAnchor(Ellyb.Tooltips.ANCHORS.TOP)
+			:SetTitle(loc.PR_PROFILEMANAGER_ACTIONS);
+
+		-- Display indications in the tooltip on how to create a chat link
+		Ellyb.Tooltips.getTooltip(widget)
+			:AddLine(Ellyb.Strings.clickInstruction(Ellyb.System.CLICKS.CLICK, loc.CM_OPEN))
+			:AddLine(
+				Ellyb.Strings.clickInstruction(
+						Ellyb.System:FormatKeyboardShortcut(Ellyb.System.MODIFIERS.SHIFT, Ellyb.System.CLICKS.CLICK),
+						loc.CL_TOOLTIP
+				)
+		)
 	end
 	TRP3_CompanionsProfilesList.widgetTab = widgetTab;
 	TRP3_CompanionsProfilesList.decorate = decorateProfileList;
 	TRP3_CompanionsProfilesAdd:SetScript("OnClick", uiCreateProfile);
 
 	--Localization
-	TRP3_CompanionsProfilesAdd:SetText(loc("PR_CREATE_PROFILE"));
-	TRP3_CompanionsProfilesListEmpty:SetText(loc("PR_CO_EMPTY"));
+	TRP3_CompanionsProfilesAdd:SetText(loc.PR_CREATE_PROFILE);
+	TRP3_CompanionsProfilesListEmpty:SetText(loc.PR_CO_EMPTY);
 	
 	local frame = CreateFrame("Frame", "TRP3_CompanionsProfilesTabBar", TRP3_CompanionsProfiles);
 	frame:SetSize(400, 30);
@@ -511,7 +537,7 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 
 	tabGroup = TRP3_API.ui.frame.createTabPanel(frame,
 		{
-			{loc("PR_CO_PROFILEMANAGER_TITLE"), 1, 175},
+			{loc.PR_CO_PROFILEMANAGER_TITLE, 1, 175},
 		},
 		function(tabWidget, value)
 			local list, importer = TRP3_CompanionsProfiles:GetChildren();
@@ -529,11 +555,12 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 end);
 
 TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
+
 	if TRP3_API.target then
 		-- Target bar button for pets
 		TRP3_API.target.registerButton({
 			id = "bb_companion_profile",
-			configText = loc("REG_COMPANION_TF_PROFILE"),
+			configText = loc.REG_COMPANION_TF_PROFILE,
 			condition = function(targetType, unitID)
 				if isTargetTypeACompanion(targetType) then
 					local ownerID, companionID = companionIDToInfo(unitID);
@@ -546,17 +573,17 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 				local ownerID, companionID = companionIDToInfo(unitID);
 				local profile = getCompanionInfo(ownerID, companionID, unitID);
 				buttonStructure.alert = nil;
-				buttonStructure.tooltip = loc("TF_OPEN_COMPANION");
+				buttonStructure.tooltip = loc.TF_OPEN_COMPANION;
 				buttonStructure.tooltipSub = nil;
 				if ownerID == Globals.player_id then
 					if profile then
-						buttonStructure.tooltip = loc("PR_PROFILE") .. ": |cff00ff00" .. profile.profileName;
+						buttonStructure.tooltip = loc.PR_PROFILE .. ": |cff00ff00" .. profile.profileName;
 						if profile.data and profile.data.IC then
 							buttonStructure.icon = profile.data.IC;
 						end
 					else
 						buttonStructure.icon = "icon_petfamily_mechanical";
-						buttonStructure.tooltip = loc("REG_COMPANION_TF_NO");
+						buttonStructure.tooltip = loc.REG_COMPANION_TF_NO;
 					end
 				else
 					if profile and profile.data and profile.data.IC then
@@ -565,7 +592,7 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 						buttonStructure.icon = Globals.icons.unknown;
 					end
 					if profile and profile.data and profile.data.read == false then
-						buttonStructure.tooltipSub = loc("REG_TT_NOTIF");
+						buttonStructure.tooltipSub = loc.REG_TT_NOTIF;
 						buttonStructure.alert = true;
 					end
 				end
@@ -575,7 +602,7 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 		-- Target bar button for mounts
 		TRP3_API.target.registerButton({
 			id = "bb_companion_profile_mount",
-			configText = loc("REG_COMPANION_TF_PROFILE_MOUNT"),
+			configText = loc.REG_COMPANION_TF_PROFILE_MOUNT,
 			onlyForType = TRP3_API.ui.misc.TYPE_CHARACTER,
 			condition = function(targetType, unitID)
 				if unitID == Globals.player_id then
@@ -587,17 +614,17 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 			onClick = companionProfileSelectionList,
 			alertIcon = "Interface\\GossipFrame\\AvailableQuestIcon",
 			adapter = function(buttonStructure, unitID, targetType)
-				buttonStructure.tooltip = loc("TF_OPEN_MOUNT");
+				buttonStructure.tooltip = loc.TF_OPEN_MOUNT;
 				buttonStructure.alert = nil;
 				buttonStructure.tooltipSub = nil;
 				if unitID == Globals.player_id then
 					local profile, profileID = getCurrentMountProfile();
-					buttonStructure.tooltipSub = "|cffffff00" .. loc("CM_CLICK") .. ": |r" .. loc("PR_PROFILEMANAGER_ACTIONS");
+					buttonStructure.tooltipSub = "|cffffff00" .. loc.CM_CLICK .. ": |r" .. loc.PR_PROFILEMANAGER_ACTIONS;
 					if profile then
 						if profile and profile.data and profile.data.NA then
-							buttonStructure.tooltip = loc("PR_CO_MOUNT") .. ": |cff00ff00" .. profile.data.NA;
+							buttonStructure.tooltip = loc.PR_CO_MOUNT .. ": |cff00ff00" .. profile.data.NA;
 						else
-							buttonStructure.tooltip = loc("PR_CO_MOUNT") .. ": |cff00ff00" .. profile.profileName;
+							buttonStructure.tooltip = loc.PR_CO_MOUNT .. ": |cff00ff00" .. profile.profileName;
 						end
 						if profile and profile.data and profile.data.IC then
 							buttonStructure.icon = profile.data.IC;
@@ -606,17 +633,17 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 						end
 					else
 						buttonStructure.icon = "ability_mount_charger";
-						buttonStructure.tooltipSub = "|cffffff00" .. loc("CM_CLICK") .. ": |r" .. loc("REG_COMPANION_TF_BOUND_TO");
-						buttonStructure.tooltip = loc("PR_CO_MOUNT");
+						buttonStructure.tooltipSub = "|cffffff00" .. loc.CM_CLICK .. ": |r" .. loc.REG_COMPANION_TF_BOUND_TO;
+						buttonStructure.tooltip = loc.PR_CO_MOUNT;
 					end
 				else
 					local companionFullID, profileID = TRP3_API.companions.register.getUnitMount(unitID, "target");
 					local profile = getCompanionRegisterProfile(companionFullID);
-					buttonStructure.tooltipSub = "|cffffff00" .. loc("CM_CLICK") .. ": |r" .. loc("TF_OPEN_MOUNT");
+					buttonStructure.tooltipSub = "|cffffff00" .. loc.CM_CLICK .. ": |r" .. loc.TF_OPEN_MOUNT;
 					if profile and profile.data and profile.data.NA then
-						buttonStructure.tooltip = loc("PR_CO_MOUNT") .. ": |cff00ff00" .. profile.data.NA;
+						buttonStructure.tooltip = loc.PR_CO_MOUNT .. ": |cff00ff00" .. profile.data.NA;
 					else
-						buttonStructure.tooltip = loc("PR_CO_MOUNT");
+						buttonStructure.tooltip = loc.PR_CO_MOUNT;
 					end
 					if profile and profile.data and profile.data.IC then
 						buttonStructure.icon = profile.data.IC;
@@ -624,7 +651,7 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 						buttonStructure.icon = Globals.icons.unknown;
 					end
 					if profile and profile.data and profile.data.read == false then
-						buttonStructure.tooltipSub = "|cff00ff00" .. loc("REG_TT_NOTIF") .. "\n" .. buttonStructure.tooltipSub;
+						buttonStructure.tooltipSub = "|cff00ff00" .. loc.REG_TT_NOTIF .. "\n" .. buttonStructure.tooltipSub;
 						buttonStructure.alert = true;
 					end
 				end

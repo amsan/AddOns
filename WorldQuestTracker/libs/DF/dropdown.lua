@@ -483,7 +483,13 @@ function DetailsFrameworkDropDownOptionClick (button)
 		
 	--> exec function if any
 		if (button.table.onclick) then
-			button.table.onclick (button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)	
+		
+			local success, errorText = pcall (button.table.onclick, button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)
+			if (not success) then
+				error ("Details! Framework: dropdown " .. button:GetParent():GetParent():GetParent().MyObject:GetName() ..  " error: " .. errorText)
+			end
+			
+			--button.table.onclick (button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)	
 		end
 		
 	--> set the value of selected option in main object
@@ -529,6 +535,10 @@ function DetailsFrameworkDropDownOptionOnEnter (frame)
 		GameCooltip2:AddLine (frame.table.desc)
 		if (frame.table.descfont) then
 			GameCooltip2:SetOption ("TextFont", frame.table.descfont)
+		end
+		
+		if (frame.table.tooltipwidth) then
+			GameCooltip2:SetOption ("FixedWidth", frame.table.tooltipwidth)
 		end
 		
 		GameCooltip2:SetHost (frame, "topleft", "topright", 10, 0)
@@ -592,7 +602,6 @@ function DetailsFrameworkDropDownOnMouseDown (button)
 						local name = button:GetName() .. "Row" .. i
 						local parent = scrollChild
 						
-						--_this_row = CreateFrame ("Button", name, parent, "DetailsFrameworkDropDownOptionTemplate")
 						_this_row = DF:CreateDropdownButton (parent, name)
 						local anchor_i = i-1
 						_this_row:SetPoint ("topleft", parent, "topleft", 5, (-anchor_i*20)-5)
@@ -937,7 +946,6 @@ function DF:NewDropDown (parent, container, name, member, w, h, func, default, t
 		--> misc
 		DropDownObject.container = container
 		
-	--DropDownObject.dropdown = CreateFrame ("Button", name, parent, "DetailsFrameworkDropDownTemplate")
 	DropDownObject.dropdown = DF:CreateNewDropdownFrame (parent, name)
 	
 	DropDownObject.widget = DropDownObject.dropdown

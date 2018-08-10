@@ -381,7 +381,7 @@
 			<Frame name="$parentItem" hidden="true" setAllPoints="true">
 				<Layers>
 					<Layer level="OVERLAY">
-						<Texture name="$parentIcon" file="">
+						<Texture name="$parentIcon">
 							<Size>
 								<AbsDimension x="16" y="16"/>
 							</Size>
@@ -425,7 +425,7 @@
 								</Anchor>
 							</Anchors>
 						</FontString>
-						<Texture name="$parentScriptIcon" file="">
+						<Texture name="$parentScriptIcon">
 							<Size>
 								<AbsDimension x="16" y="16"/>
 							</Size>

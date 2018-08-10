@@ -1560,7 +1560,6 @@ function Addon.UIElementsLib._TitledDropDownMenuButton:SetCurrentValueText(pText
 end
 
 function Addon.UIElementsLib._TitledDropDownMenuButton:SetSelectedValue(pValue)
-	assert(false)
 	if self.selectedValue == pValue then
 		return
 	end

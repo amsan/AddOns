@@ -32,7 +32,7 @@ end
 function Grid2:DbSetIndicator(name, value)
 	if value==nil then
 		local map = Grid2.db.profile.statusMap
-		if map[name] then map[name]= nil end	
+		if map[name] then map[name]= nil end
 	end
     self.db.profile.indicators[name]= value
 end
@@ -47,8 +47,8 @@ function Grid2:DbSetMap(indicatorName, statusName, priority)
 	else
 		if map[indicatorName] and map[indicatorName][statusName] then
 			map[indicatorName][statusName] = nil
-		end		
-	end	
+		end
+	end
 end
 
 -- Default configurations
@@ -85,7 +85,7 @@ local function MakeDefaultsCommon()
 	Grid2:DbSetValue( "indicators",  "icon-right", {type = "icon", level = 8, location = Location("RIGHT",2), size = 12, fontSize = 8,})
 	Grid2:DbSetValue( "indicators",  "icon-left", {type = "icon", level = 8, location = Location("LEFT",-2), size = 12, fontSize = 8,})
 	Grid2:DbSetMap( "icon-left", "raid-icon-player", 155)
-	
+
 	Grid2:DbSetValue( "indicators",  "text-up", {type = "text", level = 7, location = Location("TOP",0,-8) , textlength = 6, fontSize = 8 })
 	Grid2:DbSetMap( "text-up", "health-deficit", 50)
 	Grid2:DbSetMap( "text-up", "feign-death", 96)
@@ -104,11 +104,11 @@ local function MakeDefaultsCommon()
 	Grid2:DbSetValue( "indicators",  "text-down", {type = "text", level = 6, location = Location("BOTTOM",0,4) , textlength = 6, fontSize = 8 })
 	Grid2:DbSetMap( "text-down", "name", 99)
 	Grid2:DbSetValue( "indicators",  "text-down-color", {type = "text-color"})
-	Grid2:DbSetMap( "text-down-color", "classcolor", 99)	
+	Grid2:DbSetMap( "text-down-color", "classcolor", 99)
 end
 
 local MakeDefaultsClass
-do 
+do
 	local class= select(2, UnitClass("player"))
 	if class=="SHAMAN" then MakeDefaultsClass= function()
 		Grid2:DbSetValue( "statuses",  "buff-Riptide-mine", {type = "buff", spellName = 61295, mine = true, color1 = {r=.8,g=.6,b=1,a=1}})
@@ -186,15 +186,11 @@ do
 		Grid2:DbSetMap( "border", "debuff-Magic"  , 70)
 		Grid2:DbSetMap( "border", "debuff-Curse"  , 60)
 	end elseif class=="PRIEST" then MakeDefaultsClass= function()
-		Grid2:DbSetValue( "statuses",  "buff-DivineAegis", {type = "buff", spellName = 47509, color1 = {r=1,g=1,b=1,a=1}})
-		Grid2:DbSetValue( "statuses",  "buff-InnerFire", {type = "buff", spellName = 588, missing = true, color1 = {r=1,g=1,b=1,a=1}})
 		Grid2:DbSetValue( "statuses",  "buff-PowerWordShield", {type = "buff", spellName = 17, color1 = {r=0,g=1,b=1,a=1}})
 		Grid2:DbSetValue( "statuses",  "buff-Renew-mine", {type = "buff", spellName = 139, mine = true, color1 = {r=1,g=1,b=1,a=1}})
 		Grid2:DbSetValue( "statuses",  "buff-SpiritOfRedemption", {type = "buff", spellName = 27827, blinkThreshold = 3, color1 = {r=1,g=1,b=1,a=1}})
-		Grid2:DbSetValue( "statuses",  "buff-Grace-mine", {type = "buff", spellName = 77613, mine = true,
-						colorCount = 3, color1 = {r=.6,g=.6,b=.6,a=1}, color2 = {r=.8,g=.8,b=.8,a=1}, color3 = {r=1,g=1,b=1,a=1}})
 		Grid2:DbSetValue( "statuses",  "buff-PrayerOfMending-mine", {type = "buff", spellName = 33076, mine = true,
-						colorCount = 5, color1 = {r=1,g=.2,b=.2,a=1}, color2 = {r=1,g=1,b=.4,a=.4}, 
+						colorCount = 5, color1 = {r=1,g=.2,b=.2,a=1}, color2 = {r=1,g=1,b=.4,a=.4},
 						color3 = {r=1,g=.6,b=.6,a=1}, color4 = {r=1,g=.8,b=.8,a=1}, color5 = {r=1,g=1,b=1,a=1}})
 		Grid2:DbSetValue( "statuses",  "debuff-WeakenedSoul", {type = "debuff", spellName = 6788, color1 = {r=0,g=.2,b=.9,a=1}})
 		Grid2:DbSetValue( "indicators",  "corner-top-left", {type = "square", level = 9, location = Location("TOPLEFT"), size = 5,})
@@ -203,8 +199,6 @@ do
 		Grid2:DbSetMap( "corner-top-right", "buff-PowerWordShield", 99)
 		Grid2:DbSetMap( "corner-top-right", "debuff-WeakenedSoul", 89)
 		Grid2:DbSetValue( "indicators",  "side-bottom", {type = "square", level = 9, location = Location("BOTTOM"), size = 5,})
-		Grid2:DbSetMap( "side-bottom", "buff-DivineAegis", 79)
-		Grid2:DbSetMap( "side-bottom", "buff-InnerFire", 79)
 		Grid2:DbSetMap( "icon-right", "buff-PrayerOfMending-mine", 99)
 		Grid2:DbSetMap( "border", "debuff-Disease", 90)
 		Grid2:DbSetMap( "border", "debuff-Magic"  , 80)
@@ -225,20 +219,16 @@ do
 		Grid2:DbSetMap( "border", "debuff-Magic"  , 70)
 		Grid2:DbSetMap( "border", "debuff-Curse"  , 60)
 	end elseif class=="MAGE" then MakeDefaultsClass= function()
-		Grid2:DbSetValue( "statuses", "buff-FocusMagic", {type = "buff", spellName = 54646, color1 = {r=.11,g=.22,b=.33,a=1}})
 		Grid2:DbSetValue( "statuses", "buff-IceArmor-mine", {type = "buff", spellName = 7302, mine = true, missing = true, color1 = {r=.2,g=.4,b=.4,a=1}})
 		Grid2:DbSetValue( "statuses", "buff-IceBarrier-mine", {type = "buff", spellName = 11426, mine = true, missing = true, color1 = {r=1,g=1,b=1,a=1}})
 		Grid2:DbSetValue( "indicators", "corner-bottom-right", {type = "square", level = 5, location = Location("BOTTOMRIGHT"), size = 5,})
-		Grid2:DbSetMap( "corner-bottom-right", "buff-FocusMagic", 99)
 		Grid2:DbSetMap( "icon-right", "raid-icon-target", 90)
-		Grid2:DbSetMap( "border", "debuff-Curse", 30)
 	end elseif class=="ROGUE" then MakeDefaultsClass= function()
 		Grid2:DbSetValue( "statuses",  "buff-Evasion-mine", {type = "buff", spellName = 5277, mine = true, color1 = {r=.1,g=.1,b=1,a=1}})
 		Grid2:DbSetMap( "side-bottom", "buff-Evasion-mine", 99)
 		Grid2:DbSetMap( "icon-right", "raid-icon-target", 90)
 	end elseif class=="WARLOCK" then MakeDefaultsClass= function()
 		Grid2:DbSetValue( "indicators", "corner-bottom-right", {type = "square", level = 5, location = Location("BOTTOMRIGHT"), size = 5,})
-		Grid2:DbSetValue( "statuses", "buff-ShadowWard-mine", {type = "buff", spellName = 6229, mine = true, color1 = {r=1,g=1,b=1,a=1}})
 		Grid2:DbSetValue( "statuses", "buff-SoulLink-mine", {type = "buff", spellName = 19028, mine = true, color1 = {r=1,g=1,b=1,a=1}})
 		Grid2:DbSetValue( "statuses", "buff-DemonArmor-mine", {type = "buff", spellName = 687, mine = true, missing = true, color1 = {r=1,g=1,b=1,a=1}})
 		Grid2:DbSetValue( "statuses", "buff-FelArmor-mine", {type = "buff", spellName = 28176, mine = true, missing = true, color1 = {r=1,g=1,b=1,a=1}})
@@ -247,7 +237,6 @@ do
 		Grid2:DbSetMap( "corner-bottom-right", "buff-FelArmor-mine", 99)
 		Grid2:DbSetMap( "icon-right", "raid-icon-target", 90)
 	end elseif class=="WARRIOR" then MakeDefaultsClass= function()
-		Grid2:DbSetValue( "statuses",  "buff-Vigilance", {type = "buff", spellName = 50720, mine = true, color1 = {r=.1,g=.1,b=1,a=1}})
 		Grid2:DbSetValue( "statuses",  "buff-BattleShout", {type = "buff", spellName = 6673, mine = true, color1 = {r=.1,g=.1,b=1,a=1}})
 		Grid2:DbSetValue( "statuses",  "buff-ShieldWall", {type = "buff", spellName = 871, mine = true, color1 = {r=.1,g=.1,b=1,a=1}})
 		Grid2:DbSetValue( "statuses",  "buff-LastStand", {type = "buff", spellName = 12975, mine = true, color1 = {r=.1,g=.1,b=1,a=1}})
@@ -295,7 +284,7 @@ function Grid2:UpdateDefaults()
 					status.type = status.type .. "s"  -- Convert type: buff -> buffs , debuff -> debuffs
 					if status.type == "debuffs" then
 						status.useWhiteList = true
-					end	
+					end
 				end
 			end
 		end

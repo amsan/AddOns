@@ -25,7 +25,7 @@
 ## Notes: Media type and textures for button highlight in LibSharedMeda-3.0.
 ## Author: Adirelle
 ## Version: d0911e7
-## X-Date: 2014-11-30T0:29:25Z
+## X-Date: 2014-11-29T18:29:25+0000
 ## X-License: GPL v3
 ## X-eMail: adirelle@gmail.com
 ## X-Category: Library

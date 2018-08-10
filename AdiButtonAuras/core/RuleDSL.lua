@@ -1,6 +1,6 @@
 --[[
 AdiButtonAuras - Display auras on action buttons.
-Copyright 2013-2016 Adirelle (adirelle@gmail.com)
+Copyright 2013-2019 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiButtonAuras.
@@ -16,7 +16,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with AdiButtonAuras.  If not, see <http://www.gnu.org/licenses/>.
+along with AdiButtonAuras. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -34,6 +34,7 @@ local ipairs = _G.ipairs
 local math = _G.math
 local next = _G.next
 local pairs = _G.pairs
+local PowerType = _G.Enum.PowerType
 local select = _G.select
 local setfenv = _G.setfenv
 local strjoin = _G.strjoin
@@ -191,7 +192,7 @@ local function Configure(key, desc, spells, units, events, handlers, providers, 
 	end
 	units, events, handlers, providers = CheckRuleArgs(units, events, handlers, providers, callLevel+1)
 	local builders = {}
-	for i, spell in ipairs(spells) do
+	for _, spell in ipairs(spells) do
 		tinsert(builders, function()
 			_AddRuleFor(key, desc, spell, units, events, handlers, providers, callLevel+1)
 		end)
@@ -205,7 +206,7 @@ end
 
 local function GetHighlightHandler(highlight)
 	if highlight == "flash" then
-		return function(model, count) model.flash = true end
+		return function(model) model.flash = true end
 	end
 	if highlight == "hint" then
 		return function(model) model.hint = true end
@@ -228,6 +229,20 @@ local function GetHighlightHandler(highlight)
 			end
 		end
 	end
+	if highlight == "dispel" then
+		return function(model, count, expiration, dispel)
+			model.highlight = highlight
+			if count and count > 1 then
+				model.count = count
+			end
+			if expiration then
+				model.expiration = expiration
+			end
+			if dispel then
+				model.dispel = dispel
+			end
+		end
+	end
 	return function() end
 end
 
@@ -235,7 +250,9 @@ local function BuildAuraHandler_Single(filter, highlight, token, buff, callLevel
 	local GetAura = addon.GetAuraGetter(filter)
 	local Show = GetHighlightHandler(highlight)
 	return function(units, model)
-		local found, count, expiration = GetAura(units[token], buff)
+		local unit = units[token]
+		if not unit or unit == '' then return end
+		local found, count, expiration = GetAura(unit, buff)
 		if found then
 			Show(model, count, expiration)
 			return true
@@ -253,8 +270,10 @@ local function BuildAuraHandler_Longest(filter, highlight, token, buffs, callLev
 	local IterateAuras = addon.GetAuraIterator(filter)
 	local Show = GetHighlightHandler(highlight)
 	return function(units, model)
+		local unit = units[token]
+		if not unit or unit == '' then return end
 		local longest = -1
-		for i, id, count, expiration in IterateAuras(units[token]) do
+		for _, id, count, expiration in IterateAuras(unit) do
 			if buffs[id] and expiration > longest then
 				longest = expiration
 				Show(model, count, expiration)
@@ -274,9 +293,26 @@ local function BuildAuraHandler_FirstOf(filter, highlight, token, buffs, callLev
 	local IterateAuras = addon.GetAuraIterator(filter)
 	local Show = GetHighlightHandler(highlight)
 	return function(units, model)
-		for i, id, count, expiration in IterateAuras(units[token]) do
+		local unit = units[token]
+		if not unit or unit == '' then return end
+		for _, id, count, expiration in IterateAuras(unit) do
 			if buffs[id] then
 				Show(model, count, expiration)
+				return true
+			end
+		end
+	end
+end
+
+local function BuildDispelHandler(filter, highlight, token, dispellable, callLevel)
+	local IterateAuras = addon.GetAuraIterator(filter)
+	local Show = GetHighlightHandler(highlight)
+	return function(units, model)
+		local unit = units[token]
+		if not unit or unit == '' then return end
+		for _, _, count, expiration, dispel in IterateAuras(unit) do
+			if dispellable[dispel] then
+				Show(model, count, expiration, dispel)
 				return true
 			end
 		end
@@ -291,8 +327,8 @@ local function Auras(filter, highlight, unit, spells)
 	local funcs = {}
 	local key = BuildKey('Auras', filter, highlight, unit)
 	local desc = BuildDesc(filter, highlight, unit, '@NAME')
-	for i, spell in ipairs(AsList(spells, "number", 2)) do
-		tinsert(funcs, Configure(key, desc, spell, unit, "UNIT_AURA", BuildAuraHandler_Single(filter, highlight, unit, spell, 2), 2))
+	for _, spell in ipairs(AsList(spells, "number", 2)) do
+		tinsert(funcs, Configure(key, desc, spell, unit, "UNIT_AURA", BuildAuraHandler_Single(filter, highlight, unit, spell, 2), nil, 2))
 	end
 	return (#funcs > 1) and funcs or funcs[1]
 end
@@ -306,11 +342,11 @@ local function PassiveModifier(passive, spell, buff, unit, highlight)
 	return Configure(key, desc, spell, unit, "UNIT_AURA", handler, passive, 3)
 end
 
-local function AuraAliases(filter, highlight, unit, spells, buffs)
+local function AuraAliases(filter, highlight, unit, spells, buffs, providers)
 	buffs = AsList(buffs or spells, "number", 3)
 	local key = BuildKey("AuraAliases", filter, highlight, unit, spells, buffs)
 	local desc = BuildDesc(filter, highlight, unit, buffs)
-	return Configure(key, desc, spells, unit, "UNIT_AURA", BuildAuraHandler_FirstOf(filter, highlight, unit, buffs, 3), nil, 3)
+	return Configure(key, desc, spells, unit, "UNIT_AURA", BuildAuraHandler_FirstOf(filter, highlight, unit, buffs, 3), providers, 3)
 end
 
 local function ShowCountAndHighlight(key, spells, unit, events, handler, highlight, desc, descWhat, getValue, getMax, providers)
@@ -392,11 +428,11 @@ end
 local function ShowPower(spells, powerType, handler, highlight, providers, desc)
 	local events, powerLoc, powerIndex
 	if type(powerType) == "string" then
-		powerIndex = _G["SPELL_POWER_"..powerType]
+		powerIndex = PowerType[powerType]
 		if not powerIndex then
 			error("Unknown power "..powerType, 3)
 		end
-		powerLoc = _G[powerType]
+		powerLoc = _G[powerType:gsub('(%S)(%u)', '%1_%2'):upper()]
 		events = { "UNIT_POWER_FREQUENT", "UNIT_MAXPOWER" }
 	else
 		error("Invalid power type value, expected string, got "..type(powerType), 3)
@@ -460,12 +496,23 @@ local function ShowStacks(spells, aura, maxi, unit, handler, highlight, provider
 		desc,
 		format(L["stacks of %s"], DescribeAllSpells(aura)),
 		function(unit)
+			if not unit or unit == '' then return 0 end
 			local _, count = GetPlayerAura(unit, aura)
 			return count or 0
 		end,
 		getMax,
 		providers
 	)
+end
+
+local function ShowDispellable(spells, unit, canDispel, providers, highlight, desc)
+	local filter = unit == 'enemy' and 'HELPFUL' or 'HARMFUL'
+	local key = BuildKey('Dispel', unit, highlight)
+	local handler = BuildDispelHandler(filter, highlight, unit, AsSet(canDispel, 'string', 4))
+	highlight = highlight or 'hint'
+	desc = desc or BuildDesc(filter == 'HELPFUL' and L['a buff you can dispel'] or L['a debuff you can dispel'], highlight, unit)
+
+	return Configure(key, desc, spells, unit, 'UNIT_AURA', handler, providers, 4)
 end
 
 local function FilterOut(spells, exclude)
@@ -498,7 +545,7 @@ do
 		local categoryMask = LibPlayerSpells.constants[category]
 		local exceptions = AsSet({...}, "number", 3)
 		local builders = {}
-		for buff, flags, provider, modified in LibPlayerSpells:IterateSpells(category, "AURA", "CROWD_CTRL DISPEL") do
+		for buff, flags, provider, modified in LibPlayerSpells:IterateSpells(category, "AURA", "CROWD_CTRL DISPEL RAIDBUFF") do
 			local providers = provider ~= buff and FilterOut(AsList(provider, "number"), exceptions)
 			local spells = FilterOut(AsList(modified, "number"), exceptions)
 			if not exceptions[buff] and #spells > 0 and (not providers or #providers > 0) then
@@ -554,6 +601,7 @@ local baseEnv = {
 	BuildAuraHandler_Single  = BuildAuraHandler_Single,
 	BuildAuraHandler_Longest = BuildAuraHandler_Longest,
 	BuildAuraHandler_FirstOf = BuildAuraHandler_FirstOf,
+	BuildDispelHandler       = BuildDispelHandler,
 
 	-- Description helpers
 	BuildDesc         = addon.BuildDesc,
@@ -566,11 +614,12 @@ local baseEnv = {
 
 	-- Basic functions
 	Configure = WrapTableArgFunc(Configure),
-	ShowPower = WrapTableArgFunc(ShowPower),
-	ShowHealth = WrapTableArgFunc(ShowHealth),
-	ShowStacks = WrapTableArgFunc(ShowStacks),
-	PassiveModifier = WrapTableArgFunc(PassiveModifier),
 	ImportPlayerSpells = WrapTableArgFunc(ImportPlayerSpells),
+	PassiveModifier = WrapTableArgFunc(PassiveModifier),
+	ShowDispellable = WrapTableArgFunc(ShowDispellable),
+	ShowHealth = WrapTableArgFunc(ShowHealth),
+	ShowPower = WrapTableArgFunc(ShowPower),
+	ShowStacks = WrapTableArgFunc(ShowStacks),
 
 	-- High-level functions
 	SimpleDebuffs = function(spells)
@@ -623,19 +672,18 @@ local RULES_ENV = addon.BuildSafeEnv(
 	baseEnv,
 	-- Allowed Libraries
 	{
-		"LibDispellable-1.0", "LibPlayerSpells-1.0", "LibSpellbook-1.0", "LibItemBuffs-1.0"
+		"LibPlayerSpells-1.0", "LibSpellbook-1.0", "LibItemBuffs-1.0"
 	},
 	-- Allowed globals
 	{
 		-- lua
-		"bit", "ceil", "floor", "format", "ipairs", "math", "min", "pairs", "print",
+		"bit", "ceil", "floor", "format", "ipairs", "math", "max", "min", "next", "pairs", "print",
 		"select", "string", "table", "tinsert", "type",
 		-- WoW API
-		"GetNumGroupMembers", "GetPetTimeRemaining", "GetRuneCooldown", "GetShapeshiftFormID",
-		"GetSpellBonusHealing", "GetSpellCharges", "GetSpellCount", "GetSpellInfo", "GetTime",
-		"GetTotemInfo", "HasPetSpells", "IsPlayerSpell", "UnitCanAttack", "UnitCastingInfo",
-		"UnitChannelInfo", "UnitClass","UnitHealth", "UnitHealthMax", "UnitIsDeadOrGhost",
-		"UnitIsPlayer", "UnitName", "UnitPower", "UnitPowerMax", "UnitStagger",
+		"GetNumGroupMembers", "GetPetTimeRemaining", "GetRuneCooldown", "GetShapeshiftFormID", "GetSpellBonusHealing",
+		"GetSpellCharges", "GetSpellCount", "GetSpellInfo", "GetTime", "GetTotemInfo", "HasPetSpells", "IsPlayerSpell",
+		"UnitCanAttack", "UnitCastingInfo", "UnitChannelInfo", "UnitClass", "UnitGUID", "UnitHealth", "UnitHealthMax",
+		"UnitIsDeadOrGhost", "UnitIsPlayer", "UnitName", "UnitPower", "UnitPowerMax", "UnitStagger",
 		
 		--added by Derangement
 		"IsSpellKnown", "GetSpellCooldown", "GetSpecialization", "GetTalentInfo",

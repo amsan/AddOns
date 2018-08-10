@@ -29,7 +29,6 @@ local coroutine = coroutine
 local WeakAuras = WeakAuras;
 local L = WeakAuras.L;
 
-local version = 1421;
 local versionString = WeakAuras.versionString;
 
 local regionOptions = WeakAuras.regionOptions;
@@ -356,6 +355,7 @@ local Serializer = LibStub:GetLibrary("AceSerializer-3.0");
 local Comm = LibStub:GetLibrary("AceComm-3.0");
 
 local tooltipLoading;
+local receivedData;
 
 hooksecurefunc("ChatFrame_OnHyperlinkShow", function(self, link, text, button)
   if(ItemRefTooltip.WeakAuras_Tooltip_Thumbnail) then
@@ -387,15 +387,26 @@ hooksecurefunc("ChatFrame_OnHyperlinkShow", function(self, link, text, button)
       else
         ShowTooltip({
           {2, "WeakAuras", displayName, 0.5, 0, 1, 1, 1, 1},
-          {1, "Requesting display information from "..characterName.."...", 1, 0.82, 0}
+          {1, L["Requesting display information from %s ..."]:format(characterName), 1, 0.82, 0},
+          {1, L["Note, that cross realm transmission is not possible"], 1, 0.82, 0}
         });
         tooltipLoading = true;
+        receivedData = false;
         RequestDisplay(characterName, displayName);
+        WeakAuras.timer:ScheduleTimer(function()
+          if (tooltipLoading and not receivedData and ItemRefTooltip:IsVisible()) then
+            ShowTooltip({
+              {2, "WeakAuras", displayName, 0.5, 0, 1, 1, 1, 1},
+              {1, L["Error not receiving display information from %s"]:format(characterName), 1, 0, 0},
+              {1, L["Note, that cross realm transmission is not possible"], 1, 0.82, 0}
+            })
+          end
+        end, 5);
       end
     else
       ShowTooltip({
         {1, "WeakAuras", 0.5, 0, 1},
-        {1, "Malformed WeakAuras link", 1, 0, 0}
+        {1, L["Malformed WeakAuras link"], 1, 0, 0}
       });
     end
   end
@@ -434,10 +445,12 @@ function StringToTable(inString, fromChat)
   else
     decoded = Encoder:Decode(inString);
   end
+
   local decompressed, errorMsg = Compresser:Decompress(decoded);
   if not(decompressed) then
     return "Error decompressing: "..errorMsg;
   end
+
   local success, deserialized = Serializer:Deserialize(decompressed);
   if not(success) then
     return "Error deserializing "..deserialized;
@@ -454,7 +467,7 @@ function WeakAuras.DisplayToString(id, forChat)
     local transmit = {
       m = "d",
       d = transmitData,
-      v = version,
+      v = 1421, -- Version of Transmisson, won't change anymore.
       s = versionString
     };
     if(WeakAuras.transmitCache and WeakAuras.transmitCache[id]) then
@@ -735,11 +748,14 @@ function WeakAuras.ShowDisplayTooltip(data, children, icon, icons, import, compr
     };
 
     local codes = {};
+    local highestVersion = data.internalVersion or 1;
     scamCheck(codes, data);
     if(children) then
       for index, childData in pairs(children) do
         tinsert(tooltip, {2, " ", childData.id, 1, 1, 1, 1, 1, 1});
         scamCheck(codes, childData);
+        local childVersion = childData.internalVersion or 1;
+        highestVersion = max(highestVersion, childVersion);
       end
       if(#tooltip > 3) then
         tooltip[4][2] = L["Children:"];
@@ -780,7 +796,7 @@ function WeakAuras.ShowDisplayTooltip(data, children, icon, icons, import, compr
               if (icons) then
                 tinsert(tooltip, {2, left, name..(icons[name] and (" |T"..icons[name]..":12:12:0:0:64:64:4:60:4:60|t") or ""), 1, 1, 1, 1, 1, 1});
               else
-                local icon = WeakAuras.spellCache.GetIcon(name) or "Interface\\Icons\\INV_Misc_QuestionMark";
+                local icon = WeakAuras.spellCache and WeakAuras.spellCache.GetIcon(name) or "Interface\\Icons\\INV_Misc_QuestionMark";
                 tinsert(tooltip, {2, left, name.." |T"..icon..":12:12:0:0:64:64:4:60:4:60|t", 1, 1, 1, 1, 1, 1});
               end
             end
@@ -840,8 +856,13 @@ function WeakAuras.ShowDisplayTooltip(data, children, icon, icons, import, compr
       end
 
       if #codes > 0 then
-        tinsert(tooltip, {1, "This aura contains custom Lua code.", 1, 0, 0});
-        tinsert(tooltip, {1, "Make sure you can trust the person who sent it!", 1, 0, 0});
+        tinsert(tooltip, {1, L["This aura contains custom Lua code."], 1, 0, 0});
+        tinsert(tooltip, {1, L["Make sure you can trust the person who sent it!"], 1, 0, 0});
+      end
+
+      if (highestVersion > WeakAuras.InternalVersion()) then
+        tinsert(tooltip, {1, L["This aura was created with a newer version of WeakAuras."], 1, 0, 0});
+        tinsert(tooltip, {1, L["It might not work correctly with your version!"], 1, 0, 0});
       end
 
       tinsert(tooltip, {2, " ", "                         ", 0, 1, 0});
@@ -877,7 +898,7 @@ function WeakAuras.ShowDisplayTooltip(data, children, icon, icons, import, compr
       end
       showcodebutton:SetText(L["Show Code"]);
       if not WeakAurasSaved.import_disabled or WeakAuras.IsImporting() then
-        importbutton:SetText("Import");
+        importbutton:SetText(L["Import"]);
         importbutton:SetScript("OnClick", function()
           local func = function()
             WeakAuras.SetImporting(true);
@@ -893,7 +914,7 @@ function WeakAuras.ShowDisplayTooltip(data, children, icon, icons, import, compr
               WeakAuras.ToggleOptions();
             end
 
-            local function importData(data)
+            local function findUnusedId(data)
               local id = data.id
               local num = 2;
               while(WeakAurasSaved.displays[id]) do
@@ -901,24 +922,26 @@ function WeakAuras.ShowDisplayTooltip(data, children, icon, icons, import, compr
                 num = num + 1;
               end
               data.id = id;
-              data.parent = nil;
+            end
 
+
+            local function importData(data)
               WeakAuras.Add(data);
               WeakAuras.NewDisplayButton(data);
             end
 
+
+            data.parent = nil;
+            findUnusedId(data);
             importData(data);
-            WeakAuras.Add(data);
-            WeakAuras.NewDisplayButton(data);
             coroutine.yield();
 
             if(children) then
               for index, childData in pairs(children) do
-                importData(childData);
-                tinsert(data.controlledChildren, childData.id);
+                findUnusedId(childData);
                 childData.parent = data.id;
-                WeakAuras.Add(data);
-                WeakAuras.Add(childData);
+                tinsert(data.controlledChildren, childData.id);
+                importData(childData);
                 coroutine.yield();
               end
             end
@@ -951,7 +974,8 @@ function WeakAuras.ShowDisplayTooltip(data, children, icon, icons, import, compr
         end);
       else
         -- TODO enable button after importing finished
-        importbutton:SetText("Import disabled");
+        importbutton:SetText(L["Import disabled"]);
+        importbutton:SetWidth(importbutton:GetTextWidth() + 24)
         importbutton:SetScript("OnClick", function()
           WeakAuras.CloseImportExport();
         end);
@@ -1112,7 +1136,7 @@ function WeakAuras.ShowDisplayTooltip(data, children, icon, icons, import, compr
       LoadAddOn('WeakAurasOptions')
     end
 
-    local ok,thumbnail = pcall(regionOptions[regionType].createThumbnail,thumbnail_frame, regionTypes[regionType].create);
+    local ok,thumbnail = pcall(regionOptions[regionType].createThumbnail, thumbnail_frame, regionTypes[regionType].create);
     if not ok then
       error("Error creating thumbnail", 2)
     end
@@ -1152,16 +1176,8 @@ function WeakAuras.ImportString(str)
   if(received and type(received) == "table" and received.m) then
     if(received.m == "d") then
       tooltipLoading = nil;
-      if(version < received.v) then
-        local errorMsg = L["Version error received higher"]
-        ShowTooltip({
-          {1, "WeakAuras", 0.5333, 0, 1},
-          {1, errorMsg:format(received.s, versionString), 1, 0, 0}
-        });
-      else
-        local data = received.d;
-        WeakAuras.ShowDisplayTooltip(data, received.c, received.i, received.a, "unknown", true)
-      end
+      local data = received.d;
+      WeakAuras.ShowDisplayTooltip(data, received.c, received.i, received.a, "unknown", true)
     end
   elseif(type(received) == "string") then
     ShowTooltip({
@@ -1204,6 +1220,7 @@ end
 
 Comm:RegisterComm("WeakAurasProg", function(prefix, message, distribution, sender)
   if tooltipLoading and ItemRefTooltip:IsVisible() and safeSenders[sender] then
+    receivedData = true;
     local done, total, displayName = strsplit(" ", message, 3)
     done = tonumber(done)
     total = tonumber(total)
@@ -1224,16 +1241,8 @@ Comm:RegisterComm("WeakAuras", function(prefix, message, distribution, sender)
   if(received and type(received) == "table" and received.m) then
     if(received.m == "d") and safeSenders[sender] then
       tooltipLoading = nil;
-      if(version ~= received.v) then
-        local errorMsg = version > received.v and L["Version error received lower"] or L["Version error received higher"]
-        ShowTooltip({
-          {1, "WeakAuras", 0.5333, 0, 1},
-          {1, errorMsg:format(received.s, versionString), 1, 0, 0}
-        });
-      else
-        local data = received.d;
-        WeakAuras.ShowDisplayTooltip(data, received.c, received.i, received.a, sender, true)
-      end
+      local data = received.d;
+      WeakAuras.ShowDisplayTooltip(data, received.c, received.i, received.a, sender, true)
     elseif(received.m == "dR") then
       --if(WeakAuras.linked[received.d]) then
       TransmitDisplay(received.d, sender);

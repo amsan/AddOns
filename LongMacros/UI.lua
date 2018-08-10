@@ -301,7 +301,7 @@ LongMacroFrame_paintGold = function( self )
 	LongMacroFrameBotRightCorner:SetVertexColor(1, .75, .2, 1);
 
 	LongMacroFrameTitleBg:SetVertexColor(1, .75, .2, 1);
-	self.portraitFrame:SetVertexColor(1, .75, .2, 1);
+	LongMacroFramePortraitFrame:SetVertexColor(1, .75, .2, 1);
 	self.portrait:SetVertexColor(1, .75, .2, 1);	
 
 	local inset = self.Inset;

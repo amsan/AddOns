@@ -17,15 +17,19 @@
 --	limitations under the License.
 ----------------------------------------------------------------------------------
 
+---@type TRP3_API;
+local _, TRP3_API = ...;
+
 -- Imports
 local setTooltipForFrame, refreshTooltip, mainTooltip = TRP3_API.ui.tooltip.setTooltipForFrame, TRP3_API.ui.tooltip.refresh, TRP3_MainTooltip;
 local icon, color = TRP3_API.utils.str.icon, TRP3_API.utils.str.color;
 local displayDropDown = TRP3_API.ui.listbox.displayDropDown;
-local loc = TRP3_API.locale.getText;
+local loc = TRP3_API.loc;
 local Globals = TRP3_API.globals;
 local tinsert, _G, strconcat = tinsert, _G, strconcat;
 local GetNumLanguages, GetLanguageByIndex, GetDefaultLanguage = GetNumLanguages, GetLanguageByIndex, GetDefaultLanguage;
 local Log = TRP3_API.utils.log;
+local Configuration = TRP3_API.configuration;
 
 local LAST_LANGUAGE_USED = "chat_last_language_used";
 
@@ -34,7 +38,7 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 
 
 	---
-	-- Check if the player has previously selected a lanauge or use the default one.
+	-- Check if the player has previously selected a language or use the default one.
 	local function getCharacterPreviouslySelectedLanguage()
 		if TRP3_Characters and TRP3_Characters[Globals.player_id] and TRP3_Characters[Globals.player_id][LAST_LANGUAGE_USED] then
 			return TRP3_Characters[Globals.player_id][LAST_LANGUAGE_USED];
@@ -76,6 +80,9 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 
 		-- Demon hunters
 		[8] = "artifactability_havocdemonhunter_anguishofthedeceiver",
+
+		-- Allied races
+		[181] = "Achievement_AlliedRace_Nightborne", -- Shalassian
 
 	}
 
@@ -122,7 +129,7 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 	local languagesButton = {
 		id = "ww_trp3_languages",
 		icon = "spell_holy_silence",
-		configText = loc("TB_LANGUAGE"),
+		configText = loc.TB_LANGUAGE,
 		onEnter = function(Uibutton, buttonStructure)
 			refreshTooltip(Uibutton);
 		end,
@@ -134,8 +141,8 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 			local currentLanguage = ChatFrame1EditBox.language
 
 			if languagesIcon[currentLanguageID] then
-				buttonStructure.tooltip  = loc("TB_LANGUAGE")..": "..currentLanguage;
-				buttonStructure.tooltipSub  = strconcat(color("y"), loc("CM_CLICK"), ": ", color("w"), loc("TB_LANGUAGES_TT"));
+				buttonStructure.tooltip  = loc.TB_LANGUAGE .. ": " .. currentLanguage;
+				buttonStructure.tooltipSub  = strconcat(color("y"), loc.CM_CLICK, ": ", color("w"), loc.TB_LANGUAGES_TT);
 				buttonStructure.icon = languagesIcon[currentLanguageID];
 			else
 				buttonStructure.icon = "spell_holy_silence";
@@ -143,11 +150,11 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 		end,
 		onClick = function(Uibutton, buttonStructure, button)
 			local dropdownItems = {};
-			tinsert(dropdownItems,{loc("TB_LANGUAGE"), nil});
+			tinsert(dropdownItems,{loc.TB_LANGUAGE, nil});
 			for i = 1, GetNumLanguages() do
 				local language, index = GetLanguageByIndex(i);
 				if index == ChatFrame1EditBox.languageID then
-					tinsert(dropdownItems,{"|Tinterface\\icons\\"..(languagesIcon[index] or "TEMP")..":15|t|cff00ff00 "..language.."|r", nil});
+					tinsert(dropdownItems,{"|Tinterface\\icons\\"..(languagesIcon[index] or "TEMP")..":15|t " .. TRP3_API.Ellyb.ColorManager.GREEN(language), nil});
 				else
 					tinsert(dropdownItems,{"|Tinterface\\icons\\"..(languagesIcon[index] or "TEMP")..":15|t "..language, i});
 				end
@@ -160,10 +167,27 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 	};
 	TRP3_API.toolbar.toolbarAddButton(languagesButton);
 
-	-- We have to wait a little for everything to be fully loaded before trying to restore previously selected language
-	C_Timer.After(1, function()
-		setLanguage(getCharacterPreviouslySelectedLanguage());
-	end)
-
-	
+	if Configuration.getValue(TRP3_API.ADVANCED_SETTINGS_KEYS.REMEMBER_LAST_LANGUAGE_USED) then
+		-- We have to wait a little for everything to be fully loaded before trying to restore previously selected language
+		C_Timer.After(1, function()
+			setLanguage(getCharacterPreviouslySelectedLanguage());
+		end)
+	end
 end);
+
+
+-- Advanced settings
+tinsert(TRP3_API.ADVANCED_SETTINGS_STRUCTURE.elements, {
+	inherit = "TRP3_ConfigH1",
+	title = loc.CO_ADVANCED_LANGUAGES,
+});
+-- Remember last language used
+-- NPC talks
+TRP3_API.ADVANCED_SETTINGS_KEYS.REMEMBER_LAST_LANGUAGE_USED = "chat_language_remember_last_used";
+TRP3_API.ADVANCED_SETTINGS_DEFAULT_VALUES[TRP3_API.ADVANCED_SETTINGS_KEYS.REMEMBER_LAST_LANGUAGE_USED] = true;
+tinsert(TRP3_API.ADVANCED_SETTINGS_STRUCTURE.elements, {
+	inherit = "TRP3_ConfigCheck",
+	title = loc.CO_ADVANCED_LANGUAGES_REMEMBER,
+	help = loc.CO_ADVANCED_LANGUAGES_REMEMBER_TT,
+	configKey = TRP3_API.ADVANCED_SETTINGS_KEYS.REMEMBER_LAST_LANGUAGE_USED,
+});

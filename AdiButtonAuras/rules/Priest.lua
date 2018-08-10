@@ -1,6 +1,6 @@
 --[[
 AdiButtonAuras - Display auras on action buttons.
-Copyright 2013-2016 Adirelle (adirelle@gmail.com)
+Copyright 2013-2018 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiButtonAuras.
@@ -16,120 +16,158 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with AdiButtonAuras.  If not, see <http://www.gnu.org/licenses/>.
+along with AdiButtonAuras. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local _, addon = ...
 
-if not addon.isClass("PRIEST") then return end
+if not addon.isClass('PRIEST') then return end
+
+local function BuildGuardianHandler(guardian)
+	return function(_, model)
+		for slot = 1, 5 do
+			local found, name, start, duration = GetTotemInfo(slot)
+			if found and name == guardian then
+				model.expiration = start + duration
+				model.highlight = 'good'
+				return
+			end
+		end
+	end
+end
 
 AdiButtonAuras:RegisterRules(function()
 	Debug('Adding priest rules')
 
+	local mindbender = GetSpellInfo(123040)
+	local shadowfiend = GetSpellInfo(34433)
+
 	return {
 		ImportPlayerSpells {
 			-- import all spells for
-			"PRIEST",
-			-- except
-			193223, -- Surrender to Madness
-			194384, -- Atonement
-			210027, -- Share in the Light (not game changing)
-			212570, -- Surrendered Soul
-			217673, -- Mind Spike
-		},
-		-- show Atonement on Power Word: Radiance and Plea
-		BuffAliases {
-			{
-				194509, -- Power Word: Radiance
-				200829, -- Plea
-			},
-			194384, -- Atonement
-		},
-		-- Holy Priest legendary: Al'maiesh, the Cord of Hope
-		SelfBuffAliases {
-			  2050, -- Holy Word: Serenity
-			211440, -- Al'maiesh, the Cord of Hope
-		},
-		-- Holy Priest legendary: Al'maiesh, the Cord of Hope
-		SelfBuffAliases {
-			 34861, -- Holy Word: Sanctify
-			211442, -- Al'maiesh, the Cord of Hope
-		},
-		-- Holy Priest legendary: Al'maiesh, the Cord of Hope
-		SelfBuffAliases {
-			 88625, -- Holy Word: Chastise
-			211443, -- Al'maiesh, the Cord of Hope
+			'PRIEST',
+			-- except for
+			   605, -- Mind Control
+			 21562, -- Power Word: Fortitude
+			194384, -- Atonement (Discipline)
+			193223, -- Surrender to Madness (Shadow)
+			196773, -- Inner Focus (Holy honor talent)
+			263406, -- Surrendered to Madness (Shadow)
 		},
 
-		Configure {
-			"Silence",
-			format(L["%s when %s is casting/channelling a spell that you can interrupt."],
-				DescribeHighlight("flash"),
-				DescribeAllTokens("enemy")
-			),
-			15487, -- Silence
-			"enemy",
-			{ -- Events
-				"UNIT_SPELLCAST_CHANNEL_START",
-				"UNIT_SPELLCAST_CHANNEL_STOP",
-				"UNIT_SPELLCAST_CHANNEL_UPDATE",
-				"UNIT_SPELLCAST_DELAYED",
-				"UNIT_SPELLCAST_INTERRUPTIBLE",
-				"UNIT_SPELLCAST_NOT_INTERRUPTIBLE",
-				"UNIT_SPELLCAST_START",
-				"UNIT_SPELLCAST_STOP",
-			},
-			-- Handler
-			function(units, model)
-				local unit = units.enemy
-				if unit and UnitCanAttack("player", unit) and not UnitIsPlayer(unit) then
-					local name, _, _, _, _, endTime, _, _, notInterruptible = UnitCastingInfo(unit)
-					if name and not notInterruptible then
-						model.flash, model.expiration = true, endTime / 1000
-						return
-					end
-					name, _, _, _, _, endTime, _, notInterruptible = UnitChannelInfo(unit)
-					if name and not notInterruptible then
-						model.flash, model.expiration = true, endTime / 1000
-					end
-				end
-			end,
+		SelfBuffAliases {
+			196762,  -- Inner Focus (Holy honor talent)
+			196773,  -- Inner Focus
 		},
 
+		-- TODO: crowd control rules are evaluated after class rules
 		Configure {
-			"MindSpike",
-			BuildDesc("HARMFUL PLAYER", "bad", "enemy", 217673), -- Mind Spike
-			8092, -- Mind Blast
-			"enemy",
-			"UNIT_AURA",
-			function(units, model)
-				local found, count, expiration = GetPlayerDebuff(units.enemy, 217673) -- Mind Spike
+			'MindControl',
+			L['Show the duration of @NAME.'],
+			605, -- Mind Control
+			'pet',
+			{ 'UNIT_AURA', 'UNIT_PET' },
+			function(_, model)
+				local found, _, expiration = GetPlayerDebuff('pet', 605)
 				if found then
-					model.count = count
-					model.maxCount = 10
 					model.expiration = expiration
-					model.highlight = "bad"
+					model.highlight = 'good'
 				end
 			end,
-			73510, -- Mind Spike
 		},
 
 		Configure {
-			"SurrenderToMadness",
-			format(L["%s %s"],
-				BuildDesc("HELPFUL PLAYER", "good", "player", 193223), -- Surrender to Madness
-				BuildDesc("HARMFUL PLAYER", "bad", "player", 212570) -- Surrendered Soul
+			'Shadowfiend',
+			L['Show the duration of @NAME.'],
+			34433, -- Shadowfiend (Discipline/Shadow)
+			'player',
+			'PLAYER_TOTEM_UPDATE',
+			BuildGuardianHandler(shadowfiend)
+		},
+
+		Configure {
+			'Mindbender',
+			L['Show the duration of @NAME.'],
+			123040, -- Mindbender (Discipline/Shadow talent)
+			'player',
+			'PLAYER_TOTEM_UPDATE',
+			BuildGuardianHandler(mindbender)
+		},
+
+		-- track Atonement on Shadow Mend
+		-- NOTE: Shadow Mend is used as the display spell because:
+		-- - Power Word: Shield tracks itself
+		-- - Power Word: Radiance has charges
+		-- - the debuff from Shadow Mend is not that important
+		Configure {
+			'AtonementTracker',
+			format(L['Show the shortest duration and the number of group members with %s.'], GetSpellInfo(194384)), -- Atonement
+			186263, -- Shadow Mend (Discipline)
+			'group',
+			'UNIT_AURA',
+			function(units, model)
+				local count, minExpiration = 0
+				for unit in next, units.group do
+					local found, _, expiration = GetPlayerBuff(unit, 194384)
+					if found then
+						count = count + 1
+						if (not minExpiration or expiration < minExpiration) then
+							minExpiration = expiration
+						end
+					end
+				end
+				if count > 0 then
+					model.count = count
+					model.expiration = minExpiration
+				end
+			end,
+			81749, -- Atonement (Discipline)
+		},
+
+		Configure {
+			'SurrenderToDarkness',
+			format(
+				'%s %s',
+				BuildDesc('HELPFUL PLAYER', 'good', 'player', 193223), -- Surrender to Madness
+				BuildDesc('HARMFUL PLAYER', 'bad', 'player', 263406) -- Surrendered to Madness
 			),
-			193223, -- Surrender to Madness
-			"player",
-			"UNIT_AURA",
+			193223, -- Surrender to Madness (Shadow)
+			'player',
+			'UNIT_AURA',
 			(function()
-				local hasMadness = BuildAuraHandler_Single("HELPFUL PLAYER", "good", "player", 193223) -- Surrender to Madness
-				local hasNoSoul = BuildAuraHandler_Single("HARMFUL PLAYER", "bad", "player", 212570) -- Surrendered Soul
-				return function(_, model)
-					return hasMadness(_, model) or hasNoSoul(_, model)
+				local isSurrendering = BuildAuraHandler_Single('HELPFUL PLAYER', 'good', 'player', 193223)
+				local hasSurrendered = BuildAuraHandler_Single('HARMFUL PLAYER', 'bad', 'player', 263406)
+				return function(units, model)
+					return isSurrendering(units, model) or hasSurrendered(units, model)
 				end
 			end)(),
+		},
+
+		Configure {
+			'PowerWordFortitude',
+			L['Show the number of group members missing @NAME.'],
+			21562, -- Power Word: Fortitude
+			'group',
+			'UNIT_AURA',
+			function(units, model)
+				local missing = 0
+				local shortest = 0
+				for unit in next, units.group do
+					local found, _, expiration = GetBuff(unit, 21562)
+					if found then
+						if shortest == 0 or expiration < shortest then
+							shortest = expiration
+						end
+					else
+						missing = missing + 1
+					end
+				end
+
+				model.expiration = shortest
+				model.count = missing
+				model.hint = missing ~= 0
+				model.highlight = shortest > 0 and 'good' or nil
+			end,
 		},
 	}
 end)

@@ -45,7 +45,6 @@
 	
 	<Script file="impl\globals.lua"/>
 	<Script file="impl\events.lua"/>
-	<Include file="impl\locale\locale.xml"/>
 	<Script file="impl\utils.lua"/>
 	<Script file="impl\ui_tools.lua"/>
 	<Script file="impl\slash.lua"/>
@@ -57,8 +56,10 @@
 	
 	<Include file="ui\configuration.xml"/>
 	<Script file="impl\configuration.lua"/>
-	
-	<Script file="impl\communication_protocol.lua"/>
+	<Script file="impl\AdvancedSettings.lua"/>
+
+	<Script file="impl\Compression.lua"/>
+	<Script file="impl\CommunicationProtocol.lua"/>
 	<Script file="impl\communication_protocol_broadcast.lua"/>
 	
 	<Script file="impl\ui_main.lua"/>
@@ -72,5 +73,6 @@
 	
 	<Include file="ui\profiles.xml"/>
 	<Script file="impl\profiles.lua"/>
+	<Script file="impl\ProfilesChatLinksModule.lua"/>
 
 </Ui>

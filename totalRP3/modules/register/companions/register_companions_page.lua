@@ -18,7 +18,8 @@
 ----------------------------------------------------------------------------------
 
 -- imports
-local Globals, loc, Utils, Events = TRP3_API.globals, TRP3_API.locale.getText, TRP3_API.utils, TRP3_API.events;
+local Globals, Utils, Events = TRP3_API.globals, TRP3_API.utils, TRP3_API.events;
+local loc = TRP3_API.loc;
 local registerMenu, selectMenu = TRP3_API.navigation.menu.registerMenu, TRP3_API.navigation.menu.selectMenu;
 local registerPage, setPage = TRP3_API.navigation.page.registerPage, TRP3_API.navigation.page.setPage;
 local companionIDToInfo = TRP3_API.utils.str.companionIDToInfo;
@@ -91,7 +92,7 @@ local function applyPeekSlotProfile(slot, dataTab, ic, ac, ti, tx, swap)
 		peekTab.TX = tx;
 	end
 	-- version increment
-	dataTab.v = Utils.math.incrementNumber(dataTab.v or 1, 2);
+	dataTab.PE.v = Utils.math.incrementNumber(dataTab.PE.v or 1, 2);
 end
 
 local function applyPeekSlot(slot, ic, ac, ti, tx, swap, companionFullID, profileID)
@@ -113,7 +114,15 @@ local function swapGlanceSlot(from, to, companionFullID, profileID)
 		profileID = getCompanionProfileID(companionID);
 	end
 	local dataTab = TRP3_API.companions.player.getCompanionProfileByID(profileID) or {};
-	TRP3_API.register.glance.swapDataFromSlots(dataTab, from, to);
+	if not dataTab.PE then
+		return;
+	end
+	local fromData = dataTab.PE[from];
+	local toData = dataTab.PE[to];
+	dataTab.PE[from] = toData;
+	dataTab.PE[to] = fromData;
+	-- version increment
+	dataTab.PE.v = Utils.math.incrementNumber(dataTab.PE.v or 1, 2);
 	Events.fireEvent(Events.REGISTER_DATA_UPDATED, nil, profileID, "misc");
 	refreshIfNeeded();
 end
@@ -164,7 +173,6 @@ local function saveInformation()
 	-- version increment
 	dataTab.data.v = Utils.math.incrementNumber(dataTab.data.v or 0, 2);
 
-	--	compressData();
 	Events.fireEvent(Events.REGISTER_DATA_UPDATED, nil, context.profileID);
 end
 
@@ -234,7 +242,7 @@ local function onActionSelected(value)
 		assert(context, "No context !");
 		assert(context.profileID, "No profile ID in context");
 		assert(context.profile, "No profile in context");
-		showConfirmPopup(loc("REG_DELETE_WARNING"):format(context.profile.data.NA or UNKNOWN), function()
+		showConfirmPopup(loc.REG_DELETE_WARNING:format(context.profile.data.NA or UNKNOWN), function()
 			deleteProfile(context.profileID)
 		end);
 	elseif type(value) == "string" then
@@ -248,7 +256,7 @@ local function onActionClick(button)
 	assert(context.profile, "No profile in context");
 
 	local values = {};
-	tinsert(values,{loc("PR_DELETE_PROFILE"), 1});
+	tinsert(values,{loc.PR_DELETE_PROFILE, 1});
 	local masters = {};
 	for companionFullId, _ in pairs(context.profile.links or EMPTY) do
 		local ownerID, _ = companionIDToInfo(companionFullId);
@@ -267,7 +275,7 @@ local function onActionClick(button)
 			local name = getCompleteName(profile.characteristics or EMPTY, ownerID, true);
 			tinsert(masterTab, {name, ownerID});
 		end
-		tinsert(values, {loc("PR_CO_MASTERS"), masterTab});
+		tinsert(values, {loc.PR_CO_MASTERS, masterTab});
 	end
 
 	displayDropDown(button, values, onActionSelected, 0, true);
@@ -339,7 +347,7 @@ local function createTabBar()
 	frame:SetFrameLevel(1);
 	tabGroup = TRP3_API.ui.frame.createTabPanel(frame,
 	{
-		{loc("REG_COMPANION_INFO"), 1, 150}
+		{loc.REG_COMPANION_INFO, 1, 150}
 	},
 	function(tabWidget, value)
 		-- Clear all
@@ -386,7 +394,7 @@ local function createTutorialStructure()
 			},
 			button = {
 				x = 0, y = 0, anchor = "CENTER",
-				text = loc("REG_COMPANION_PAGE_TUTO_E_1"),
+				text = loc.REG_COMPANION_PAGE_TUTO_E_1,
 				textWidth = 400,
 				arrow = "DOWN"
 			}
@@ -397,7 +405,7 @@ local function createTutorialStructure()
 			},
 			button = {
 				x = 0, y = -110, anchor = "CENTER",
-				text = loc("REG_COMPANION_PAGE_TUTO_E_2"),
+				text = loc.REG_COMPANION_PAGE_TUTO_E_2,
 				textWidth = 400,
 				arrow = "UP"
 			}
@@ -434,27 +442,27 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 	TRP3_CompanionsPageInformationEdit_NamePanel_Icon:SetScript("OnClick", function() showIconBrowser(onPlayerIconSelected) end );
 	TRP3_CompanionsPageInformationEdit_NamePanel_NameColor.onSelection = onNameColorSelected;
 
-	setupFieldSet(TRP3_CompanionsPageInformationConsult_NamePanel, loc("REG_PLAYER_NAMESTITLES"), 150);
-	setupFieldSet(TRP3_CompanionsPageInformationConsult_Glance, loc("REG_PLAYER_GLANCE"), 150);
-	setupFieldSet(TRP3_CompanionsPageInformationConsult_About, loc("REG_PLAYER_ABOUT"), 150);
-	TRP3_CompanionsPageInformationConsult_About_Empty:SetText(loc("REG_PLAYER_ABOUT_EMPTY"));
-	TRP3_CompanionsPageInformationConsult_NamePanel_EditButton:SetText(loc("CM_EDIT"));
+	setupFieldSet(TRP3_CompanionsPageInformationConsult_NamePanel, loc.REG_PLAYER_NAMESTITLES, 150);
+	setupFieldSet(TRP3_CompanionsPageInformationConsult_Glance, loc.REG_PLAYER_GLANCE, 150);
+	setupFieldSet(TRP3_CompanionsPageInformationConsult_About, loc.REG_PLAYER_ABOUT, 150);
+	TRP3_CompanionsPageInformationConsult_About_Empty:SetText(loc.REG_PLAYER_ABOUT_EMPTY);
+	TRP3_CompanionsPageInformationConsult_NamePanel_EditButton:SetText(loc.CM_EDIT);
 	setupIconButton(TRP3_CompanionsPageInformationConsult_NamePanel_ActionButton, "icon_petfamily_mechanical");
-	setTooltipForSameFrame(TRP3_CompanionsPageInformationConsult_NamePanel_ActionButton, "TOP", 0, 5, loc("CM_ACTIONS"));
+	setTooltipForSameFrame(TRP3_CompanionsPageInformationConsult_NamePanel_ActionButton, "TOP", 0, 5, loc.CM_ACTIONS);
 	TRP3_CompanionsPageInformationConsult_NamePanel_ActionButton:SetScript("OnClick", onActionClick);
 
-	setTooltipForSameFrame(TRP3_CompanionsPageInformationEdit_NamePanel_NameColor, "RIGHT", 0, 5, loc("REG_COMPANION_NAME_COLOR"), loc("REG_PLAYER_COLOR_TT"));
-	setupFieldSet(TRP3_CompanionsPageInformationEdit_NamePanel, loc("REG_PLAYER_NAMESTITLES"), 150);
-	setupFieldSet(TRP3_CompanionsPageInformationEdit_About, loc("REG_PLAYER_ABOUT"), 150);
-	TRP3_CompanionsPageInformationEdit_NamePanel_NameFieldText:SetText(loc("REG_COMPANION_NAME"));
-	TRP3_CompanionsPageInformationEdit_NamePanel_TitleFieldText:SetText(loc("REG_COMPANION_TITLE"));
-	TRP3_CompanionsPageInformationEdit_NamePanel_CancelButton:SetText(loc("CM_CANCEL"));
-	TRP3_CompanionsPageInformationEdit_NamePanel_SaveButton:SetText(loc("CM_SAVE"));
+	setTooltipForSameFrame(TRP3_CompanionsPageInformationEdit_NamePanel_NameColor, "RIGHT", 0, 5, loc.REG_COMPANION_NAME_COLOR, loc.REG_PLAYER_COLOR_TT);
+	setupFieldSet(TRP3_CompanionsPageInformationEdit_NamePanel, loc.REG_PLAYER_NAMESTITLES, 150);
+	setupFieldSet(TRP3_CompanionsPageInformationEdit_About, loc.REG_PLAYER_ABOUT, 150);
+	TRP3_CompanionsPageInformationEdit_NamePanel_NameFieldText:SetText(loc.REG_COMPANION_NAME);
+	TRP3_CompanionsPageInformationEdit_NamePanel_TitleFieldText:SetText(loc.REG_COMPANION_TITLE);
+	TRP3_CompanionsPageInformationEdit_NamePanel_CancelButton:SetText(loc.CM_CANCEL);
+	TRP3_CompanionsPageInformationEdit_NamePanel_SaveButton:SetText(loc.CM_SAVE);
 	local bkgTab = getTiledBackgroundList();
 	setupListBox(TRP3_CompanionsPageInformationEdit_About_BckField, bkgTab, function(value) setBkg(TRP3_CompanionsPageInformationEdit_About, value) end, nil, 120, true);
 	TRP3_API.ui.text.setupToolbar(TRP3_CompanionsPageInformationEdit_About_Toolbar, TRP3_CompanionsPageInformationEdit_About_TextScrollText);
 
-	setTooltipForSameFrame(TRP3_CompanionsPageInformationConsult_GlanceHelp, "LEFT", 0, 10, loc("REG_PLAYER_GLANCE"), loc("REG_PLAYER_GLANCE_CONFIG"));
+	setTooltipForSameFrame(TRP3_CompanionsPageInformationConsult_GlanceHelp, "LEFT", 0, 10, loc.REG_PLAYER_GLANCE, loc.REG_PLAYER_GLANCE_CONFIG);
 
 	TRP3_CompanionsPageInformationConsult_About_ScrollText:SetFontObject("p", GameFontNormal);
 	TRP3_CompanionsPageInformationConsult_About_ScrollText:SetFontObject("h1", GameFontNormalHuge3);

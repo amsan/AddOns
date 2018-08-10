@@ -1,4 +1,4 @@
-## Interface: 70200
+## Interface: 80000
 ## Title: Grid2 |cd2ff7d0aRaidDebuffs Options|r
 ## Title-esES: Grid2 |cd2ff7d0aRaidDebuffs Opciones|r
 ## Notes: Load on demand Options for Grid2RaidDebuffs.
@@ -8,7 +8,7 @@
 ## Dependencies: Grid2, Grid2RaidDebuffs
 ## LoadOnDemand: 1
 
-## Version: r805
+## Version: r818
 
 #@no-lib-strip@
 #Libs\LibBabble-Boss-3.0\lib.xml

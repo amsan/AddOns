@@ -17,6 +17,10 @@
 --	limitations under the License.
 ----------------------------------------------------------------------------------
 
+---@type TRP3_API
+local _, TRP3_API = ...;
+local Ellyb = Ellyb(_);
+
 -- Public accessor
 TRP3_API.utils = {
 	log = {},
@@ -35,11 +39,11 @@ TRP3_API.utils = {
 local Globals = TRP3_API.globals;
 local Utils = TRP3_API.utils;
 local Log = Utils.log;
-local loc = TRP3_API.locale.getText;
+local loc = TRP3_API.loc;
 
 -- WOW imports
 local pcall, tostring, pairs, type, print, string, date, math, strconcat, wipe, tonumber = pcall, tostring, pairs, type, print, string, date, math, strconcat, wipe, tonumber;
-local strtrim = strtrim;
+local strsplit, strtrim = strsplit, strtrim;
 local tinsert, assert, _G, tremove, next = tinsert, assert, _G, tremove, next;
 local PlayMusic, StopMusic = PlayMusic, StopMusic;
 local UnitFullName = UnitFullName;
@@ -141,6 +145,9 @@ local function tableDump(table, level, withCount)
 	
 	if type(table) == "table" then
 		for key, value in pairs(table) do
+			if type(key) == "string" then
+				key = "[\"" .. key .. "\"]"
+			end
 			if type(value) == "table" then
 				log(dumpIndent .. dumpColor2 .. key .. "|r=".. dumpColor3 .. "{", Log.level.DEBUG);
 				tableDump(value, level + 1);
@@ -279,7 +286,7 @@ Utils.str.unitInfoToID = function(unitName, unitRealmID)
 	if not unitRealmID or unitRealmID == "" then
 		unitRealmID = Globals.player_realm_id
 	end
-	return strconcat(unitName or "_", '-', unitRealmID);
+	return strconcat(unitName or "_", '-', unitRealmID or "_");
 end
 
 -- Separates the unit name and realm from an unit ID
@@ -311,7 +318,7 @@ function Utils.str.getUnitID(unit)
 	return playerName .. "-" .. realm;
 end
 
-local strsplit, UnitGUID = strsplit, UnitGUID;
+local UnitGUID = UnitGUID;
 
 function Utils.str.getUnitDataFromGUIDDirect(GUID)
 	local unitType, _, _, _, _, npcID = strsplit("-", GUID or "");
@@ -555,34 +562,28 @@ Utils.color.lightenColorUntilItIsReadable = function(textColor)
 	return textColor;
 end
 
--- I quite like Blizzard's Color mixins, it has some nice functions like :WrapTextInColorCode(text)
--- But I will extend them with my own functions like :LightenColorUntilItIsReadable();
-local BlizzardCreateColor = CreateColor;
+local function mixinColor(color)
+	-- Backward compatibility
+	color.LightenColorUntilItIsReadable = color.LightenColorUntilItIsReadableOnDarkBackgrounds;
+	return color;
+end
 
 ---@return ColorMixin
-local function CreateColor(r, g, b, a)
-	local color = BlizzardCreateColor(r, g, b, a);
-	color.LightenColorUntilItIsReadable = Utils.color.lightenColorUntilItIsReadable;
-	return color;
+local function CreateColor(...)
+	return mixinColor(Ellyb.Color(...));
 end
 Utils.color.CreateColor = CreateColor;
 
---- Returns a Color using Blizzard's ColorMixin for a given hexadecimal color code
--- @see ColorMixin
-function Utils.color.getColorFromHexadecimalCode(hexadecimalCode)
-	local r, g, b = Utils.color.hexaToFloat(hexadecimalCode);
-	return CreateColor(r, g, b, 1);
+-- Backward compatibility
+function Utils.color.getColorFromHexadecimalCode(...)
+	return mixinColor(Ellyb.Color.CreateFromHexa(...));
 end
 
 --- Returns a Color using Blizzard's ColorMixin for a given class (english, not localized)
 -- @see ColorMixin
 function Utils.color.getClassColor(englishClass)
-	if not RAID_CLASS_COLORS[englishClass] then return end
-	local classColorTable = RAID_CLASS_COLORS[englishClass];
-	return CreateColor(classColorTable.r, classColorTable.g, classColorTable.b, 1);
+	return mixinColor(Ellyb.ColorManager.getClassColor(englishClass));
 end
-
-local CONFIG_CHARACT_CONTRAST = "tooltip_char_contrast";
 
 --- Returns the custom color defined in the unitID's profile as a Color using Blizzard's ColorMixing.
 -- @param unitID
@@ -592,16 +593,12 @@ function Utils.color.getUnitCustomColor(unitID)
 	local info = TRP3_API.register.getUnitIDCurrentProfileSafe(unitID);
 
 	if info.characteristics and info.characteristics.CH then
-		-- If we do have a custom color code (in hexa) defined, get the RGB float values
-		local r, g, b = Utils.color.hexaToFloat(info.characteristics.CH);
-		local color = CreateColor(r, g, b, 1);
-		return color;
+		return CreateColor(info.characteristics.CH);
 	end
 end
 
 function Utils.color.getChatColorForChannel(channel)
-	local chatInfo = ChatTypeInfo[channel];
-	return CreateColor(chatInfo.r, chatInfo.g, chatInfo.b, 1);
+	return mixinColor(Ellyb.ColorManager.getChatColorForChannel(channel));
 end
 
 local GetPlayerInfoByGUID = GetPlayerInfoByGUID;
@@ -750,7 +747,32 @@ local structureTags = {
 	["{/p}"] = "</P>",
 };
 
-local strtrim = strtrim;
+--- alignmentAttributes is a conversion table for taking a single-character
+--  alignment specifier and getting a value suitable for use in the HTML
+--  "align" attribute.
+local alignmentAttributes = {
+	["c"] = "center",
+	["l"] = "left",
+	["r"] = "right",
+};
+
+--- IMAGE_PATTERN is the string pattern used for performing image replacements
+--  in strings that should be rendered as HTML.
+---
+--- The accepted form this is "{img:<src>:<width>:<height>[:align]}".
+---
+--- Each individual segment matches up to the next present colon. The third
+--- match (height) and everything thereafter needs to check up-to the next
+--- colon -or- ending bracket since they could be the final segment.
+---
+--- Optional segments should of course have the "?" modifer attached to
+--- their preceeding colon, and should use * for the content match rather
+--- than +.
+local IMAGE_PATTERN = [[{img%:([^:]+)%:([^:]+)%:([^:}]+)%:?([^:}]*)%}]];
+
+--- Note that the image tag has to be outside a <P> tag.
+---@language HTML
+local IMAGE_TAG = [[</P><img src="%s" width="%s" height="%s" align="%s"/><P>]];
 
 -- Convert the given text by his HTML representation
 Utils.str.toHTML = function(text, noColor)
@@ -800,11 +822,11 @@ Utils.str.toHTML = function(text, noColor)
 		if tag then
 			tagText = text:sub( text:find("<"), text:find("</") + #tag + 2);
 			if #tagText == #tag + 3 then
-				return loc("PATTERN_ERROR");
+				return loc.PATTERN_ERROR;
 			end
 			tinsert(tab, tagText);
 		else
-			return loc("PATTERN_ERROR");
+			return loc.PATTERN_ERROR;
 		end
 
 		local after;
@@ -835,11 +857,26 @@ Utils.str.toHTML = function(text, noColor)
 		end
 		line = line:gsub("\n","<br/>");
 
-		line = line:gsub("{img%:(.-)%:(.-)%:(.-)%}",
-			"</P><img src=\"%1\" align=\"center\" width=\"%2\" height=\"%3\"/><P>");
+		-- Image tag. Specifiers after the height are optional, so they
+		-- must be suitably defaulted and validated.
+		line = line:gsub(IMAGE_PATTERN, function(img, width, height, align)
+			-- If you've not given an alignment, or it's entirely invalid,
+			-- you'll get the old default of center.
+			align = alignmentAttributes[align] or "center";
+
+			-- Don't blow up on non-numeric inputs. They won't display properly
+			-- but that's a separate issue.
+			width = tonumber(width) or 128;
+			height = tonumber(height) or 128;
+
+			-- Width and height should be absolute.
+			-- The tag accepts negative value but people used that to fuck up their profiles
+			return string.format(IMAGE_TAG, img, math.abs(width), math.abs(height), align);
+		end);
 
 		line = line:gsub("%!%[(.-)%]%((.-)%)", function(icon, size)
 			if icon:find("\\") then
+				-- If icon text contains \ we have a full texture path
 				local width, height;
 				if size:find("%,") then
 					width, height = strsplit(",", size);
@@ -847,7 +884,9 @@ Utils.str.toHTML = function(text, noColor)
 					width = tonumber(size) or 128;
 					height = width;
 				end
-				return "</P><img src=\"".. icon .. "\" align=\"center\" width=\"".. width .. "\" height=\"" .. height .. "\"/><P>";
+				-- Width and height should be absolute.
+				-- The tag accepts negative value but people used that to fuck up their profiles
+				return string.format(IMAGE_TAG, icon, math.abs(width), math.abs(height), "center");
 			end
 			return Utils.str.icon(icon, tonumber(size) or 25);
 		end);
@@ -944,63 +983,11 @@ end
 -- Handles WOW events
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-local REGISTERED_EVENTS = {};
+Utils.event.registerHandler = TRP3_API.Ellyb.GameEvents.registerCallback;
 
-Utils.event.registerHandler = function(event, callback)
-	assert(event, "Event must be set.");
-	assert(callback and type(callback) == "function", "Callback must be a function");
-	if not REGISTERED_EVENTS[event] then
-		REGISTERED_EVENTS[event] = {};
-		TRP3_EventFrame:RegisterEvent(event);
-	end
-	local handlerID = generateID();
-	while REGISTERED_EVENTS[event][handlerID] do -- Avoiding collision
-		handlerID = generateID();
-	end
-	REGISTERED_EVENTS[event][handlerID] = callback;
-	Log.log(("Registered event %s with id %s"):format(tostring(event), handlerID));
-	return handlerID;
-end
+Utils.event.unregisterHandler = TRP3_API.Ellyb.GameEvents.unregisterCallback;
 
-Utils.event.unregisterHandler = function(handlerID)
-	assert(handlerID, "handlerID must be set.");
-	for event, eventTab in pairs(REGISTERED_EVENTS) do
-		if eventTab[handlerID] then
-			eventTab[handlerID] = nil;
-			if tableSize(eventTab) == 0 then
-				REGISTERED_EVENTS[event] = nil;
-				TRP3_EventFrame:UnregisterEvent(event);
-			end
-			Log.log(("Unregistered event %s with id %s"):format(tostring(event), handlerID));
-			return;
-		end
-	end
-	Log.log(("handlerID not found %s"):format(handlerID));
-end
-
-function TRP3_EventDispatcher(self, event, ...)
-	-- Callbacks
-	if REGISTERED_EVENTS[event] then
-		local temp = Utils.table.getTempTable();
-
-		for _, callback in pairs(REGISTERED_EVENTS[event]) do
-			tinsert(temp, callback);
-		end
-
-		-- We use a separate structure as the callback could change REGISTERED_EVENTS[event]
-		for _, callback in pairs(temp) do
-			callback(...);
-		end
-
-		Utils.table.releaseTempTable(temp);
-	else
-		self:UnregisterEvent(event);
-	end
-end
-
-function Utils.event.fireEvent(event, ...)
-	TRP3_EventDispatcher(TRP3_EventFrame, event, ...)
-end
+Utils.event.fireEvent = TRP3_API.Ellyb.GameEvents.triggerEvent;
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 -- MUSIC / SOUNDS
@@ -1020,7 +1007,7 @@ function Utils.music.playSoundID(soundID, channel, source)
 	assert(soundID, "soundID can't be nil.")
 	local willPlay, handlerID = PlaySound(soundID, channel, false);
 	if willPlay then
-		tinsert(soundHandlers, {channel = channel, id = soundID, handlerID = handlerID, source = source, date = date("%H:%M:%S")});
+		tinsert(soundHandlers, {channel = channel, id = soundID, handlerID = handlerID, source = source, date = date("%H:%M:%S"), stopped = false});	
 		if TRP3_SoundsHistoryFrame then
 			TRP3_SoundsHistoryFrame.onSoundPlayed();
 		end
@@ -1032,12 +1019,21 @@ function Utils.music.stopSound(handlerID)
 	StopSound(handlerID);
 end
 
-function Utils.music.stopChannel(channel)
+function Utils.music.stopSoundID(soundID, channel, source)
 	for index, handler in pairs(soundHandlers) do
-		if not channel or handler.channel == channel then
-			Utils.music.stopSound(handler.handlerID);
+		if (not handler.stopped) and (not soundID or soundID == "0" or handler.id == soundID) and (not channel or handler.channel == channel) and (not source or handler.source == source) then
+			if (handler.channel == "Music" and handler.handlerID == 0) then
+				StopMusic();
+			else
+				Utils.music.stopSound(handler.handlerID);
+			end
+			handler.stopped = true;
 		end
 	end
+end
+
+function Utils.music.stopChannel(channel)
+	Utils.music.stopSoundID(nil, channel, nil);
 end
 
 function Utils.music.stopMusic()
@@ -1054,7 +1050,7 @@ function Utils.music.playMusic(music, source)
 	else
 		Log.log("Playing music: " .. music);
 		PlayMusic("Sound\\Music\\" .. music .. ".mp3");
-		tinsert(soundHandlers, {channel = "Music", id = music, handlerID = 0, source = source or Globals.player_id, date = date("%H:%M:%S")});
+		tinsert(soundHandlers, {channel = "Music", id = music, handlerID = 0, source = source or Globals.player_id, date = date("%H:%M:%S"), stopped = false});
 		if TRP3_SoundsHistoryFrame then
 			TRP3_SoundsHistoryFrame.onSoundPlayed();
 		end
@@ -1080,3 +1076,40 @@ Utils.texture.applyRoundTexture = function(textureFrame, texturePath, failTextur
 		end
 	end
 end
+
+local function Rainbow(value, max)
+	local movedValue = value - 1;    -- screw Lua lmao
+	local fifth = (max - 1) / 5;
+	if movedValue < fifth then
+		return TRP3_API.Ellyb.Color(1, 0.3 + 0.7 * movedValue / fifth, 0.3)
+	elseif movedValue < 2 * fifth then
+		return TRP3_API.Ellyb.Color(1 - 0.7 * (movedValue - fifth) / fifth, 1, 0.3)
+	elseif movedValue < 3 * fifth then
+		return TRP3_API.Ellyb.Color(0.3, 1, 0.3 + 0.7 * (movedValue - 2 * fifth) / fifth)
+	elseif movedValue < 4 * fifth then
+		return TRP3_API.Ellyb.Color(0.3, 1 - 0.7 * (movedValue - 3 * fifth) / fifth, 1)
+	elseif movedValue ~= max - 1 then
+		return TRP3_API.Ellyb.Color(0.3 + 0.7 * (movedValue - 4 * fifth) / fifth, 0.3, 1)
+	else
+		return TRP3_API.Ellyb.Color(1, 0.3, 1)
+	end
+end
+
+local function Rainbowify(text)
+	local finalText = ""
+	local i = 1
+
+	local characterCount = 0;
+	for character in string.gmatch(text, "([%z\1-\127\194-\244][\128-\191]*)") do
+		characterCount = characterCount + 1
+	end
+
+	for character in string.gmatch(text, "([%z\1-\127\194-\244][\128-\191]*)") do
+		---@type Color
+		local color = Rainbow(i, characterCount)
+		finalText = finalText .. color:WrapTextInColorCode(character)
+		i = i + 1
+	end
+	return finalText
+end
+TRP3_API.utils.Rainbowify = Rainbowify;

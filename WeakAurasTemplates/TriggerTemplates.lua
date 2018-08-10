@@ -57,7 +57,7 @@ function WeakAuras.CreateTemplateView(frame)
               item.spell
             },
             debuffType = item.type == "buff" and "HELPFUL" or "HARMFUL",
-            ownOnly = true,
+            ownOnly = not item.forceOwnOnly and true or item.ownOnly,
           }
         },
       };
@@ -343,7 +343,7 @@ function WeakAuras.CreateTemplateView(frame)
     local function handle(data, item)
       replaceTrigger(data, item);
       WeakAuras.optionTriggerChoices[data.id] = 0;
-      newView.CancelClose();
+      newView:CancelClose();
       WeakAuras.Add(data);
       WeakAuras.NewDisplayButton(data);
       WeakAuras.SetThumbnail(data);
@@ -367,7 +367,7 @@ function WeakAuras.CreateTemplateView(frame)
     local function handle(data, item)
       addTrigger(data, item);
       WeakAuras.optionTriggerChoices[data.id] = data.numTriggers - 1;
-      newView.CancelClose();
+      newView:CancelClose();
       WeakAuras.Add(data);
       WeakAuras.NewDisplayButton(data);
       WeakAuras.SetThumbnail(data);
@@ -444,18 +444,7 @@ function WeakAuras.CreateTemplateView(frame)
 
       createTriggerButton(WeakAuras.triggerTemplates.general, selectedItem);
 
-      -- Race
-      local raceHeader = AceGUI:Create("Heading");
-      raceHeader:SetFullWidth(true);
-      newViewScroll:AddChild(raceHeader);
-      local raceSelector = createDropdown("race", WeakAuras.race_types);
-      newViewScroll:AddChild(raceSelector);
-      newViewScroll:AddChild(createSpacer());
-      if (WeakAuras.triggerTemplates.race[newView.race]) then
-        local group = createTriggerFlyout(WeakAuras.triggerTemplates.race[newView.race], true);
-        newViewScroll:AddChild(group);
-      end
-
+      -- Items
       local itemHeader = AceGUI:Create("Heading");
       itemHeader:SetFullWidth(true);
       newViewScroll:AddChild(itemHeader);
@@ -471,6 +460,20 @@ function WeakAuras.CreateTemplateView(frame)
         local group = createTriggerFlyout(WeakAuras.triggerTemplates.items[newView.item].args, true);
         newViewScroll:AddChild(group);
       end
+
+      -- Race
+      local raceHeader = AceGUI:Create("Heading");
+      raceHeader:SetFullWidth(true);
+      newViewScroll:AddChild(raceHeader);
+      local raceSelector = createDropdown("race", WeakAuras.race_types);
+      newViewScroll:AddChild(raceSelector);
+      newViewScroll:AddChild(createSpacer());
+      if (WeakAuras.triggerTemplates.race[newView.race]) then
+        local group = createTriggerFlyout(WeakAuras.triggerTemplates.race[newView.race], true);
+        newViewScroll:AddChild(group);
+      end
+
+      -- backButton
       if (newView.existingAura) then
         newView.backButton:Hide();
       else
@@ -530,7 +533,9 @@ function WeakAuras.CreateTemplateView(frame)
     frame.buttonsContainer.frame:Show();
     frame.container.frame:Show();
     frame.window = "default";
-    frame:PickOption("New");
+    if (not self.data) then
+      frame:PickOption("New");
+    end
   end
 
   function WeakAuras.OpenTriggerTemplate(data)

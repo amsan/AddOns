@@ -415,16 +415,16 @@ local MovAny = {
 		[16] = {"Interface\\ContainerFrame\\UI-Bag-4x4", 256, 256, 219},
 		[18] = {"Interface\\ContainerFrame\\UI-Bag-4x4+2", 256, 256, 239},
 		[20] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 259},
-		[22] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 279},
-		[24] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 299},
-		[26] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 319},
-		[28] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 339},
-		[30] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 359},
-		[32] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 379},
-		[34] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 399},
-		[36] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 419},
-		[38] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 439},
-		[40] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 459},
+		[22] = {"Interface\\ContainerFrame\\UI-Bag-5x4+2", 256, 256, 279},
+		[24] = {"Interface\\ContainerFrame\\UI-Bag-5x5", 256, 256, 299},
+		[26] = {"Interface\\ContainerFrame\\UI-Bag-5x5+2", 256, 256, 319},
+		[28] = {"Interface\\ContainerFrame\\UI-Bag-5x6", 256, 256, 339},
+		[30] = {"Interface\\ContainerFrame\\UI-Bag-5x6+2", 256, 256, 359},
+		[32] = {"Interface\\ContainerFrame\\UI-Bag-5x7", 256, 256, 379},
+		[34] = {"Interface\\ContainerFrame\\UI-Bag-5x7+2", 256, 256, 399},
+		[36] = {"Interface\\ContainerFrame\\UI-Bag-5x8", 256, 256, 419},
+		[38] = {"Interface\\ContainerFrame\\UI-Bag-5x8+2", 256, 256, 439},
+		[40] = {"Interface\\ContainerFrame\\UI-Bag-5x9", 256, 256, 459},
 	},
 	-- X: hook replacements
 	ContainerFrame_GenerateFrame = function(frame, size, id)
@@ -435,19 +435,26 @@ local MovAny = {
 			if dontHook == "MADontHook" then
 				return
 			end
-			API:SyncElement(name)
+			
+			if API then
+				API:SyncElement(name)
+			end
 		end
 	end,
 	hBlizzard_TalentUI = function(self)
 		if PlayerTalentFrame_Toggle then
 			hooksecurefunc("PlayerTalentFrame_Toggle", function()
-				API:SyncElement("PlayerTalentFrame", true)
+				if API then
+					API:SyncElement("PlayerTalentFrame", true)
+				end
 			end)
 			MovAny.hBlizzard_TalentUI = nil
 		end
 	end,
 	hReputationWatchBar_Update = function()
-		API:SyncElement("ReputationWatchBar")
+		if API then
+			API:SyncElement("ReputationWatchBar")
+		end
 	end,
 	--[[hChatFrame_OnUpdate = function(arg1)
 		local b = arg1
@@ -472,7 +479,9 @@ local MovAny = {
 	hAchievementAlertFrame_OnLoad = function(f)
 		f.RegisterForClicks = MovAny.fVoid
 		MovAny.oAchievementAlertFrame_OnLoad(f)
-		API:SyncElement(f:GetName())
+		if API then
+			API:SyncElement(f:GetName())
+		end
 	end,
 	hAchievementAlertFrame_GetAlertFrame = function()
 		local f = MovAny.oAchievementAlertFrame_GetAlertFrame()
@@ -483,12 +492,16 @@ local MovAny = {
 		return f
 	end,
 	hStanceBar_Update = function()
-		API:SyncElement("StanceButtonsMover")
-		API:SyncElement("StanceButtonsVerticalMover")
+		if API then
+			API:SyncElement("StanceButtonsMover")
+			API:SyncElement("StanceButtonsVerticalMover")
+		end
 	end,
 	hStanceBar_UpdateState = function()
-		API:SyncElement("StanceButtonsMover")
-		API:SyncElement("StanceButtonsVerticalMover")
+		if API then
+			API:SyncElement("StanceButtonsMover")
+			API:SyncElement("StanceButtonsVerticalMover")
+		end
 	end,
 	hookArenaEnemyFrames = function()
 		if ArenaPrepFrames and not ArenaPrepFrames.hooked_ma then
@@ -749,8 +762,8 @@ BINDING_HEADER_MOVEANYTHING = "MoveAnything"
 StaticPopupDialogs["MOVEANYTHING_RESET_ALL_CONFIRM"] = {
 	preferredIndex = 3,
 	text = MOVANY.RESET_ALL_CONFIRM,
-	button1 = TEXT(YES),
-	button2 = TEXT(NO),
+	button1 = YES,
+	button2 = NO,
 	OnAccept = function()
 		MovAny:CompleteReset()
 	end,
@@ -907,9 +920,9 @@ function MovAny:Boot()
 	if not MADB.dontHookCreateFrame and CreateFrame then
 		hooksecurefunc("CreateFrame", self.hCreateFrame)
 	end
-	if ContainerFrame_GenerateFrame then
+	--[[if ContainerFrame_GenerateFrame then
 		hooksecurefunc("ContainerFrame_GenerateFrame", self.ContainerFrame_GenerateFrame)
-	end
+	end]]
 	if ShowUIPanel then
 		hooksecurefunc("ShowUIPanel", self.SyncUIPanels)
 	end
@@ -5373,7 +5386,7 @@ function MovAny:SetNumRows(num, dontUpdate)
 			end
 		end
 	end
-	_G["MAOptRowsSliderText"]:SetText(num)
+	--_G["MAOptRowsSliderText"]:SetText(num)  --commented out by Derangement
 	if not dontUpdate then
 		self:UpdateGUIIfShown(true)
 	end

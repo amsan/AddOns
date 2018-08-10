@@ -1,6 +1,6 @@
 --[[
 AdiButtonAuras - Display auras on action buttons.
-Copyright 2013-2016 Adirelle (adirelle@gmail.com)
+Copyright 2013-2018 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiButtonAuras.
@@ -16,7 +16,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with AdiButtonAuras.  If not, see <http://www.gnu.org/licenses/>.
+along with AdiButtonAuras. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -91,7 +91,7 @@ local playerAurasMetatable = {
 		_Update = function(self, unit, filter)
 			local serial = GetTime()
 			for index = 1, math.huge do
-				local name, _, _, count, _, _, expiration, _, _, _, id = UnitAura(unit, index, filter)
+				local name, _, count, dispel, _, expiration, _, _, _, id = UnitAura(unit, index, filter)
 				if not name then
 					break
 				end
@@ -101,6 +101,7 @@ local playerAurasMetatable = {
 					self[id] = aura
 				end
 				aura.count = count
+				aura.dispel = dispel
 				aura.expiration = expiration
 				aura.id = id
 				aura.serial = serial
@@ -124,7 +125,7 @@ local allAurasMetatable = {
 		CheckGUID = CheckGUID,
 		_Update = function(self, unit, filter)
 			for index = 1, math.huge do
-				local name, _, _, count, _, _, expiration, _, _, _, id = UnitAura(unit, index, filter)
+				local name, _, count, dispel, _, expiration, _, _, _, id = UnitAura(unit, index, filter)
 				if not name then
 					for i = index, #self do
 						self[i] = del(rawget(self, i))
@@ -137,6 +138,7 @@ local allAurasMetatable = {
 					self[index] = aura
 				end
 				aura.count = count
+				aura.dispel = dispel
 				aura.expiration = expiration
 				aura.id = id
 			end
@@ -234,7 +236,7 @@ local function auraIterator(auras, index)
 	repeat
 		nextIndex, aura = next(auras, nextIndex)
 		if type(nextIndex) == "number" then
-			return nextIndex, aura.id, aura.count, aura.expiration
+			return nextIndex, aura.id, aura.count, aura.expiration, aura.dispel
 		end
 	until not nextIndex
 end
@@ -248,7 +250,7 @@ for key in pairs(mts) do
 		if unit and UnitExists(unit) then
 			local aura = cache[unit][key]:CheckGUID():GetById(id)
 			if aura then
-				return id, aura.count, aura.expiration
+				return id, aura.count, aura.expiration, aura.dispel
 			end
 		end
 	end
