@@ -17,8 +17,8 @@ local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
 local UnitIsPlayer = UnitIsPlayer
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
-local SPELL_POWER_MANA = SPELL_POWER_MANA
-local SPELL_POWER_ALTERNATE_POWER = SPELL_POWER_ALTERNATE_POWER
+local SPELL_POWER_MANA = Enum.PowerType.Mana
+local SPELL_POWER_ALTERNATE_POWER = Enum.PowerType.Alternate
 
 local statuses = {}  -- Enabled statuses
 
