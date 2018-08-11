@@ -1,0 +1,50 @@
+lightweight tag a1cfb6a0191ca566e97e00645a98b185426633e1 6.19.12
+Author:	Luxocracy <luxor355@gmail.com>
+Date:	Sat Aug 11 10:46:19 2018 +0200
+
+commit a1cfb6a0191ca566e97e00645a98b185426633e1
+Author: Luxocracy <luxor355@gmail.com>
+Date:   Sat Aug 11 10:46:19 2018 +0200
+
+    Made the absorbwidget compatible with vertical layouts
+    
+    - Made the absorbwidget compatible with vertical layouts.
+
+commit 1d274a42e63cc8d9483ad3bb0ac82626c50ab368
+Author: Alejandro Ocampo <11311685+ja0b@users.noreply.github.com>
+Date:   Sat Aug 11 10:38:04 2018 +0200
+
+    Slim & Alvara Themes added (#9)
+    
+    * Tidy Plates: Slim included
+    
+    * Changing interface version
+    
+    * adjustment to the ClassIcon for the vertical bar
+    
+    * Alvara Theme included
+    
+    * pkg file including Alvara theme
+    
+    * Fixing Alvara debuff position
+    
+    * Slim debuffs positions fixed
+    
+    * Threatline position fixed.
+    
+    Thanks to Ingen for helping me with the testing part :)
+    
+    * absorb bars positions fixed still we need to do some work on the slim vertical theme as the absorb bar is only horizontal atm
+    
+    * When the absorb was higher that the max health the absorb bar was getting crazy, this fix that problem
+    
+    * Including vertical graphic for the absorb widget
+
+commit be1d1fbcfdd0f7a70152280a276ca6741358cc3b
+Author: Luxocracy <luxor355@gmail.com>
+Date:   Fri Aug 10 15:17:01 2018 +0200
+
+    Added an new option for the absorb widget
+    
+    - Added a new option for the absorb widget that lets you choose which nameplates it should show on. Current options are: "All Units" or "Target Only"
+
