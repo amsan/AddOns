@@ -738,7 +738,7 @@ module.button_setMacroText = function( self, macroText )
 	stateHandler:RegisterEvent("SPELLS_CHANGED");
 	stateHandler:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
 	stateHandler:RegisterEvent("MERCHANT_CLOSED");
-	stateHandler:RegisterEvent("CRITERIA_UPDATE");
+	--stateHandler:RegisterEvent("CRITERIA_UPDATE");  --This event was firing WAY too often, resulting in a massive FPS drop.
 	stateHandler:SetScript("OnEvent", module.stateHandler_onEvent);
 	stateHandler:SetScript("OnUpdate", module.stateHandler_onUpdate);
 	
