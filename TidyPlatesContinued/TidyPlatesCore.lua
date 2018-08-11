@@ -557,6 +557,7 @@ do
 		unit.health = UnitHealth(unitid) or 0
 		unit.healthmax = UnitHealthMax(unitid) or 1
 
+		unit.hasThreatValue = UnitThreatSituation("player", unitid) and true or false	--added by Derangement
 		unit.threatValue = UnitThreatSituation("player", unitid) or 0
 		unit.threatSituation = ThreatReference[unit.threatValue]
 		unit.isInCombat = UnitAffectingCombat(unitid)
@@ -1021,7 +1022,8 @@ do
 	CoreEvents.UNIT_SPELLCAST_NOT_INTERRUPTIBLE = UnitSpellcastMidway
 
 	CoreEvents.UNIT_LEVEL = UnitConditionChanged
-	CoreEvents.UNIT_THREAT_SITUATION_UPDATE = UnitConditionChanged
+	--CoreEvents.UNIT_THREAT_SITUATION_UPDATE = UnitConditionChanged
+	CoreEvents.UNIT_THREAT_SITUATION_UPDATE = WorldConditionChanged			--modified by Derangement, to keep track of npcs entering/exiting combat
 	CoreEvents.UNIT_FACTION = UnitConditionChanged
 
 	CoreEvents.RAID_TARGET_UPDATE = WorldConditionChanged

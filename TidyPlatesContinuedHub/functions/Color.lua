@@ -151,7 +151,13 @@ local function ColorFunctionByThreat(unit)
 		return classColor
 	elseif InCombatLockdown() and unit.reaction ~= "FRIENDLY" and unit.type == "NPC" then
 
-		if unit.reaction == "NEUTRAL" and unit.threatValue < 2 then return ReactionColors[unit.reaction][unit.type] end
+		--if unit.reaction == "NEUTRAL" and unit.threatValue < 2 then return ReactionColors[unit.reaction][unit.type] end
+		if( 
+			not unit.isInCombat	or	
+			( unit.reaction == "NEUTRAL" and not unit.hasThreatValue )
+		) then																--condition modified by Derangement
+			return ReactionColors[unit.reaction][unit.type] 
+		end	
 
 		if (LocalVars.ThreatWarningMode == "Tank") or (LocalVars.ThreatWarningMode == "Auto" and IsTankingAuraActive()) then
 			return ColorFunctionTankSwapColors(unit)
