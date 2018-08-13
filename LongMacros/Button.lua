@@ -415,12 +415,24 @@ do
 	end
 	
 	
-	local spellcastHandler = function( self, event, unit, name )
-		if ( not name ) or ( unit ~= "player" and unit ~= "pet") then
+	local spellcastHandler = function( self, event, ... )
+		local unit, spellName, spellId
+		
+		if ( event == "UNIT_SPELLCAST_SENT" ) then
+			unit, _, _, spellId = ...
+		else
+			unit, _, spellId = ...
+		end
+	
+		if ( spellId ) then
+			spellName = GetSpellInfo(spellId)
+		end
+	
+		if ( not spellName ) or ( unit ~= "player" and unit ~= "pet") then
 			return;
 		end
 		
-		if( strlower(name) ~= self.castSequenceSpell ) then
+		if( strlower(spellName) ~= self.castSequenceSpell ) then
 			return
 		end
 		
