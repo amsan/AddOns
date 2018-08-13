@@ -371,6 +371,11 @@ do
 		UNIT_AURA = true,
 		UNIT_ABSORB_AMOUNT_CHANGED = true,
 		CHAT_MSG_CHANNEL = true,
+		GET_ITEM_INFO_RECEIVED = true,
+		UNIT_POWER_FREQUENT = true,
+		--UNIT_POWER_UPDATE = true,
+		CHAT_MSG_ADDON = true,
+		LFG_LIST_SEARCH_RESULT_UPDATED = true,		
 	};
 	
 	local function onEvent (self, event, ...)
@@ -382,11 +387,11 @@ do
 	
 	local f = CreateFrame("frame");
 	
-	--f:RegisterAllEvents();
+	f:RegisterAllEvents();
 	--f:RegisterEvent("ACTIONBAR_SLOT_CHANGED");
 	--f:RegisterEvent("SPELLS_CHANGED");
 	--f:RegisterEvent("UPDATE_MACROS");
-	f:RegisterEvent("GET_ITEM_INFO_RECEIVED");
+	--f:RegisterEvent("GET_ITEM_INFO_RECEIVED");
 	
 	f:SetScript("OnEvent", onEvent);
 
