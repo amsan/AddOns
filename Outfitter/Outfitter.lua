@@ -3195,6 +3195,9 @@ function Outfitter:ShowLinkInfo(pLink)
 	if vItemInfo.JewelCode4 then
 		self:NoteMessage("JewelCode4: "..vItemInfo.JewelCode4)
 	end
+	if vItemInfo.AzeritePowerID then	--block added by Derangement
+		self:NoteMessage("AzeritePowerID: "..vItemInfo.AzeritePowerID)
+	end
 	if vItemInfo.UniqueID then
 		self:NoteMessage("UniqueID: "..vItemInfo.UniqueID)
 	end
@@ -3850,6 +3853,7 @@ function Outfitter:NewEmptyItemInfo()
 		JewelCode2 = 0,
 		JewelCode3 = 0,
 		JewelCode4 = 0,
+		AzeritePowerID = nil,	--added by Derangement
 		UniqueID = 0,
 		UpgradeTypeID = 0,
 		InstanceDifficultyID = 0,
@@ -3889,6 +3893,7 @@ function Outfitter:GetInventoryOutfit(pName, pOutfit)
 			or vExistingItem.JewelCode2 ~= vItemInfo.JewelCode2
 			or vExistingItem.JewelCode3 ~= vItemInfo.JewelCode3
 			or vExistingItem.JewelCode4 ~= vItemInfo.JewelCode4
+			or vExistingItem.AzeritePowerID ~= vItemInfo.AzeritePowerID  --added by Derangement
 			or vExistingItem.UniqueID ~= vItemInfo.UniqueID
 			or vExistingItem.UpgradeItemID ~= vItemInfo.UpgradeItemID
 			or vExistingItem.InstanceDifficultyID ~= vItemInfo.InstanceDifficultyID

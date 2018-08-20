@@ -63,6 +63,27 @@ function Outfitter:InventorySlotIsEmpty(pInventorySlot)
 	return GetInventoryItemTexture("player", self.cSlotIDs[pInventorySlot]) == nil
 end
 
+function Outfitter:GetAzeritePowerID(itemLocation)		--added by Derangement
+	if not itemLocation:HasAnyLocation() then
+		return
+	end
+		
+	if not C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation) then
+		return
+	end
+	
+	local firstAzeriteTier = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)[1]
+	if not firstAzeriteTier then
+		return
+	end
+	
+	for _, azeritePowerID in pairs(firstAzeriteTier.azeritePowerIDs) do 
+		if C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation, azeritePowerID) then
+			return azeritePowerID	
+		end
+	end
+end
+
 function Outfitter:GetBagItemInfo(pBagIndex, pSlotIndex)
 	local vItemLink = GetContainerItemLink(pBagIndex, pSlotIndex)
 	if not vItemLink then
@@ -77,7 +98,8 @@ function Outfitter:GetBagItemInfo(pBagIndex, pSlotIndex)
 	vItemInfo.Texture = GetContainerItemInfo(pBagIndex, pSlotIndex)
 	-- vItemInfo.Gem1, vItemInfo.Gem2, vItemInfo.Gem3, vItemInfo.Gem4 = GetContainerItemGems(pBagIndex, pSlotIndex)
 	vItemInfo.Location = {BagIndex = pBagIndex, BagSlotIndex = pSlotIndex}
-	
+	vItemInfo.AzeritePowerID = Outfitter:GetAzeritePowerID(ItemLocation:CreateFromBagAndSlot(pBagIndex, pSlotIndex))	--added by Derangement
+		
 	return vItemInfo
 end
 
@@ -275,6 +297,7 @@ function Outfitter._ItemInfo:GetItemInfoFromCode(itemCode)
 	self.JewelCode2 = 0
 	self.JewelCode3 = 0
 	self.JewelCode4 = 0
+	self.AzeritePowerID = nil	--added by Derangement
 		
 	self.UniqueID = 0
 	self.UpgradeTypeID = 0
@@ -351,6 +374,7 @@ function Outfitter._ItemInfo:GetItemInfoFromLink(itemLink)
 	self.JewelCode2 = itemCodes[4] or 0
 	self.JewelCode3 = itemCodes[5] or 0
 	self.JewelCode4 = itemCodes[6] or 0
+	self.AzeritePowerID = nil	--added by Derangement
 	self.SubCode = itemCodes[7] or 0
 	self.UniqueID = itemCodes[8] or 0
 	-- self.LinkLevel = itemCodes[9]		-- LinkLevel is the level of the player who generated the link, which isn't interesting to us
@@ -500,6 +524,7 @@ function Outfitter:GetSlotIDItemInfo(pSlotID)
 	vItemInfo.Texture = GetInventoryItemTexture("player", pSlotID)
 	-- vItemInfo.Gem1, vItemInfo.Gem2, vItemInfo.Gem3, vItemInfo.Gem4 = GetInventoryItemGems(pSlotID)
 	vItemInfo.Location = {SlotID = pSlotID}
+	vItemInfo.AzeritePowerID = Outfitter:GetAzeritePowerID(ItemLocation:CreateFromEquipmentSlot(pSlotID))	--added by Derangement
 	
 	return vItemInfo
 end
@@ -997,6 +1022,7 @@ function Outfitter._InventoryCache:FindItemIndex(pOutfitItem, pAllowSubCodeWildc
 			and vItem.JewelCode2 == pOutfitItem.JewelCode2
 			and vItem.JewelCode3 == pOutfitItem.JewelCode3 
 			and vItem.JewelCode4 == pOutfitItem.JewelCode4
+			and vItem.AzeritePowerID == pOutfitItem.AzeritePowerID  --added by Derangement
 			and vItem.UniqueID == pOutfitItem.UniqueID
 			and vItem.UpgradeTypeID == pOutfitItem.UpgradeTypeID
 			and vItem.BonusIDs == pOutfitItem.BonusIDs
@@ -1266,6 +1292,7 @@ function Outfitter._InventoryCache:ItemsAreSame(pItem1, pItem2)
 		   and pItem1.JewelCode2 == pItem2.JewelCode2
 		   and pItem1.JewelCode3 == pItem2.JewelCode3
 		   and pItem1.JewelCode4 == pItem2.JewelCode4
+		   and pItem1.AzeritePowerID == pItem2.AzeritePowerID  --added by Derangement
 		   and pItem1.UniqueID == pItem2.UniqueID
 		   and pItem1.UpgradeTypeID == pItem2.UpgradeTypeID
 		   and pItem1.InstanceDifficultyID == pItem2.InstanceDifficultyID
@@ -1330,6 +1357,7 @@ function Outfitter._InventoryCache:InventorySlotContainsItem(pInventorySlot, pOu
 				                and vItem.JewelCode2 == pOutfitItem.JewelCode2
 				                and vItem.JewelCode3 == pOutfitItem.JewelCode3
 				                and vItem.JewelCode4 == pOutfitItem.JewelCode4
+								and vItem.AzeritePowerID == pOutfitItem.AzeritePowerID  --added by Derangement
 				                and vItem.UniqueID == pOutfitItem.UniqueID
 				                and vItem.UpgradeTypeID == pOutfitItem.UpgradeTypeID
 				                and vItem.InstanceDifficultyID == pOutfitItem.InstanceDifficultyID

@@ -119,6 +119,7 @@ function Outfitter._OutfitMethods:AddItem(pSlotName, pItemInfo)
 		JewelCode2 = tonumber(pItemInfo.JewelCode2),
 		JewelCode3 = tonumber(pItemInfo.JewelCode3),
 		JewelCode4 = tonumber(pItemInfo.JewelCode4),
+		AzeritePowerID = tonumber(pItemInfo.AzeritePowerID),	--added by Derangement
 		UniqueID = tonumber(pItemInfo.UniqueID),
 		UpgradeTypeID = tonumber(pItemInfo.UpgradeTypeID),
 		InstanceDifficultyID = tonumber(pItemInfo.InstanceDifficultyID),
@@ -305,6 +306,7 @@ function Outfitter._OutfitMethods:UpdateDatabaseItemCodes(pInventoryCache)
 				vOutfitItem.JewelCode2 = vItem.JewelCode2
 				vOutfitItem.JewelCode3 = vItem.JewelCode3
 				vOutfitItem.JewelCode4 = vItem.JewelCode4
+				vOutfitItem.AzeritePowerID = vItem.AzeritePowerID  -- added by Derangement
 				vOutfitItem.UniqueID = vItem.UniqueID
 				vOutfitItem.UpgradeTypeID = vItem.UpgradeTypeID
 				vOutfitItem.InstanceDifficultyID = vItem.InstanceDifficultyID
