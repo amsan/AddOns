@@ -230,6 +230,26 @@ end
 --  Assorted gold-painting functions  --
 ----------------------------------------
 
+--paints a Texture object gold
+local paintTextureGold = function( texture )
+	if texture == nil then return end
+	
+	texture:SetVertexColor(1, .75, .2, 1);
+end
+
+
+--paints all Texture objects inside a given frame gold
+local paintFrameTexturesGold = function( frame )
+	if frame == nil then return end
+	
+	for _, region in pairs( { frame:GetRegions() } ) do
+		if( region:GetObjectType() == "Texture" ) then
+			paintTextureGold(region)
+		end
+	end
+end
+
+
 --paints the "empty button" background of a Long Macro Button
 LongMacroButton_paintGold = function( self )	
 	self:RegisterForDrag("LeftButton");
@@ -237,7 +257,7 @@ LongMacroButton_paintGold = function( self )
 	--(the texture we want is anonymous, so we need to do some digging)
 	for _, region in pairs( { self:GetRegions() } ) do
 		if( region:GetObjectType() == "Texture" and region:GetTexture() == "Interface\\Buttons\\UI-EmptySlot-Disabled" ) then
-			region:SetVertexColor(1, .75, .2, 1);
+			paintTextureGold(region)
 			return;
 		end
 	end
@@ -247,77 +267,39 @@ end
 --paints the up, down, and current-scroll elements of a scroll frame
 LongMacroScrollFrame_paintGold = function( self )
 	local scrollBar = self.ScrollBar;
+	paintFrameTexturesGold(scrollBar.ScrollUpButton);	--up arrow
+	paintFrameTexturesGold(scrollBar.ScrollDownButton);	--down arrow
 	
-	--paint up arrow golden
-	for _, region in pairs( { scrollBar.ScrollUpButton:GetRegions() } ) do
-		if( region:GetObjectType() == "Texture" ) then
-			region:SetVertexColor(1, .75, .2, 1);
-		end
-	end
-	
-	--paint down arrow golden
-	for _, region in pairs( { scrollBar.ScrollDownButton:GetRegions() } ) do
-		if( region:GetObjectType() == "Texture" ) then
-			region:SetVertexColor(1, .75, .2, 1);
-		end
-	end
-	
-	--paint current scroll square golden
-	_G[ scrollBar:GetName().."ThumbTexture" ]:SetVertexColor(1, .75, .2, 1);
+	paintTextureGold(
+		_G[ scrollBar:GetName().."ThumbTexture" ]	--current scroll square
+	)
 end
 
 
 --paints a tab
 LongMacroTabButton_paintGold = function( self )
-	local name = self:GetName();
-	_G[name.."Left"]:SetVertexColor(1, .75, .2, 1);
-	_G[name.."Middle"]:SetVertexColor(1, .75, .2, 1);
-	_G[name.."Right"]:SetVertexColor(1, .75, .2, 1);
-	_G[name.."LeftDisabled"]:SetVertexColor(1, .75, .2, 1);
-	_G[name.."MiddleDisabled"]:SetVertexColor(1, .75, .2, 1);
-	_G[name.."RightDisabled"]:SetVertexColor(1, .75, .2, 1);
+	paintFrameTexturesGold(self)
 end
 
 
 --paints a panel button
 LongMacroPanelButton_paintGold = function( self )
-	self.Left:SetVertexColor(1, .75, .2, 1);
-	self.Middle:SetVertexColor(1, .75, .2, 1);
-	self.Right:SetVertexColor(1, .75, .2, 1);
+	paintFrameTexturesGold(self)
 end
 
 
 --paints the long macro frame, and its various subtextures
-LongMacroFrame_paintGold = function( self )
-	--paint the frame's various components golden
-	self.Bg:SetVertexColor(1, .75, .2, 1);
-	LongMacroFrameTopBorder:SetVertexColor(1, .75, .2, 1);
-	LongMacroFrameBottomBorder:SetVertexColor(1, .75, .2, 1);
-	LongMacroFrameLeftBorder:SetVertexColor(1, .75, .2, 1);
-	LongMacroFrameRightBorder:SetVertexColor(1, .75, .2, 1);
-	LongMacroFrameTopLeftCorner:SetVertexColor(1, .75, .2, 1);
-	LongMacroFrameTopRightCorner:SetVertexColor(1, .75, .2, 1);
-	LongMacroFrameBotLeftCorner:SetVertexColor(1, .75, .2, 1);
-	LongMacroFrameBotRightCorner:SetVertexColor(1, .75, .2, 1);
-
-	LongMacroFrameTitleBg:SetVertexColor(1, .75, .2, 1);
-	LongMacroFramePortraitFrame:SetVertexColor(1, .75, .2, 1);
-	self.portrait:SetVertexColor(1, .75, .2, 1);	
-
-	local inset = self.Inset;
-	inset.Bg:SetVertexColor(1, .75, .2, 1);
-	inset.InsetBorderTop:SetVertexColor(1, .75, .2, 1);
-	inset.InsetBorderBottom:SetVertexColor(1, .75, .2, 1);
-	inset.InsetBorderLeft:SetVertexColor(1, .75, .2, 1);
-	inset.InsetBorderRight:SetVertexColor(1, .75, .2, 1);
-	inset.InsetBorderTopLeft:SetVertexColor(1, .75, .2, 1);
-	inset.InsetBorderTopRight:SetVertexColor(1, .75, .2, 1);
-	inset.InsetBorderBottomLeft:SetVertexColor(1, .75, .2, 1);
-	inset.InsetBorderBottomRight:SetVertexColor(1, .75, .2, 1);
+LongMacroFrame_paintGold = function( self )	
+	paintTextureGold(self.Bg)
+	paintTextureGold(self.TitleBg)
+	paintTextureGold(self.portrait)
+	paintFrameTexturesGold(self.NineSlice)
 	
-	LongMacroFrameButtonBottomBorder:SetVertexColor(1, .75, .2, 1);
-	LongMacroFrameBtnCornerLeft:SetVertexColor(1, .75, .2, 1);
-	LongMacroFrameBtnCornerRight:SetVertexColor(1, .75, .2, 1);	
+	local inset = self.Inset;
+	if inset ~= nil then
+		paintTextureGold(inset.Bg)
+		paintFrameTexturesGold(inset.NineSlice)
+	end
 end
 
 
