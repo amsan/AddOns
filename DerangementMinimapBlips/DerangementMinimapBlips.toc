@@ -1,7 +1,7 @@
-## Interface: 80000
+## Interface: 80100
 ## Title: Derangement's Minimap Blips
 ## Author: Derangement
-## Version: v1.1.7
+## Version: v1.1.8
 ## Notes: Simple addon to replace the minimap tracking blip textures with custom ones that make it easier to distinguish between tracked resource nodes and neutral NPCS, and between tracked players and NPCs.
 
 DerangementMinimapBlips.lua
