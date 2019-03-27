@@ -121,7 +121,7 @@ do
 		if( filterBoss == false ) then		--block added by Derangement
 			i = 1
 			while true do
-				name, _, textures[j], counts[j], debuffType, durations[j], expirations[j], caster, _, _, _, _, isBossDebuff = UnitBuff(unit, i)
+				name, textures[j], counts[j], debuffType, durations[j], expirations[j], caster, _, _, _, _, isBossDebuff = UnitBuff(unit, i)
 				if not name then break end
 				
 				tooltipFuncs[j] = Grid2Frame:MakeTooltipBuffFunc(unit, i);		--added by Derangement
