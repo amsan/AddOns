@@ -4,7 +4,7 @@ local AddOnName = ...;
 local pairs = pairs;
 -- local assert = assert;
 
-local VERSION_NUMBER = 3;
+local VERSION_NUMBER = 10;
 local DEBUG_MODE = true;
 local instances = {};
 local addonVersions = {};
@@ -137,4 +137,3 @@ end
 
 -- Register this instance
 _G.Ellyb:_Initialize(Ellyb, AddOnName);
-

@@ -8,8 +8,6 @@ end
 
 -- Lua imports
 local format = string.format;
-local insert = table.insert;
-local pairs = pairs;
 local date = date;
 local print = print;
 
@@ -20,9 +18,6 @@ local Log = Ellyb.Log;
 local Logger, _private = Ellyb.Class("Logger");
 Ellyb.Logger = Logger;
 
-local LogFrame = CreateFrame("FRAME", nil, UIParent, "Ellyb_LogsFrame");
-local Text = LogFrame.Scroll.Text;
-
 Logger.LEVELS = {
 	DEBUG = "DEBUG",
 	INFO = "INFO",
@@ -30,7 +25,7 @@ Logger.LEVELS = {
 	SEVERE = "SEVERE",
 }
 
----@return Color
+---@return Ellyb_Color
 local function getColorForLevel(level)
 	if level == Logger.LEVELS.SEVERE then
 		return Ellyb.ColorManager.RED;
@@ -48,7 +43,6 @@ end
 function Logger:initialize(moduleName)
 	_private[self] = {};
 	_private[self].moduleName = moduleName;
-	_private[self].logs = {};
 
 	Ellyb.LogsManager:RegisterLogger(self);
 	self:Info("Logger " .. moduleName .. " initialized.");
@@ -66,28 +60,26 @@ function Logger:GetLogHeader(logLevel)
 end
 
 function Logger:Log(level, ...)
+	if not Ellyb:IsDebugModeEnabled() then
+		return;
+	end
+
+	local ChatFrame;
+	for i = 0, NUM_CHAT_WINDOWS do
+		if GetChatWindowInfo(i) == "Logs" then
+			ChatFrame = _G["ChatFrame"..i]
+		end
+	end
+
 	local log = Log(level, ...);
-	insert(_private[self].logs, log);
-
-	if LogFrame:IsShown() then
-		self:Show();
-	elseif Ellyb:IsDebugModeEnabled() then
-
-		local ChatFrame;
-		for i = 0, NUM_CHAT_WINDOWS do
-			if GetChatWindowInfo(i) == "Logs" then
-				ChatFrame = _G["ChatFrame"..i]
-			end
-		end
-		local logText = log:GetText();
-		local logHeader = self:GetLogHeader(log:GetLevel());
-		local timestamp = format("[%s]", date("%X", log:GetTimestamp()));
-		local message = Ellyb.ColorManager.GREY(timestamp) .. logHeader .. logText;
-		if ChatFrame and log:GetLevel() ~= self.LEVELS.WARNING and log:GetLevel() ~= self.LEVELS.SEVERE then
-			ChatFrame:AddMessage(message)
-		else
-			print(message)
-		end
+	local logText = log:GetText();
+	local logHeader = self:GetLogHeader(log:GetLevel());
+	local timestamp = format("[%s]", date("%X", log:GetTimestamp()));
+	local message = Ellyb.ColorManager.GREY(timestamp) .. logHeader .. logText;
+	if ChatFrame and log:GetLevel() ~= self.LEVELS.WARNING and log:GetLevel() ~= self.LEVELS.SEVERE then
+		ChatFrame:AddMessage(message)
+	else
+		print(message)
 	end
 end
 
@@ -105,18 +97,4 @@ end
 
 function Logger:Severe(...)
 	self:Log(self.LEVELS.SEVERE, ...);
-end
-
-function Logger:Show()
-	---@type Log[]
-	local logs = _private[self].logs;
-	local text = "";
-	for _, log in pairs(logs) do
-		local logText = Ellyb.ColorManager.GREY(log:GetText());
-		local logHeader = self:GetLogHeader(log:GetLevel());
-		local timestamp = format("[%s]", date("%X", log:GetTimestamp()));
-		text = text .. Ellyb.ColorManager.GREY(timestamp) .. logHeader .. logText .. "\n";
-	end
-	Text:SetText(text);
-	LogFrame:Show();
 end

@@ -3,6 +3,7 @@
 --- Slash commands
 --- ---------------------------------------------------------------------------
 --- Copyright 2014 Sylvain Cossement (telkostrasz@telkostrasz.be)
+--- Copyright 2014-2019 Renaud "Ellypse" Parize <ellypse@totalrp3.info> @EllypseCelwe
 ---
 --- Licensed under the Apache License, Version 2.0 (the "License");
 --- you may not use this file except in compliance with the License.
@@ -53,7 +54,7 @@ end
 SLASH_TOTALRP31, SLASH_TOTALRP32 = '/trp3', '/totalrp3';
 local sortTable = {};
 
-function SlashCmdList.TOTALRP3(msg, editbox)
+function SlashCmdList.TOTALRP3(msg)
 	local args = {strsplit(" ", msg)};
 	local cmdID = args[1];
 	table.remove(args, 1);
@@ -64,12 +65,12 @@ function SlashCmdList.TOTALRP3(msg, editbox)
 		-- Show command list
 		displayMessage(loc.COM_LIST);
 		wipe(sortTable);
-		for cmdID, _ in pairs(COMMANDS) do
-			tinsert(sortTable, cmdID);
+		for commandId, _ in pairs(COMMANDS) do
+			tinsert(sortTable, commandId);
 		end
 		sort(sortTable);
-		for _, cmdID in pairs(sortTable) do
-			local cmd, cmdText = COMMANDS[cmdID], TRP3_API.Ellyb.ColorManager.GREEN("/trp3 " .. cmdID);
+		for _, commandId in pairs(sortTable) do
+			local cmd, cmdText = COMMANDS[commandId], TRP3_API.Ellyb.ColorManager.GREEN("/trp3 " .. commandId);
 			if cmd.helpLine then
 				cmdText = cmdText .. TRP3_API.Ellyb.ColorManager.ORANGE(cmd.helpLine);
 			end
@@ -110,7 +111,7 @@ local function sendDiceRoll(args)
 	end
 end
 
-local function rollDice(diceString, noSend)
+local function rollDice(diceString)
 	local _, _, num, diceCount, modifierOperator, modifierValue = diceString:find("(%d*)d(%d+)([-+]?)(%d*)");
 	num = tonumber(num) or 1;
 	diceCount = tonumber(diceCount) or 0;
@@ -131,13 +132,11 @@ local function rollDice(diceString, noSend)
 		total = total + modifierValue;
 
 		Utils.message.displayMessage(loc.DICE_ROLL:format(Utils.str.icon("inv_misc_dice_02", 20), num, diceCount, total));
-		sendDiceRoll({c = num, d = diceCount, t = total});
+		sendDiceRoll({c = num, d = diceCount, t = total, m = modifierValue});
 		return total;
 	end
 	return 0;
 end
-
-local strjoin, unpack = strjoin, unpack;
 
 function TRP3_API.slash.rollDices(...)
 	local args = {...};

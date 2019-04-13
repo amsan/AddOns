@@ -1,9 +1,8 @@
 ----------------------------------------------------------------------------------
 --- Total RP 3
----
 --- Communication protocol and API
 --- ---------------------------------------------------------------------------
---- Copyright 2018 Renaud "Ellypse" Parize <ellypse@totalrp3.info> @EllypseCelwe
+--- Copyright 2014-2019 Renaud "Ellypse" Parize <ellypse@totalrp3.info> @EllypseCelwe
 --- Copyright 2014 Sylvain Cossement (telkostrasz@telkostrasz.be)
 ---
 --- Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,19 +24,9 @@ local Ellyb = Ellyb(_);
 ---@type AddOn_TotalRP3
 local AddOn_TotalRP3 = AddOn_TotalRP3;
 
---region Lua imports
-local assert = assert;
-local string = string;
-local math = math;
-local tostring = tostring;
---endregion
-
 -- AddOn imports
 local Chomp = AddOn_Chomp;
 local logger = Ellyb.Logger("TotalRP3_Communication");
-local isType = Ellyb.Assertions.isType;
-local isOneOf = Ellyb.Assertions.isOneOf;
-local isNotNil = Ellyb.Assertions.isNotNil;
 
 -- Total RP 3 imports
 local Compression = AddOn_TotalRP3.Compression;
@@ -52,12 +41,16 @@ local PROTOCOL_SETTINGS = {
 		["string"] = true,
 		["table"] = true,
 	},
+	broadcastPrefix = "TRP3"
 }
 local PRIORITIES = {
 	LOW = "LOW",
 	MEDIUM = "MEDIUM",
 	HIGH = "HIGH",
 }
+
+local VALID_CHANNELS = {"PARTY", "RAID", "GUILD", "BATTLEGROUND", "WHISPER", "CHANNEL"};
+local VALID_PRIORITIES = {"HIGH", "MEDIUM", "LOW"};
 
 local subSystemsDispatcher = Ellyb.EventsDispatcher();
 local subSystemsOnProgressDispatcher = Ellyb.EventsDispatcher();
@@ -75,6 +68,10 @@ local DEPRECATED_MESSAGE_PRIORITY = [[Deprecated usage of message priority "%s".
 	if priority == "NORMAL" then
 		Ellyb.DeprecationWarnings.warn(DEPRECATED_MESSAGE_PRIORITY:format("NORMAL", PRIORITIES.MEDIUM));
 		priority = PRIORITIES.MEDIUM
+	end
+	if priority == "ALERT" then
+		Ellyb.DeprecationWarnings.warn(DEPRECATED_MESSAGE_PRIORITY:format("ALERT", PRIORITIES.HIGH));
+		priority = PRIORITIES.HIGH
 	end
 	return priority
 end
@@ -100,17 +97,17 @@ local function extractMessageTokenFromData(data)
 end
 
 local function registerSubSystemPrefix(prefix, callback)
-	local handlerID, onProgressHandlerID;
+	local handlerID;
 
-	assert(isType(callback, "function", "callback"));
+	Ellyb.Assertions.isType(callback, "function", "callback");
 	handlerID = subSystemsDispatcher:RegisterCallback(prefix, callback);
 
-	return handlerID, onProgressHandlerID;
+	return handlerID;
 end
 
 local function registerMessageTokenProgressHandler(messageToken, sender, onProgressCallback)
-	assert(isType(onProgressCallback, "function", "onProgressCallback"));
-	assert(isType(sender, "string", "sender"));
+	Ellyb.Assertions.isType(onProgressCallback, "function", "onProgressCallback");
+	Ellyb.Assertions.isType(sender, "string", "sender");
 
 	return subSystemsOnProgressDispatcher:RegisterCallback(tostring(messageToken), function(receivedSender, ...)
 		if receivedSender == sender then
@@ -120,13 +117,23 @@ local function registerMessageTokenProgressHandler(messageToken, sender, onProgr
 end
 
 local function unregisterMessageTokenProgressHandler(handlerID)
-	assert(isType(handlerID, "string", "handlerID"));
+	Ellyb.Assertions.isType(handlerID, "string", "handlerID");
 	subSystemsOnProgressDispatcher:UnregisterCallback(handlerID)
 end
 
-local function sendObject(prefix, object, target, priority, messageToken, useLoggedMessages)
-	assert(isType(prefix, "string", "prefix"));
+local function sendObject(prefix, object, channel, target, priority, messageToken, useLoggedMessages)
+	if not tContains(VALID_CHANNELS, channel) then
+		--if channel is ignored, default channel and bump everything along by one
+		channel, target, priority, messageToken, useLoggedMessages = "WHISPER", channel, target, priority, messageToken
+	end
+	if tContains(VALID_PRIORITIES, target) then
+		-- if target has values expected for priority, bump everything back by one
+		target, priority, messageToken, useLoggedMessages = nil, target, priority, messageToken
+	end
+
+	Ellyb.Assertions.isType(prefix, "string", "prefix");
 	assert(subSystemsDispatcher:HasCallbacksForEvent(prefix), "Unregistered prefix: "..prefix);
+	Ellyb.Assertions.isOneOf(channel, VALID_CHANNELS, "channel");
 
 	if not TRP3_API.register.isIDIgnored(target) then
 
@@ -135,7 +142,7 @@ local function sendObject(prefix, object, target, priority, messageToken, useLog
 		end
 		priority = CTLToChompPriority(priority);
 
-		assert(isOneOf(priority, {"HIGH", "MEDIUM", "LOW"}, "priority"));
+		Ellyb.Assertions.isOneOf(priority, VALID_PRIORITIES, "priority");
 
 		messageToken = messageToken or getNewMessageToken();
 
@@ -151,12 +158,14 @@ local function sendObject(prefix, object, target, priority, messageToken, useLog
 		Chomp.SmartAddonMessage(
 			PROTOCOL_PREFIX,
 			messageToken .. serializedData,
-			"WHISPER",
+			channel,
 			target,
 			{
 				priority = priority,
 				binaryBlob = not useLoggedMessages,
-			});
+				allowBroadcast = true,
+			}
+		);
 	else
 		logger:Warning("[sendObject]", "target is ignored", target);
 		return false;
@@ -167,7 +176,7 @@ local function isLoggedChannel(channel)
 	return channel:find("LOGGED");
 end
 
-local function onIncrementalMessageReceived(prefix, data, channel, sender, _, _, _, _, _, _, _, _, sessionID, msgID, msgTotal)
+local function onIncrementalMessageReceived(_, data, _, sender, _, _, _, _, _, _, _, _, sessionID, msgID, msgTotal)
 	if msgID == 1 then
 		local messageToken = extractMessageTokenFromData(data);
 		internalMessageIDToChompSessionIDMatching[sessionID] = messageToken;
@@ -176,7 +185,7 @@ local function onIncrementalMessageReceived(prefix, data, channel, sender, _, _,
 end
 PROTOCOL_SETTINGS.rawCallback = onIncrementalMessageReceived;
 
-local function onChatMessageReceived(prefix, data, channel, sender, _, _, _, _, _, _, _, _, sessionID, msgID, msgTotal)
+local function onChatMessageReceived(_, data, channel, sender)
 	_, data = extractMessageTokenFromData(data);
 	if not isLoggedChannel(channel) then
 		data = Compression.decompress(data, true);
@@ -187,15 +196,19 @@ end
 
 Chomp.RegisterAddonPrefix(PROTOCOL_PREFIX, onChatMessageReceived, PROTOCOL_SETTINGS)
 
--- Estimate the number of packet needed to send a object.
-local function estimateStructureLoad(object, shouldBeCompressed)
 
-	assert(isNotNil(object, "object"));
+local function estimateStructureSize(object, shouldBeCompressed)
+	Ellyb.Assertions.isNotNil(object, "object");
 	local serializedObject = Chomp.Serialize(object);
 	if shouldBeCompressed then
 		serializedObject = Compression.compress(serializedObject);
 	end
-	return #serializedObject / Chomp.GetBPS();
+	return #serializedObject;
+end
+
+-- Estimate the number of packet needed to send a object.
+local function estimateStructureLoad(object, shouldBeCompressed)
+	return estimateStructureSize(object, shouldBeCompressed) / Chomp.GetBPS();
 end
 
 AddOn_TotalRP3.Communications = {
@@ -204,6 +217,7 @@ AddOn_TotalRP3.Communications = {
 	registerMessageTokenProgressHandler = registerMessageTokenProgressHandler,
 	unregisterMessageTokenProgressHandler = unregisterMessageTokenProgressHandler,
 	estimateStructureLoad = estimateStructureLoad,
+	estimateStructureSize = estimateStructureSize,
 	sendObject = sendObject,
 	extractMessageTokenFromData = extractMessageTokenFromData,
 	PRIORITIES = PRIORITIES,

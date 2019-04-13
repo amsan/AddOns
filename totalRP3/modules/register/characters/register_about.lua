@@ -1,39 +1,34 @@
 ----------------------------------------------------------------------------------
 --- Total RP 3
 --- Character page : About
----	---------------------------------------------------------------------------
----	Copyright 2014 Sylvain Cossement (telkostrasz@telkostrasz.be)
---- Copyright 2018 Renaud "Ellypse" Parize <ellypse@totalrp3.info> @EllypseCelwe
+--- ---------------------------------------------------------------------------
+--- Copyright 2014 Sylvain Cossement (telkostrasz@telkostrasz.be)
+--- Copyright 2014-2019 Renaud "Ellypse" Parize <ellypse@totalrp3.info> @EllypseCelwe
 ---
----	Licensed under the Apache License, Version 2.0 (the "License");
----	you may not use this file except in compliance with the License.
----	You may obtain a copy of the License at
+--- Licensed under the Apache License, Version 2.0 (the "License");
+--- you may not use this file except in compliance with the License.
+--- You may obtain a copy of the License at
 ---
----		http://www.apache.org/licenses/LICENSE-2.0
+--- 	http://www.apache.org/licenses/LICENSE-2.0
 ---
----	Unless required by applicable law or agreed to in writing, software
----	distributed under the License is distributed on an "AS IS" BASIS,
----	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
----	See the License for the specific language governing permissions and
----	limitations under the License.
+--- Unless required by applicable law or agreed to in writing, software
+--- distributed under the License is distributed on an "AS IS" BASIS,
+--- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--- See the License for the specific language governing permissions and
+--- limitations under the License.
 ----------------------------------------------------------------------------------
 
 ---@type TRP3_API
 local _, TRP3_API = ...;
 
 -- imports
-local Globals, Utils, Comm, Events = TRP3_API.globals, TRP3_API.utils, AddOn_TotalRP3.Communications, TRP3_API.events;
+local Globals, Utils, Events = TRP3_API.globals, TRP3_API.utils, TRP3_API.events;
 local stEtN = Utils.str.emptyToNil;
 local get = TRP3_API.profile.getData;
-local safeGet = TRP3_API.profile.getDataDefault;
-local tcopy, tsize = Utils.table.copy, Utils.table.size;
+local tcopy = Utils.table.copy;
 local getDefaultProfile = TRP3_API.profile.getDefaultProfile;
-local unitIDToInfo = Utils.str.unitIDToInfo;
-local Log, convertTextTags = Utils.log, Utils.str.convertTextTags;
-local getConfigValue = TRP3_API.configuration.getValue;
+local convertTextTags = Utils.str.convertTextTags;
 local CreateFrame = CreateFrame;
-local tostring, unpack, strtrim = tostring, unpack, strtrim;
-local assert, tinsert, type, wipe, _G, strconcat, tonumber, pairs, tremove, math = assert, tinsert, type, wipe, _G, strconcat, tonumber, pairs, tremove, math;
 local getTiledBackground = TRP3_API.ui.frame.getTiledBackground;
 local getTiledBackgroundList = TRP3_API.ui.frame.getTiledBackgroundList;
 local showIfMouseOver = TRP3_API.ui.frame.showIfMouseOverFrame;
@@ -41,15 +36,12 @@ local createRefreshOnFrame = TRP3_API.ui.frame.createRefreshOnFrame;
 local TRP3_RegisterAbout_AboutPanel = TRP3_RegisterAbout_AboutPanel;
 local displayDropDown = TRP3_API.ui.listbox.displayDropDown;
 local setupListBox = TRP3_API.ui.listbox.setupListBox;
-local setTooltipForSameFrame = TRP3_API.ui.tooltip.setTooltipForSameFrame;
 local setTooltipAll = TRP3_API.ui.tooltip.setTooltipAll;
-local getCurrentContext, getCurrentPageID = TRP3_API.navigation.page.getCurrentContext, TRP3_API.navigation.page.getCurrentPageID;
-local getUnitID = Utils.str.getUnitID;
+local getCurrentContext = TRP3_API.navigation.page.getCurrentContext;
 local setupIconButton = TRP3_API.ui.frame.setupIconButton;
 local isUnitIDKnown = TRP3_API.register.isUnitIDKnown;
 local getUnitIDProfile = TRP3_API.register.getUnitIDProfile;
 local hasProfile, getProfile = TRP3_API.register.hasProfile, TRP3_API.register.getProfile;
-local showConfirmPopup = TRP3_API.popup.showConfirmPopup;
 
 -- Total RP 3 imports
 local loc = TRP3_API.loc;
@@ -82,7 +74,7 @@ getDefaultProfile().player.about = {
 -- ABOUT
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-local draftData = nil;
+local draftData;
 
 local function setBkg(frame, bkg)
 	local backdrop = frame:GetBackdrop();
@@ -100,9 +92,9 @@ end
 
 local function selectMusic(music)
 	if music then
-		TRP3_RegisterAbout_Edit_Music_Text:SetText(("%s: |cff00ff00%s"):format(loc.REG_PLAYER_ABOUT_MUSIC, Utils.music.getTitle(music)));
+		TRP3_RegisterAbout_Edit_Music_Text:SetText(("%s: |cff00ff00%s"):format(loc.REG_PLAYER_ABOUT_MUSIC_THEME, Utils.music.getTitle(music)));
 	else
-		TRP3_RegisterAbout_Edit_Music_Text:SetText(("%s: |cff00ff00%s"):format(loc.REG_PLAYER_ABOUT_MUSIC, loc.REG_PLAYER_ABOUT_NOMUSIC));
+		TRP3_RegisterAbout_Edit_Music_Text:SetText(("%s: |cff00ff00%s"):format(loc.REG_PLAYER_ABOUT_MUSIC_THEME, loc.REG_PLAYER_ABOUT_NOMUSIC));
 	end
 end
 
@@ -348,7 +340,6 @@ end
 -- TEMPLATE 3
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-local TEMPLATE3_MINIMAL_HEIGHT = 100;
 local TEMPLATE3_MARGIN = 30;
 local TEMPLATE3_ICON_PHYSICAL = "Ability_Warrior_StrengthOfArms";
 local TEMPLATE3_ICON_PSYCHO = "Spell_Arcane_MindMastery";
@@ -479,11 +470,15 @@ local function refreshConsultDisplay(context)
 	local template = dataTab.TE or 1;
 	TRP3_RegisterAbout_AboutPanel.isMine = context.isPlayer;
 
+	TRP3_ProfileReportButton:Hide();
 	if not context.isPlayer then
 		if dataTab ~= Globals.empty then
 			dataTab.read = true;
 		end
 		Events.fireEvent(Events.REGISTER_ABOUT_READ);
+		if context.profile and context.profile.link then
+			TRP3_ProfileReportButton:Show();
+		end
 	end
 
 	assert(type(dataTab) == "table", "Error: Nil about data or not a table.");
@@ -640,7 +635,7 @@ local function onMusicSelected(music)
 	selectMusic(draftData.MU);
 end
 
-local function onMusicEditSelected(value, button)
+local function onMusicEditSelected(value)
 	if value == 1 then
 		TRP3_API.popup.showPopup(TRP3_API.popup.MUSICS, nil, {onMusicSelected});
 	elseif value == 2 and draftData.MU then
@@ -654,7 +649,6 @@ local function onMusicEditSelected(value, button)
 end
 
 local function onMusicEditClicked(button)
-	local profileID = button:GetParent().profileID;
 	local values = {};
 	tinsert(values, {loc.REG_PLAYER_ABOUT_MUSIC_SELECT, 1});
 	if draftData.MU then
@@ -797,7 +791,7 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 			id = "aa_player_b_music",
 			onlyForType = TRP3_API.ui.misc.TYPE_CHARACTER,
 			configText = loc.TF_PLAY_THEME,
-			condition = function(targetType, unitID)
+			condition = function(_, unitID)
 				return getUnitIDTheme(unitID) ~= nil;
 			end,
 			onClick = function(unitID, _, button)
@@ -851,7 +845,8 @@ function TRP3_API.register.inits.aboutInit()
 	TRP3_RegisterAbout_Edit_CancelButton:SetText(loc.CM_CANCEL);
 	TRP3_RegisterAbout_AboutPanel_MusicPlayer_Play:SetText(loc.CM_PLAY);
 	TRP3_RegisterAbout_AboutPanel_MusicPlayer_Stop:SetText(loc.CM_STOP);
-	TRP3_RegisterAbout_AboutPanel_MusicPlayer_Title:SetText(loc.REG_PLAYER_ABOUT_MUSIC);
+	TRP3_RegisterAbout_Edit_Music_Action:SetText(loc.REG_PLAYER_EDIT_MUSIC_THEME);
+	TRP3_RegisterAbout_AboutPanel_MusicPlayer_Title:SetText(loc.REG_PLAYER_ABOUT_MUSIC_THEME);
 
 	TRP3_RegisterAbout_AboutPanel_Template1:SetFontObject("p", GameFontNormal);
 	TRP3_RegisterAbout_AboutPanel_Template1:SetFontObject("h1", GameFontNormalHuge3);

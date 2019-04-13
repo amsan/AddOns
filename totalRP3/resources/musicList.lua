@@ -1,19 +1,20 @@
 ----------------------------------------------------------------------------------
--- Total RP 3
---	---------------------------------------------------------------------------
---	Copyright 2014 Sylvain Cossement (telkostrasz@telkostrasz.be)
---
---	Licensed under the Apache License, Version 2.0 (the "License");
---	you may not use this file except in compliance with the License.
---	You may obtain a copy of the License at
---
---		http://www.apache.org/licenses/LICENSE-2.0
---
---	Unless required by applicable law or agreed to in writing, software
---	distributed under the License is distributed on an "AS IS" BASIS,
---	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
---	See the License for the specific language governing permissions and
---	limitations under the License.
+--- Total RP 3
+--- ---------------------------------------------------------------------------
+--- Copyright 2014 Sylvain Cossement (telkostrasz@telkostrasz.be)
+--- Copyright 2014-2019 Renaud "Ellypse" Parize <ellypse@totalrp3.info> @EllypseCelwe
+---
+--- Licensed under the Apache License, Version 2.0 (the "License");
+--- you may not use this file except in compliance with the License.
+--- You may obtain a copy of the License at
+---
+--- 	http://www.apache.org/licenses/LICENSE-2.0
+---
+--- Unless required by applicable law or agreed to in writing, software
+--- distributed under the License is distributed on an "AS IS" BASIS,
+--- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--- See the License for the specific language governing permissions and
+--- limitations under the License.
 ----------------------------------------------------------------------------------
 
 local musicList = {
@@ -392,6 +393,98 @@ local musicList = {
 	"battleforazeroth\\mus_80_zuldazarjungle_q",
 	"battleforazeroth\\mus_80_zuldazarjungle_r",
 	"battleforazeroth\\mus_80_zuldazarjungle_s",
+	"battleforazeroth\\mus_81_forsakenflame_a",
+	"battleforazeroth\\mus_81_forsakenflame_b",
+	"battleforazeroth\\mus_81_forsakenflame_c",
+	"battleforazeroth\\mus_81_forsakenflame_d",
+	"battleforazeroth\\mus_81_forsakenflame_e",
+	"battleforazeroth\\mus_81_forsakenflame_f",
+	"battleforazeroth\\mus_81_forsakenflame_g",
+	"battleforazeroth\\mus_81_forsakenflame_h",
+	"battleforazeroth\\mus_81_forsakenflame_i",
+	"battleforazeroth\\mus_81_forsakenflame_j",
+	"battleforazeroth\\mus_81_forsakenflame_victorystinger",
+	"battleforazeroth\\mus_81_islands_darkforest_a",
+	"battleforazeroth\\mus_81_islands_darkforest_b",
+	"battleforazeroth\\mus_81_islands_darkforest_c",
+	"battleforazeroth\\mus_81_islands_darkforest_d",
+	"battleforazeroth\\mus_81_islands_darkforest_e",
+	"battleforazeroth\\mus_81_islands_darkforest_f",
+	"battleforazeroth\\mus_81_islands_darkforest_h1",
+	"battleforazeroth\\mus_81_islands_darkforest_h2",
+	"battleforazeroth\\mus_81_islands_darkforest_stinger_1",
+	"battleforazeroth\\mus_81_kultiran_battle_1_a",
+	"battleforazeroth\\mus_81_kultiran_battle_1_b",
+	"battleforazeroth\\mus_81_kultiran_battle_1_c",
+	"battleforazeroth\\mus_81_kultiran_battle_1_h",
+	"battleforazeroth\\mus_81_kultiran_battle_2_a",
+	"battleforazeroth\\mus_81_kultiran_battle_2_b",
+	"battleforazeroth\\mus_81_kultiran_battle_2_c",
+	"battleforazeroth\\mus_81_kultiran_battle_2_h",
+	"battleforazeroth\\mus_81_kultiran_battle_3_a",
+	"battleforazeroth\\mus_81_kultiran_battle_3_b",
+	"battleforazeroth\\mus_81_kultiran_battle_3_c",
+	"battleforazeroth\\mus_81_kultiran_battle_3_d",
+	"battleforazeroth\\mus_81_kultiran_battle_3_h",
+	"battleforazeroth\\mus_81_nightwarrior_a",
+	"battleforazeroth\\mus_81_nightwarrior_b",
+	"battleforazeroth\\mus_81_nightwarrior_c",
+	"battleforazeroth\\mus_81_nightwarrior_d",
+	"battleforazeroth\\mus_81_nightwarrior_e",
+	"battleforazeroth\\mus_81_nightwarrior_f",
+	"battleforazeroth\\mus_81_nightwarrior_g",
+	"battleforazeroth\\mus_81_nightwarrior_h",
+	"battleforazeroth\\mus_81_nightwarrior_i",
+	"battleforazeroth\\mus_81_nightwarrior_j",
+	"battleforazeroth\\mus_81_nightwarrior_victorystinger",
+	"battleforazeroth\\mus_81_rtc_dre",
+	"battleforazeroth\\mus_81_rtc_wsw",
+	"battleforazeroth\\mus_81_zandalarforever_a",
+	"battleforazeroth\\mus_81_zandalarforever_b",
+	"battleforazeroth\\mus_81_zandalarforever_c",
+	"battleforazeroth\\mus_81_zandalarforever_d",
+	"battleforazeroth\\mus_81_zandalarforever_e",
+	"battleforazeroth\\mus_81_zandalarforever_f",
+	"battleforazeroth\\mus_81_zandalarforever_g",
+	"battleforazeroth\\mus_81_zandalarforever_h",
+	"battleforazeroth\\mus_81_zandalarforever_i",
+	"battleforazeroth\\mus_81_zandalarforever_j",
+	"battleforazeroth\\mus_815_crucibleofstorms_1_a",
+	"battleforazeroth\\mus_815_crucibleofstorms_1_b",
+	"battleforazeroth\\mus_815_crucibleofstorms_1_c",
+	"battleforazeroth\\mus_815_crucibleofstorms_1_d",
+	"battleforazeroth\\mus_815_kultiranhuman_1_a",
+	"battleforazeroth\\mus_815_kultiranhuman_1_b",
+	"battleforazeroth\\mus_815_kultiranhuman_1_c",
+	"battleforazeroth\\mus_815_kultiranhuman_1_d",
+	"battleforazeroth\\mus_815_kultiranhuman_1_e",
+	"battleforazeroth\\mus_815_kultiranhuman_1_h",
+	"battleforazeroth\\mus_815_kultiranhuman_2_a",
+	"battleforazeroth\\mus_815_kultiranhuman_2_b",
+	"battleforazeroth\\mus_815_kultiranhuman_2_c",
+	"battleforazeroth\\mus_815_kultiranhuman_2_d",
+	"battleforazeroth\\mus_815_kultiranhuman_2_e",
+	"battleforazeroth\\mus_815_kultiranhuman_2_h",
+	"battleforazeroth\\mus_815_zandalaritroll_1_a",
+	"battleforazeroth\\mus_815_zandalaritroll_1_b",
+	"battleforazeroth\\mus_815_zandalaritroll_1_c",
+	"battleforazeroth\\mus_815_zandalaritroll_2_a",
+	"battleforazeroth\\mus_815_zandalaritroll_2_b",
+	"battleforazeroth\\mus_815_zandalaritroll_2_c",
+	"battleforazeroth\\mus_815_zandalaritroll_3_a",
+	"battleforazeroth\\mus_815_zandalaritroll_3_b",
+	"battleforazeroth\\mus_815_zandalaritroll_3_c",
+	"battleforazeroth\\mus_815_zandalaritroll_4_a",
+	"battleforazeroth\\mus_815_zandalaritroll_4_b",
+	"battleforazeroth\\mus_815_zandalaritroll_4_c",
+	"battleforazeroth\\mus_815_arathibasin_1_h",
+	"battleforazeroth\\mus_815_warsonggulch_1_h",
+	"battleforazeroth\\mus_815_rtc_ark",
+	"battleforazeroth\\mus_815_rtc_hir",
+	"battleforazeroth\\mus_815_rtc_ron",
+	"battleforazeroth\\mus_815_rtc_umm",
+	"battleforazeroth\\mus_815_rtc_zdb",
+	"battleforazeroth\\mus_815_rtc_arz",
 	"cataclysm\\mus_41_faeriedragon_ue01",
 	"cataclysm\\mus_41_za_altarbloodgod_uu01",
 	"cataclysm\\mus_41_za_altarbloodgod_uu02",
@@ -1716,9 +1809,6 @@ local musicList = {
 	"legion\\mus_73_seatofthepantheon_c",
 	"legion\\mus_73_xera_a",
 	"legion\\mus_73_xera_h",
-	"mus_soundtest_music01",
-	"mus_soundtest_music02",
-	"mus_soundtest_music03",
 	"musical moments\\angelic\\angelic01",
 	"musical moments\\battle\\battle01",
 	"musical moments\\battle\\battle02",
