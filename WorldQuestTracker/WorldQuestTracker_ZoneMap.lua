@@ -522,7 +522,6 @@ function WorldQuestTracker.UpdateZoneWidgets (forceUpdate)
 	
 	WorldQuestTracker.UpdateRareIcons (mapID)
 	
-	-- or (mapID ~= WorldQuestTracker.LastMapID and not WorldQuestTracker.IsArgusZone (mapID)) -- 8.0 removed
 	if (WorldQuestTracker.IsWorldQuestHub (mapID)) then
 		return WorldQuestTracker.HideZoneWidgets()
 	
@@ -567,7 +566,7 @@ function WorldQuestTracker.UpdateZoneWidgets (forceUpdate)
 	wipe (WorldQuestTracker.Cache_ShownQuestOnZoneMap)
 	wipe (WorldQuestTracker.Cache_ShownWidgetsOnZoneMap)
 	
-	local total_Gold, total_Resources, total_APower = 0, 0, 0
+	local total_Gold, total_Resources, total_APower, total_Pet = 0, 0, 0, 0
 	local scale = WorldQuestTracker.db.profile.zone_map_config.scale
 	
 	local questFailed = false
@@ -630,6 +629,10 @@ function WorldQuestTracker.UpdateZoneWidgets (forceUpdate)
 						if (not passFilter) then
 							if (rarity == LE_WORLD_QUEST_QUALITY_EPIC) then
 								passFilter = true
+								
+							elseif (worldQuestType == LE_QUEST_TAG_TYPE_FACTION_ASSAULT) then 
+								passFilter = true
+								
 							elseif (WorldQuestTracker.db.profile.filter_always_show_faction_objectives) then
 								local isCriteria = IsQuestCriteriaForBounty (questID, bountyQuestId)
 
@@ -645,7 +648,7 @@ function WorldQuestTracker.UpdateZoneWidgets (forceUpdate)
 						end
 
 						--todo: broken shore is outdated, as well as argus
-						if (passFilter or (forceShowBrokenShore and WorldQuestTracker.IsArgusZone (mapID))) then
+						if (passFilter or (forceShowBrokenShore and WorldQuestTracker.IsNewEXPZone (mapID))) then
 							local widget = WorldQuestTracker.GetOrCreateZoneWidget (index)
 							
 							if (widget.questID ~= questID or forceUpdate or not widget.Texture:GetTexture()) then
@@ -656,6 +659,10 @@ function WorldQuestTracker.UpdateZoneWidgets (forceUpdate)
 								
 								local isSpellTarget = SpellCanTargetQuest() and IsQuestIDValidSpellTarget (questID)
 								
+								if (worldQuestType == LE_QUEST_TAG_TYPE_PET_BATTLE) then
+									total_Pet = total_Pet + 1
+								end
+							
 								widget.mapID = mapID
 								widget.questID = questID
 								widget.numObjectives = info.numObjectives
@@ -852,6 +859,8 @@ function WorldQuestTracker.UpdateZoneWidgets (forceUpdate)
 		end
 		
 		WorldQuestTracker.WorldMap_APowerIndicator.Amount = total_APower
+		
+		WorldQuestTracker.WorldMap_PetIndicator.text = total_Pet
 	end
 	
 	WorldQuestTracker.UpdateZoneSummaryFrame()
@@ -1008,6 +1017,7 @@ function WorldQuestTracker.SetupWorldQuestButton (self, worldQuestType, rarity, 
 			self.questTypeBlip:SetTexture (WorldQuestTracker.MapData.QuestTypeIcons [WQT_QUESTTYPE_PETBATTLE].icon)
 			self.questTypeBlip:SetTexCoord (unpack (WorldQuestTracker.MapData.QuestTypeIcons [WQT_QUESTTYPE_PETBATTLE].coords))
 			self.questTypeBlip:SetAlpha (1)
+			self.QuestType = QUESTTYPE_PET
 			
 		elseif (worldQuestType == LE_QUEST_TAG_TYPE_PROFESSION) then
 			
@@ -1016,7 +1026,7 @@ function WorldQuestTracker.SetupWorldQuestButton (self, worldQuestType, rarity, 
 		else
 			self.questTypeBlip:Hide()
 		end
-		
+
 		-- tempo restante
 		local timeLeft = WorldQuestTracker.GetQuest_TimeLeft (questID)
 		if (timeLeft < 1) then
@@ -1148,6 +1158,10 @@ function WorldQuestTracker.SetupWorldQuestButton (self, worldQuestType, rarity, 
 				okay = true
 			end
 			
+			if (worldQuestType == LE_QUEST_TAG_TYPE_PET_BATTLE) then
+				self.QuestType = QUESTTYPE_PET
+			end
+
 			if (not okay) then
 				if (UpdateDebug) then print ("NeedUpdate 4") end
 				WorldQuestTracker.ScheduleZoneMapUpdate()
@@ -1664,21 +1678,27 @@ if (bountyBoard) then
 			
 			local numCompleted, numTotal = self:CalculateBountySubObjectives (bounty)
 			
-			if (numCompleted) then
-				bountyButton.objectiveCompletedText:SetText (numCompleted .. "/" .. numTotal)
-				bountyButton.objectiveCompletedText:SetAlpha (.92)
-				bountyButton.objectiveCompletedBackground:SetAlpha (.4)
-				
-				if (not bountyButton.objectiveCompletedText:IsShown()) then
-					bountyButton.objectiveCompletedAnimation:Play()
+			if (WorldQuestTracker.db.profile.show_emissary_info) then
+				if (numCompleted) then
+					bountyButton.objectiveCompletedText:SetText (numCompleted .. "/" .. numTotal)
+					bountyButton.objectiveCompletedText:SetAlpha (.92)
+					bountyButton.objectiveCompletedBackground:SetAlpha (.4)
+					
+					if (not bountyButton.objectiveCompletedText:IsShown()) then
+						bountyButton.objectiveCompletedAnimation:Play()
+					end
+				else
+					bountyButton.objectiveCompletedText:SetText ("")
+					bountyButton.objectiveCompletedBackground:SetAlpha (0)
 				end
 			else
 				bountyButton.objectiveCompletedText:SetText ("")
 				bountyButton.objectiveCompletedBackground:SetAlpha (0)
 			end
 			
+			
 			local bountyQuestID = bounty.questID
-			if (bountyQuestID and HaveQuestData (bountyQuestID)) then
+			if (bountyQuestID and HaveQuestData (bountyQuestID) and WorldQuestTracker.db.profile.show_emissary_info) then
 				local questIndex = GetQuestLogIndexByID (bountyQuestID)
 				local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle (questIndex)
 			
@@ -1737,6 +1757,9 @@ if (bountyBoard) then
 					end
 
 				end
+			else
+				bountyButton.timeLeftText:SetText ("")
+				--bountyButton.Icon:SetTexture (nil)
 			end
 			
 			bountyButton.lastUpdateByWQT = GetTime()

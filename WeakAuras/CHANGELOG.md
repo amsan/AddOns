@@ -1,30 +1,23 @@
-# [2.6.6](https://github.com/WeakAuras/WeakAuras2/tree/2.6.6) (2018-07-30)
+# [2.15.5](https://github.com/WeakAuras/WeakAuras2/tree/2.15.5) (2019-10-22)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/2.6.5...2.6.6)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/2.15.4...2.15.5)
 
-Benjamin Staneck (4):
+## Highlights
 
-- remove multistrike combatlog event
-- Update bug_report.md
-- Update ISSUE_TEMPLATE.md
-- change translation string
+ - A few more bug fixes 
 
-Buds (1):
+## Commits
 
-- BuffTrigger: Add a buffed/unbuffed condition
+Stanzilla (1):
 
-Infus (12):
+- drop branch name from PR artifacts
 
-- Fix error on loading if trigger[name] is nil
-- Use better names for Power Types for Templates
-- Equipment Set Trigger: Use C_EquipmentSet.GetEquipmentSetIDs
-- Global Conditions: Fix Unload
-- Fix the author line of WeakAurasTemplates
-- Fix bugs in Global Conditions
-- Global Conditions: Move some code to WeakAuras.lua
-- Fix naming
-- Add a alpha option to Icons/Textures
-- Add a dynamic condition for "IsUsableSpell"
-- Global Conditions: In Combat, Has Target
-- Fix Rename/Delete and custom condition functions
+Vardex (1):
+
+- Fix weapon enchant shortened name
+
+mrbuds (2):
+
+- swing timer: fix nil error if no offhand equiped
+- update "Cooldown Progress (Equipment Slot)" for handling amno fixes #1762 refresh on UNIT_INVENTORY_CHANGED add a stacksFunc
 

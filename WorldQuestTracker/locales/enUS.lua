@@ -87,13 +87,7 @@ L["S_MAPBAR_SORTORDER_TIMELEFTPRIORITY_OPTION"] = "Less Than %d Hours"
 L["S_MAPBAR_SORTORDER_TIMELEFTPRIORITY_SHOWTEXT"] = "Time Left Text"
 L["S_MAPBAR_SORTORDER_TIMELEFTPRIORITY_SORTBYTIME"] = "Sort by Time"
 L["S_MAPBAR_SORTORDER_TIMELEFTPRIORITY_TITLE"] = "Time Left"
-L["S_MAPBAR_SUMMARY"] = "Summary"
 L["S_MAPBAR_SUMMARYMENU_ACCOUNTWIDE"] = "Account Wide"
-L["S_MAPBAR_SUMMARYMENU_MOREINFO"] = "Click for more info"
-L["S_MAPBAR_SUMMARYMENU_NOATTENTION"] = [=[No quest being tracked on your other
-characters has less than 2 hours left!]=]
-L["S_MAPBAR_SUMMARYMENU_REQUIREATTENTION"] = "Require Attention"
-L["S_MAPBAR_SUMMARYMENU_TODAYREWARDS"] = "Today's Rewards"
 L["S_OPTIONS_ACCESSIBILITY"] = "Accessibility"
 L["S_OPTIONS_ACCESSIBILITY_EXTRATRACKERMARK"] = "Extra Tracker Mark"
 L["S_OPTIONS_ACCESSIBILITY_SHOWBOUNTYRING"] = "Show Bounty Ring"
@@ -150,6 +144,7 @@ L["S_SUMMARYPANEL_OTHERCHARACTERS"] = "Other Characters"
 L["S_TUTORIAL_AMOUNT"] = "indicates the amount to receive"
 L["S_TUTORIAL_CLICKTOTRACK"] = "Click to track a quest."
 L["S_TUTORIAL_PARTY"] = "When in party, a blue star is shown on quests that all party members have!"
+L["S_TUTORIAL_STATISTICS_BUTTON"] = "Click here to see statistics and a saved list of quests on other characters."
 L["S_TUTORIAL_TIMELEFT"] = "indicates the time left (+4 hours, +90 minutes, +30 minutes, less than 30 minutes)"
 L["S_TUTORIAL_WORLDBUTTONS"] = [=[Click here to cycle among three types of summaries:
 
@@ -160,6 +155,7 @@ L["S_TUTORIAL_WORLDBUTTONS"] = [=[Click here to cycle among three types of summa
 Click |cFFFFAA11Toggle Quests|r to hide quest locations.]=]
 L["S_TUTORIAL_WORLDMAPBUTTON"] = "This button brings to you the Broken Isles map."
 L["S_UNKNOWNQUEST"] = "Unknown Quest"
+L["S_WHATSNEW"] = "What's New?"
 L["S_WORLDBUTTONS_SHOW_NONE"] = "Hide Summary"
 L["S_WORLDBUTTONS_SHOW_TYPE"] = "Show Summary"
 L["S_WORLDBUTTONS_SHOW_ZONE"] = "Order by Zone"

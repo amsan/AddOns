@@ -49,16 +49,13 @@ local assert, tostring, wipe, pairs, tinsert = assert, tostring, wipe, pairs, ti
 local registerMenu, selectMenu = TRP3_API.navigation.menu.registerMenu, TRP3_API.navigation.menu.selectMenu;
 local registerPage, setPage = TRP3_API.navigation.page.registerPage, TRP3_API.navigation.page.setPage;
 local getCurrentContext, getCurrentPageID = TRP3_API.navigation.page.getCurrentContext, TRP3_API.navigation.page.getCurrentPageID;
-local showCharacteristicsTab, showAboutTab, showMiscTab, showScoreTab;
+local showCharacteristicsTab, showAboutTab, showMiscTab, showNotesTab;
 local get = TRP3_API.profile.getData;
 local type = type;
 local showAlertPopup = TRP3_API.popup.showAlertPopup;
 
 -- Saved variables references
 local profiles, characters;
-
-local currentDate = date("*t");
-local seriousDay = currentDate.month == 4 and currentDate.day == 1;
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 -- SCHEMA
@@ -68,7 +65,7 @@ TRP3_API.register.registerInfoTypes = {
 	CHARACTERISTICS = "characteristics",
 	ABOUT = "about",
 	MISC = "misc",
-	SCORE = "score",
+	NOTES = "notes",
 	CHARACTER = "character",
 }
 
@@ -244,9 +241,12 @@ function TRP3_API.register.saveCurrentProfileID(unitID, currentProfileID, isMSP)
 	local oldProfileID = character.profileID;
 	character.profileID = currentProfileID;
 	-- Search if this character was bounded to another profile
-	for _, profile in pairs(profiles) do
+	for profileID, profile in pairs(profiles) do
 		if profile.link and profile.link[unitID] then
 			profile.link[unitID] = nil; -- unbound
+			if profile.msp then
+				profiles[profileID] = nil;
+			end
 		end
 	end
 	if not profileExists(unitID) then
@@ -263,13 +263,14 @@ function TRP3_API.register.saveCurrentProfileID(unitID, currentProfileID, isMSP)
 end
 
 --- Raises error if unknown unitName
-function TRP3_API.register.saveClientInformation(unitID, client, clientVersion, msp, extended, trialAccount)
+function TRP3_API.register.saveClientInformation(unitID, client, clientVersion, msp, extended, trialAccount, extendedVersion)
 	local character = getUnitIDCharacter(unitID);
 	character.client = client;
 	character.clientVersion = clientVersion;
 	character.msp = msp;
 	character.extended = extended;
 	character.isTrial = trialAccount;
+	character.extendedVersion = extendedVersion
 end
 
 --- Raises error if unknown unitName
@@ -452,8 +453,8 @@ local function onInformationUpdated(profileID, infoType)
 				showCharacteristicsTab();
 			elseif infoType == registerInfoTypes.MISC and tabGroup.current == 3 then
 				showMiscTab();
-			elseif infoType == registerInfoTypes.SCORE and tabGroup.current == 4 then
-				showScoreTab();
+			elseif infoType == registerInfoTypes.NOTES and tabGroup.current == 4 then
+				showNotesTab();
 			end
 		end
 	end
@@ -475,7 +476,7 @@ end
 
 local function createTabBar()
 	local frame = CreateFrame("Frame", "TRP3_RegisterMainTabBar", TRP3_RegisterMain);
-	frame:SetSize(470, 30);
+	frame:SetSize(485, 30);
 	frame:SetPoint("TOPLEFT", 17, 0);
 	frame:SetFrameLevel(1);
 	tabGroup = TRP3_API.ui.frame.createTabPanel(frame,
@@ -483,14 +484,14 @@ local function createTabBar()
 			{ loc.REG_PLAYER_CARACT, 1, 150 },
 			{ loc.REG_PLAYER_ABOUT, 2, 110 },
 			{ loc.REG_PLAYER_PEEK, 3, 130 },
-			TRP3_API.register.showRPIO() and { "RP.IO", 4, 70 } or nil
+			{ loc.REG_PLAYER_NOTES, 4, 85 }
 		},
 		function(_, value)
 			-- Clear all
 			TRP3_RegisterCharact:Hide();
 			TRP3_RegisterAbout:Hide();
 			TRP3_RegisterMisc:Hide();
-			TRP3_RegisterScore:Hide();
+			TRP3_RegisterNotes:Hide();
 			if value == 1 then
 				showCharacteristicsTab();
 			elseif value == 2 then
@@ -498,7 +499,7 @@ local function createTabBar()
 			elseif value == 3 then
 				showMiscTab();
 			elseif value == 4 then
-				showScoreTab();
+				showNotesTab();
 			end
 			TRP3_API.events.fireEvent(TRP3_API.events.NAVIGATION_TUTORIAL_REFRESH, "player_main");
 		end,
@@ -530,7 +531,7 @@ function TRP3_API.register.ui.isTabSelected(infoType)
 	return (infoType == registerInfoTypes.CHARACTERISTICS and tabGroup.current == 1)
 		or (infoType == registerInfoTypes.ABOUT and tabGroup.current == 2)
 		or (infoType == registerInfoTypes.MISC and tabGroup.current == 3)
-		or (infoType == registerInfoTypes.SCORE and tabGroup.current == 4);
+		or (infoType == registerInfoTypes.NOTES and tabGroup.current == 4);
 end
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -602,21 +603,31 @@ local function cleanupProfiles()
 		end
 	end
 
+	log("Purging unbound MSP profiles")
+	for profileID, profile in pairs(profiles) do
+		if profile.msp and Ellyb.Tables.isEmpty(profile.link) then
+			deleteProfile(profileID, true);
+		end
+	end
+
 	if type(getConfigValue("register_auto_purge_mode")) ~= "number" then
 		return ;
 	end
 	log(("Purging profiles older than %s day(s)"):format(getConfigValue("register_auto_purge_mode") / 86400));
-	-- First, get a tab with all profileID with which we have a relation
-	local relatedProfileIDs = {};
+	-- First, get a tab with all profileID with which we have a relation or on which we have notes
+	local protectedProfileIDs = {};
 	for _, profile in pairs(TRP3_API.profile.getProfiles()) do
 		for profileID, _ in pairs(profile.relation or {}) do
-			relatedProfileIDs[profileID] = true;
+			protectedProfileIDs[profileID] = true;
+		end
+		for profileID, _ in pairs(profile.notes or {}) do
+			protectedProfileIDs[profileID] = true;
 		end
 	end
-	log("Protected profiles: " .. tsize(relatedProfileIDs));
+	log("Protected profiles: " .. tsize(protectedProfileIDs));
 	local profilesToPurge = {};
 	for profileID, profile in pairs(profiles) do
-		if not relatedProfileIDs[profileID] and (not profile.time or time() - profile.time > getConfigValue("register_auto_purge_mode")) then
+		if not protectedProfileIDs[profileID] and (not profile.time or time() - profile.time > getConfigValue("register_auto_purge_mode")) then
 			tinsert(profilesToPurge, profileID);
 		end
 	end
@@ -654,7 +665,7 @@ function TRP3_API.register.init()
 	showCharacteristicsTab = TRP3_API.register.ui.showCharacteristicsTab;
 	showAboutTab = TRP3_API.register.ui.showAboutTab;
 	showMiscTab = TRP3_API.register.ui.showMiscTab;
-	showScoreTab = TRP3_API.register.ui.showScoreTab;
+	showNotesTab = TRP3_API.register.ui.showNotesTab;
 
 	-- Init save variables
 	if not TRP3_Register then
@@ -755,24 +766,13 @@ function TRP3_API.register.init()
 		Config.registerConfigurationPage(TRP3_API.register.CONFIG_STRUCTURE);
 	end);
 
-	if seriousDay then
-		registerConfigKey("rp_io", true);
-		tinsert(TRP3_API.register.CONFIG_STRUCTURE.elements,
-			{
-				inherit = "TRP3_ConfigCheck",
-				title = "RP.IO",
-				configKey = "rp_io",
-			});
-	end
-
 	-- Initialization
 	TRP3_API.register.inits.characteristicsInit();
 	TRP3_API.register.inits.aboutInit();
 	TRP3_API.register.inits.glanceInit();
 	TRP3_API.register.inits.miscInit();
-	if TRP3_API.register.showRPIO() then
-		TRP3_API.register.inits.scoreInit();
-	end
+	TRP3_API.register.inits.notesInit();
+
 	TRP3_API.register.inits.dataExchangeInit();
 	wipe(TRP3_API.register.inits);
 	TRP3_API.register.inits = nil; -- Prevent init function to be called again, and free them from memory
@@ -780,15 +780,15 @@ function TRP3_API.register.init()
 	TRP3_ProfileReportButton:SetScript("OnClick", function()
 		local context = TRP3_API.navigation.page.getCurrentContext();
 		local characterID = getFirstCharacterIDFromProfile(context.profile) or UNKNOWN;
-		Ellyb.Popups:OpenURL("https://battle.net/support/help/product/wow/197/1501/solution", loc.REG_REPORT_PLAYER_OPEN_URL:format(characterID));
+		local reportText = loc.REG_REPORT_PLAYER_OPEN_URL_160:format(characterID);
+		if context.profile.time then
+			local DATE_FORMAT = "%Y-%m-%d around %H:%M";
+			reportText = reportText .. "\n\n" .. loc.REG_REPORT_PLAYER_TEMPLATE_DATE:format(date(DATE_FORMAT, context.profile.time));
+		end
+		Ellyb.Popups:OpenURL("https://battle.net/support/help/product/wow/197/1501/solution", reportText);
 	end)
 
 	Ellyb.Tooltips.getTooltip(TRP3_ProfileReportButton):SetTitle(loc.REG_REPORT_PLAYER_PROFILE)
 
 	createTabBar();
 end
-
-local function showRPIO()
-	return seriousDay and getConfigValue("rp_io");
-end
-TRP3_API.register.showRPIO = showRPIO;

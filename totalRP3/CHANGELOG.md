@@ -1,76 +1,72 @@
-# Changelog version 1.5.4
-
-## Added
-
-- Added a relationship status dropdown in the Characteristics tab to display (if you wish) if your character is in a relationship. **This is unrelated to the relationship update planned at a later date.**
-- Added compatibility with the MSP protocol to share trial flag and music theme with other RP addons users.
-- Added new default icons for Kul Tirans and Zandalaris (sorry KT females, couldn't find a better icon).
-- Added 2 images, 36 musics and 46 icons from patch 8.1.5.
+# Changelog version 1.6.7.1
 
 ## Fixed
 
-- Fixed an issue with map scans tooltips not working properly.
-- Fixed a bug occuring when scrolling down the music list if it passed over specific invalid musics.
-- Fixed an issue that would stop displaying a profile using template 3 halfway through.
-- Fixed an issue that would create duplicate profiles in the directory.
-- Fixed an issue that would not reload a profile coming from MSP properly after deleting it from the register.
+- Fixed an issue with profiles not transmitting through Battle.net since 8.2.5 release. (Thanks for the useless wrapper, Blizzard.)
 
-# Changelog version 1.5.3
+## Changed
 
-## Added
+- Updated logo artist credit (Kelandiir).
 
-- Added 562 icons, 51 images and 56 musics to Total RP 3's resources browsers for patch 8.1.
-
-## Fixed
-
-- Fixed a Lua error that could sometimes appear when trying to request data from one of your Battle.net friends while your Battle.net status is set to appear offline.
-
-# Changelog version 1.5.2
-
-- Fixed invalid game version check on login. We cannot properly check the game build number in the current 8.1 build.
-
-# Changelog version 1.5.1
-
-## Fixed
-
-- Fixed an issue that would make users still send their map location when the option to not send it when your roleplaying status is set to "Out of character" was enabled and they were indeed "Out of character".
-- Fixed an issue that would prevent the `/trp3 roll` command to work properly when in a group or a raid.
-- Other players' characters information without a profile attached to them are now correctly purged on startup to avoid storing them indefinitely.
-- Profiles received from links are now correctly applied a "Last seen" timestamp so they are correctly treated by the automatic directory purge instead of being always deleted because of the lack of timestamp.
-- The add-on will now warn you with a different message than the regular one if you are several versions behind and are at risk of issues because of that.
-- The advanced settings would not get the user selected localization applied to their texts.
-- Fixed issues related to upcoming API changes in patch 8.1.
-
-# Changelog version 1.5.0
-
-## Re-implemented map scans feature
-
-You can now once again scan for Total RP 3 users on the world map.
-
-![Location of players in a different War Mode](https://totalrp3.info/documentation/changelogs/1_5_0_location_war_mode.PNG)
-
-- Added support for War Mode. Players that are not in the same War Mode as you will not appear on the world map by default.
-- In the Location settings (Register settings tab) you can enable the option to show people who are in a different War Mode, they will appear greyed out and semi-transparent on the world map, and will be grouped separately when displayed in the tooltip.
-- You can opt in to not be visible to other players while you are in War Mode.
-- Map scans now differentiate between levels of a same zone (like Dalaran), and setting your home to a specific level of map will now correctly show on that level when users click on the home button on your profile.
-
-Please note: Only players with Total RP 3 version 1.5.0 and above will show up. Total RP 3: Extended's scans will be updated to work with this new system.
-
-## Profile reporting
-
-Since patch 8.0.1 you are able to report profiles that violate Blizzard's Terms of Service by opening a support ticket.
-
-- Following Blizzard's guidance, you can now report a player who has a profile that goes against the Code of Conduct via Total RP 3's target frame. A standard game report window will open pre-filled with information about the player you are reporting.
-
-![The target frame report button](https://totalrp3.info/documentation/changelogs/1_5_0_report_target_button.png)
-
-![Prefilled message when reporting a player](https://totalrp3.info/documentation/changelogs/1_5_0_report_window.PNG)
-
-- Since it is not technically possible to report a player you cannot target, we have added a button to the profile page when opening a profile that opens up a link to a Blizzard support page on how to report add-on text.
-
-![The profile page report button](https://totalrp3.info/documentation/changelogs/1_5_0_report_profile_button.PNG)
+# Changelog version 1.6.7
 
 ## Added
 
-- Added a workaround against a current game bug that will always reset the language currently selected after a loading screen. You can disable this workaround in case of issues in the advanced settings.
-- Added a workaround to make sure Total RP 3's broadcast channel (xtensionxtooltip2) is always at the bottom of the channel list. This should fix issues where it would be the first channel and move all other channels you have joined down in the list. You can disable this workaround in case of issues in the advanced settings.
+- Added a setting to detect speech in emotes and automatically color it.
+![Speech detection](https://i.imgur.com/qpw46yg.png)
+- Added 7 icons and 1 music from patch 8.2.5.
+
+## Changed
+
+- The companion profiles list accessed through the target frame is now alphabetically sorted, and "Create new profile" has been moved out of it.
+
+# Changelog version 1.6.6
+
+## Added
+
+- Added slash commands to change your roleplay status, which you can use in macros. You can now use `/trp3 status ic` to get in character, `/trp3 status ooc` to get out of character, or `/trp3 status toggle` to switch status.
+- Added a chat setting to display the OOC indicator next to the name in chat.
+- Added a setting to hide the map scan button if no scan is available.
+- Added a roleplay language field to the main dashboard.
+  - This setting is profile-based, defaults to your addon language, and allows you to indicate the language you're roleplaying in.
+  - If your addon language doesn't match a player's roleplaying language, you'll see a flag at the bottom of their tooltip indicating their roleplaying language.
+  - This change is mainly aimed at Classic roleplayers, as only English RP realms were made.
+- Added back buttons to toggle helmet and cloak display for Classic.
+
+## Changed
+
+- Renamed the war mode setting to PvP mode for Classic.
+
+## Fixed
+
+- Fixed issues when the target bar module was disabled.
+- Fixed an issue causing duplicate Mary-Sue Protocol profiles to appear in the register when unchecking "This realm only".
+- Fixed a few remaining missing icons for Classic (default template 3 icons and `/trp3 roll` icons)
+- Fixed an issue when using the "Right-click to open profile" setting on Classic.
+
+# Changelog version 1.6.5
+
+## Added
+
+- Added Total RP 3: Extended version number alongside Total RP 3 version number at the bottom of the tooltip.
+
+## Fixed
+
+- Fixed an error when someone executes a scan in your zone. (Classic only)
+- Fixed a potential error when saving a glance slot.
+
+# Changelog version 1.6.4
+
+We are aware of a current issue on Retail causing **quest item usage from the objective tracker** to sometimes fail. While we do not have a fix for it just yet, **typing /reload after getting the error message** temporarily fixes the issue. Sorry for the inconvenience.
+
+## WoW: Classic support
+
+- Total RP 3: Classic is now available as a separate download on CurseForge and WoWInterface! Be sure to install it instead of the retail version of Total RP 3 if you plan on roleplaying in WoW: Classic.
+- Important points to be aware of for the Classic version:
+  - A few icons have been changed across the addon to replace missing icons in Classic.
+  - Companion profiles have been disabled for mounts and non-combat pets, as Blizzard did not provide us with beta access. We will work on implementing them back as soon as possible.
+  - Total RP 3: Extended will not be ported to Classic at launch. We will be evaluating if a Classic port makes sense for us to do at a later date.
+
+## Changed
+
+- When using the character map scan, characters with which you have set a relationship will now appear on top of the others.

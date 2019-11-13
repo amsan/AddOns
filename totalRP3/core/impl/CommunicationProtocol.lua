@@ -181,7 +181,16 @@ local function onIncrementalMessageReceived(_, data, _, sender, _, _, _, _, _, _
 		local messageToken = extractMessageTokenFromData(data);
 		internalMessageIDToChompSessionIDMatching[sessionID] = messageToken;
 	end
-	subSystemsOnProgressDispatcher:TriggerEvent(internalMessageIDToChompSessionIDMatching[sessionID], sender, msgTotal, msgID);
+
+	local event = internalMessageIDToChompSessionIDMatching[sessionID];
+	if not event then
+		-- This can be the case if a message is received out-of-order (unlikely!) or
+		-- if the first part of a multipart message we receive is after the first part,
+		-- for example due to us logging in or changing zones or whatever.
+		return;
+	end
+
+	subSystemsOnProgressDispatcher:TriggerEvent(event, sender, msgTotal, msgID);
 end
 PROTOCOL_SETTINGS.rawCallback = onIncrementalMessageReceived;
 
@@ -336,5 +345,3 @@ TRP3_API.communication.addMessageIDHandler = function(sender, reservedMessageID,
 end
 
 Ellyb.DeprecationWarnings.wrapAPI(AddOn_TotalRP3.Communications, "TRP3_API.communication", "AddOn_TotalRP3.Communications", TRP3_API.communication);
-
-

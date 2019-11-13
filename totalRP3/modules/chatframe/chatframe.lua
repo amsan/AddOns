@@ -64,11 +64,14 @@ local CONFIG_USAGE = "chat_use_";
 local CONFIG_OOC = "chat_ooc";
 local CONFIG_OOC_PATTERN = "chat_ooc_pattern";
 local CONFIG_OOC_COLOR = "chat_ooc_color";
+local CONFIG_SPEECH = "chat_speech";
 local CONFIG_YELL_NO_EMOTE = "chat_yell_no_emote";
 local CONFIG_INSERT_FULL_RP_NAME = "chat_insert_full_rp_name";
-local CONFIG_INCREASE_CONTRAST = "chat_color_contrast";
 local CONFIG_SHOW_ICON = "chat_show_icon";
+local CONFIG_SHOW_OOC = "chat_show_ooc";
 local CONFIG_NPCSPEECH_REPLACEMENT = "chat_npcspeech_replacement";
+
+local OOC_INDICATOR_TEXT = ColorManager.RED("<" .. loc.CM_OOC .. "> ");
 
 local function configNoYelledEmote()
 	return getConfigValue(CONFIG_YELL_NO_EMOTE);
@@ -88,10 +91,8 @@ local function configShowNameCustomColors()
 end
 TRP3_API.chat.configShowNameCustomColors = configShowNameCustomColors;
 
-local function configIncreaseNameColorContrast()
-	return getConfigValue(CONFIG_INCREASE_CONTRAST);
-end
-TRP3_API.chat.configIncreaseNameColorContrast = configIncreaseNameColorContrast;
+---@deprecated
+TRP3_API.chat.configIncreaseNameColorContrast = TRP3_API.Ellyb.DeprecationWarnings.wrapFunction(AddOn_TotalRP3.Configuration.shouldDisplayIncreasedColorContrast, "TRP3_API.chat.configIncreaseNameColorContrast", "AddOn_TotalRP3.Configuration.shouldDisplayIncreasedColorContrast");
 
 local function configIsChannelUsed(channel)
 	return getConfigValue(CONFIG_USAGE .. channel);
@@ -127,6 +128,10 @@ local function configOOCDetectionColor()
 	return Color(getConfigValue(CONFIG_OOC_COLOR));
 end
 
+local function configDoSpeechDetection()
+	return getConfigValue(CONFIG_SPEECH);
+end
+
 local function configInsertFullRPName()
 	return getConfigValue(CONFIG_INSERT_FULL_RP_NAME);
 end
@@ -137,15 +142,16 @@ local function createConfigPage()
 	registerConfigKey(CONFIG_DISABLE_OOC, false);
 	registerConfigKey(CONFIG_REMOVE_REALM, true);
 	registerConfigKey(CONFIG_NAME_COLOR, true);
-	registerConfigKey(CONFIG_INCREASE_CONTRAST, false);
 	registerConfigKey(CONFIG_EMOTE, true);
 	registerConfigKey(CONFIG_EMOTE_PATTERN, "(%*.-%*)");
 	registerConfigKey(CONFIG_OOC, true);
 	registerConfigKey(CONFIG_OOC_PATTERN, "(%(.-%))");
 	registerConfigKey(CONFIG_OOC_COLOR, "aaaaaa");
+	registerConfigKey(CONFIG_SPEECH, true);
 	registerConfigKey(CONFIG_YELL_NO_EMOTE, false);
 	registerConfigKey(CONFIG_INSERT_FULL_RP_NAME, true);
 	registerConfigKey(CONFIG_SHOW_ICON, false);
+	registerConfigKey(CONFIG_SHOW_OOC, false);
 	registerConfigKey(CONFIG_NPCSPEECH_REPLACEMENT, true);
 
 	local NAMING_METHOD_TAB = {
@@ -210,14 +216,13 @@ local function createConfigPage()
 			},
 			{
 				inherit = "TRP3_ConfigCheck",
-				title = loc.CO_CHAT_INCREASE_CONTRAST,
-				configKey = CONFIG_INCREASE_CONTRAST,
-				dependentOnOptions = { CONFIG_NAME_COLOR },
+				title = loc.CO_CHAT_USE_ICONS,
+				configKey = CONFIG_SHOW_ICON,
 			},
 			{
 				inherit = "TRP3_ConfigCheck",
-				title = loc.CO_CHAT_USE_ICONS,
-				configKey = CONFIG_SHOW_ICON,
+				title = loc.CO_CHAT_SHOW_OOC,
+				configKey = CONFIG_SHOW_OOC,
 			},
 			{
 				inherit = "TRP3_ConfigCheck",
@@ -272,6 +277,16 @@ local function createConfigPage()
 				title = loc.CO_CHAT_MAIN_OOC_COLOR,
 				configKey = CONFIG_OOC_COLOR,
 				dependentOnOptions = { CONFIG_OOC },
+			},
+			{
+				inherit = "TRP3_ConfigH1",
+				title = loc.CO_CHAT_MAIN_SPEECH,
+			},
+			{
+				inherit = "TRP3_ConfigCheck",
+				title = loc.CO_CHAT_MAIN_SPEECH_USE,
+				help = loc.CO_CHAT_MAIN_SPEECH_USE_TT,
+				configKey = CONFIG_SPEECH,
 			},
 			{
 				inherit = "TRP3_ConfigH1",
@@ -355,12 +370,15 @@ local function detectEmoteAndOOC(message, NPCEmoteChatColor)
 	local EmoteTempPatternEnd = "TRP3ETEMPEMOTE"
 	local OOCTempPatternStart = "TRP3BTEMPOOC"
 	local OOCTempPatternEnd = "TRP3ETEMPOOC"
+	local SpeechTempPatternStart = "TRP3BTEMPSPEECH"
+	local SpeechTempPatternEnd = "TRP3ETEMPSPEECH"
 
 	local LinkDetectionPattern = "(%|H.-%|h.-|h)"
 	local EmoteTempDetectionPattern = EmoteTempPatternStart .. ".-" .. EmoteTempPatternEnd
 	local OOCTempDetectionPattern = OOCTempPatternStart .. ".-" .. OOCTempPatternEnd
+	local SpeechTempDetectionPattern = SpeechTempPatternStart .. ".-" .. SpeechTempPatternEnd
 
-	-- Emote/OOC replacement
+	-- Emote/OOC/Speech replacement
 	if configDoEmoteDetection() and message:find(configEmoteDetectionPattern()) then
 		-- Wrapping patterns in a temporary pattern
 		local chatColor = ColorManager.getChatColorForChannel("EMOTE");
@@ -401,6 +419,28 @@ local function detectEmoteAndOOC(message, NPCEmoteChatColor)
 		if (message:find(OOCTempDetectionPattern)) then
 			message = message:gsub(OOCTempDetectionPattern, function(content)
 				return OOCColor:WrapTextInColorCode(content):gsub(OOCTempPatternStart, ""):gsub(OOCTempPatternEnd, "") .. NPCEmoteChatString;
+			end);
+		end
+	end
+
+	if configDoSpeechDetection() and message:find('%b""') then
+		-- Wrapping patterns in a temporary pattern
+		local chatColor = ColorManager.getChatColorForChannel("SAY");
+		message = message:gsub('%b""', function(content)
+			return SpeechTempPatternStart .. content .. SpeechTempPatternEnd;
+		end);
+
+		-- Removing temporary patterns from links
+		if (message:find(LinkDetectionPattern)) then
+			message = message:gsub(LinkDetectionPattern, function(content)
+				return content:gsub(SpeechTempPatternStart, ""):gsub(SpeechTempPatternEnd, "");
+			end);
+		end
+
+		-- Replacing temporary patterns by color wrap
+		if (message:find(SpeechTempDetectionPattern)) then
+			message = message:gsub(SpeechTempDetectionPattern, function(content)
+				return chatColor:WrapTextInColorCode(content):gsub(SpeechTempPatternStart, ""):gsub(SpeechTempPatternEnd, "") .. NPCEmoteChatString;
 			end);
 		end
 	end
@@ -467,7 +507,7 @@ local function wrapNameInColorForNPCEmote(name, senderID, chatColor)
 		if customColor then
 			customColor = Color(petProfile.data.NH);
 
-			if configIncreaseNameColorContrast() then
+			if AddOn_TotalRP3.Configuration.shouldDisplayIncreasedColorContrast() then
 				customColor:LightenColorUntilItIsReadableOnDarkBackgrounds();
 			end
 
@@ -631,7 +671,6 @@ TRP3_API.chat.getFullnameForUnitUsingChatMethod = getFullnameForUnitUsingChatMet
 local defaultGetColoredNameFunction = GetColoredName;
 
 local GetClassColorByGUID = TRP3_API.utils.color.GetClassColorByGUID;
-local GetCustomColorByGUID = TRP3_API.utils.color.GetCustomColorByGUID;
 
 -- This is our custom GetColoredName function that will replace player's names with their full RP names
 -- and use their custom colors.
@@ -676,6 +715,8 @@ function Utils.customGetColoredNameWithCustomFallbackFunction(fallback, event, a
 	end
 	-- Make sure we have a unitID formatted as "Player-Realm"
 	unitID = unitInfoToID(character, realm);
+	---@type Player
+	local player = AddOn_TotalRP3.Player.static.CreateFromGUID(GUID)
 
 	-- Character name is without the server name is they are from the same realm or if the option to remove realm info is enabled
 	if realm == Globals.player_realm_id or getConfigValue(CONFIG_REMOVE_REALM) then
@@ -694,21 +735,18 @@ function Utils.customGetColoredNameWithCustomFallbackFunction(fallback, event, a
 	end
 
 	if configShowNameCustomColors() then
-		local customColor = GetCustomColorByGUID(GUID);
-
-		if customColor then
-			if configIncreaseNameColorContrast() then
-				customColor:LightenColorUntilItIsReadable();
-			end
-
-			characterColor = customColor;
-		end
+		characterColor = player:GetCustomColorForDisplay() or characterColor;
 	end
 
 	-- If we did get a color wrap the name inside the color code
 	if characterColor then
 		-- And wrap the name inside the color's code
 		characterName = characterColor:WrapTextInColorCode(characterName);
+	end
+
+	if getConfigValue(CONFIG_SHOW_OOC) and not player:IsInCharacter() then
+		-- Prefix name with OOC indicator.
+		characterName = OOC_INDICATOR_TEXT .. characterName;
 	end
 
 	if getConfigValue(CONFIG_SHOW_ICON) then

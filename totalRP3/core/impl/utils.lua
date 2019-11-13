@@ -20,7 +20,8 @@
 
 ---@type TRP3_API
 local _, TRP3_API = ...;
-local Ellyb = Ellyb(_);
+local Ellyb = Ellyb(...);
+local LibRPMedia = LibStub:GetLibrary("LibRPMedia-1.0");
 
 -- Public accessor
 TRP3_API.utils = {
@@ -46,7 +47,6 @@ local loc = TRP3_API.loc;
 local pcall, tostring, pairs, type, print, string, date, math, strconcat, wipe, tonumber = pcall, tostring, pairs, type, print, string, date, math, strconcat, wipe, tonumber;
 local strsplit, strtrim = strsplit, strtrim;
 local tinsert, assert, _G, tremove, next = tinsert, assert, _G, tremove, next;
-local PlayMusic, StopMusic = PlayMusic, StopMusic;
 local UnitFullName = UnitFullName;
 local UNKNOWNOBJECT = UNKNOWNOBJECT;
 local SetPortraitToTexture = SetPortraitToTexture;
@@ -70,13 +70,12 @@ end
 -- LOGGING
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
+-- Default logger.
+local logger = Ellyb.Logger("TRP3");
+
+-- Alias the log level constants for backwards compatibility.
 -- The log level defines the prefix color and serves as filter
-Log.level = {
-	DEBUG = "-|cff00ffffDEBUG|r] ",
-	INFO = "-|cff00ff00INFO|r] ",
-	WARNING = "-|cffffaa00WARNING|r] ",
-	SEVERE = "-|cffff0000SEVERE|r] "
-}
+Log.level = Ellyb.Logger.LEVELS;
 
 -- Print a log message to the chatFrame.
 local function log(message, level)
@@ -84,7 +83,8 @@ local function log(message, level)
 	if not Globals.DEBUG_MODE then
 		return;
 	end
-	Utils.print( "[TRP3".. level ..tostring(message));
+
+	logger:Log(level, message);
 end
 Log.log = log;
 
@@ -369,7 +369,21 @@ end
 -- Return an texture text tag based on the given icon url and size. Nil safe.
 function Utils.str.icon(iconPath, iconSize)
 	iconPath = iconPath or Globals.icons.default;
-	return Utils.str.texture("Interface\\ICONS\\" .. iconPath, iconSize);
+	return Utils.str.texture(Utils.getIconTexture(iconPath), iconSize);
+end
+
+--- Gives the full texture path of an individual icon.
+--- Handle using icon as a string, a file ID or as an Ellyb.icon
+--- @param icon string|Icon
+--- @return string
+function Utils.getIconTexture(icon)
+	if type(icon) == "table" and icon.isInstanceOf and icon:isInstanceOf(Ellyb.Icon) then
+		return icon:GetFileID()
+	elseif type(icon) == "number" then
+		return icon
+	else
+		return "Interface\\ICONS\\" .. tostring(icon)
+	end
 end
 
 -- Return a color tag based on a letter
@@ -422,6 +436,7 @@ local escapes = {
 	["|r"] = "", -- color end
 	["|H.-|h(.-)|h"] = "%1", -- links
 	["|T.-|t"] = "", -- textures
+	["|A.-|a"] = "", -- atlas textures
 }
 function Utils.str.sanitize(text)
 	if not text then return end
@@ -451,7 +466,7 @@ For players: Player-[server ID]-[player UID] (Example: "Player-976-0002FD64")
 For creatures, pets, objects, and vehicles: [Unit type]-0-[server ID]-[instance ID]-[zone UID]-[ID]-[Spawn UID] (Example: "Creature-0-976-0-11-31146-000136DF91")
 Unit Type Names: "Creature", "Pet", "GameObject", and "Vehicle"
 For vignettes: Vignette-0-[server ID]-[instance ID]-[zone UID]-0-[spawn UID] (Example: "Vignette-0-970-1116-7-0-0017CAE465" for rare mob Sulfurious)
- ]]
+]]
 Utils.guid = {};
 
 local GUID_TYPES = {
@@ -542,7 +557,7 @@ end
 -- @return True if the text will be readable
 --
 local textColorIsReadableOnBackground = function(textColor)
-    return ((0.299 * textColor.r + 0.587 * textColor.g + 0.114 * textColor.b)) >= 0.5;
+	return ((0.299 * textColor.r + 0.587 * textColor.g + 0.114 * textColor.b)) >= 0.5;
 end
 
 Utils.color.textColorIsReadableOnBackground = textColorIsReadableOnBackground;
@@ -1015,6 +1030,18 @@ function Utils.music.playSoundID(soundID, channel, source)
 	return willPlay, handlerID;
 end
 
+function Utils.music.playSoundFileID(soundFileID, channel, source)
+	assert(soundFileID, "soundFileID can't be nil.")
+	local willPlay, handlerID = PlaySoundFile(soundFileID, channel);
+	if willPlay then
+		tinsert(soundHandlers, {channel = channel, id = soundFileID, handlerID = handlerID, source = source, date = date("%H:%M:%S"), stopped = false});
+		if TRP3_SoundsHistoryFrame then
+			TRP3_SoundsHistoryFrame.onSoundPlayed();
+		end
+	end
+	return willPlay, handlerID;
+end
+
 function Utils.music.stopSound(handlerID)
 	StopSound(handlerID);
 end
@@ -1037,28 +1064,43 @@ function Utils.music.stopChannel(channel)
 end
 
 function Utils.music.stopMusic()
-	StopMusic();
 	Utils.music.stopChannel("Music");
+	StopMusic();
 end
 
 function Utils.music.playMusic(music, source)
 	assert(music, "Music can't be nil.")
 	Utils.music.stopMusic();
-	if type(music) == "number" then
-		Log.log("Playing sound: " .. music);
-		Utils.music.playSoundID(music, "Music");
-	else
-		Log.log("Playing music: " .. music);
-		PlayMusic("Sound\\Music\\" .. music .. ".mp3");
-		tinsert(soundHandlers, {channel = "Music", id = music, handlerID = 0, source = source or Globals.player_id, date = date("%H:%M:%S"), stopped = false});
-		if TRP3_SoundsHistoryFrame then
-			TRP3_SoundsHistoryFrame.onSoundPlayed();
+	if TRP3_API.globals.is_classic then
+		local musicName = LibRPMedia:GetMusicNameByFile(music);
+		if musicName then
+			music = "Sound/Music/" .. musicName .. ".mp3";
 		end
+	end
+	Log.log("Playing music: " .. music);
+	PlayMusic(music);
+	tinsert(soundHandlers, {channel = "Music", id = Utils.music.getTitle(music), handlerID = 0, source = source or Globals.player_id, date = date("%H:%M:%S"), stopped = false});
+	if TRP3_SoundsHistoryFrame then
+		TRP3_SoundsHistoryFrame.onSoundPlayed();
 	end
 end
 
 function Utils.music.getTitle(musicURL)
-	return type(musicURL) == "number" and musicURL or musicURL:match("[%\\]?([^%\\]+)$");
+	if type(musicURL) == "number" then
+		musicURL = LibRPMedia:GetMusicNameByFile(musicURL);
+	end
+
+	local musicTitle;
+	if musicURL then
+		musicTitle = musicURL:match("[%/]?([^%/]+)$");
+	end
+
+	return musicTitle or musicURL;
+end
+
+function Utils.music.convertPathToID(musicURL)
+	assert(musicURL, "Music path can't be nil.")
+	return LibRPMedia:GetMusicFileByName(musicURL);
 end
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*

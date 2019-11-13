@@ -31,9 +31,9 @@
 	- For more information, see documentation on the Mary Sue Protocol - http://moonshyne.org/msp/
 ]]
 
-local VERSION = 16
+local VERSION = 19
 local PROTOCOL_VERSION = 3
-local CHOMP_VERSION = 8
+local CHOMP_VERSION = 10
 
 if IsLoggedIn() then
 	error(("LibMSP (embedded in: %s) cannot be loaded after login."):format((...)))
@@ -332,7 +332,7 @@ setmetatable(msp.char, mspCharMeta)
 
 for charName, charTable in pairs(msp.char) do
 	setmetatable(charTable, charMeta)
-	if rawget(charTable.field) then
+	if rawget(charTable, "field") then
 		setmetatable(charTable.field, emptyMeta)
 	end
 end
@@ -747,6 +747,12 @@ function msp:PlayerKnownAbout(name)
 	end
 	-- AddOn_Chomp.NameMergedRealm() is called on this in the msp.char metatable.
 	return self.char[name].supported ~= nil
+end
+
+-- Strips TRP3 markup tags from a given string. The contents of the tags will be entirely
+-- removed.
+function msp:StripTRP3MarkupTags(input)
+	return string.gsub(input, "%{.-%}", "");
 end
 
 msp.version = VERSION

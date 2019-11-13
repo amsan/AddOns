@@ -32,6 +32,25 @@ local getIconList, getIconListSize, getImageList, getImageListSize, getMusicList
 local safeMatch = TRP3_API.utils.str.safeMatch;
 local displayDropDown = TRP3_API.ui.listbox.displayDropDown;
 local max = math.max;
+local is_classic = TRP3_API.globals.is_classic;
+
+-- Classic proofing
+local GetNumPets, GetPetInfoByIndex;
+local GetMountIDs, GetMountInfoByID, GetMountInfoExtraByID;
+
+if is_classic then
+	GetNumPets = function() return 0 end;
+	GetPetInfoByIndex = function() return end;
+	GetMountIDs = function() return {} end;
+	GetMountInfoByID = function() return end;
+	GetMountInfoExtraByID = function() return end;
+else
+	GetNumPets = C_PetJournal.GetNumPets;
+	GetPetInfoByIndex = C_PetJournal.GetPetInfoByIndex;
+	GetMountIDs = C_MountJournal.GetMountIDs;
+	GetMountInfoByID = C_MountJournal.GetMountInfoByID;
+	GetMountInfoExtraByID = C_MountJournal.GetMountInfoExtraByID;
+end
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 -- Static popups definition
@@ -266,15 +285,25 @@ local TRP3_MusicBrowser = TRP3_MusicBrowser;
 local musicWidgetTab = {};
 local filteredMusicList;
 
-local function decorateMusic(lineFrame, musicURL)
-	musicURL = filteredMusicList[musicURL];
-	local musicName = musicURL:reverse();
-	musicName = (musicName:sub(1, musicName:find("%\\")-1)):reverse();
+local function decorateMusic(lineFrame, musicID)
+	local musicName = filteredMusicList[musicID][1];
+	local musicFile = filteredMusicList[musicID][2];
+	local musicDuration = filteredMusicList[musicID][3];
 
-	setTooltipForFrame(lineFrame, lineFrame, "RIGHT", 0, -30, musicName,
-	("|cff00ff00%s\n\n|cffff9900%s: |cffffffff%s\n|cffff9900%s: |cffffffff%s"):format(musicURL, loc.CM_L_CLICK, loc.REG_PLAYER_ABOUT_MUSIC_SELECT2, loc.CM_R_CLICK, loc.REG_PLAYER_ABOUT_MUSIC_LISTEN));
+	local musicShortName = Utils.music.getTitle(musicName);
+	local musicDefaultName = Utils.music.getTitle(musicFile);
+	local tooltipContent;
+	if musicDefaultName == musicShortName then
+		tooltipContent = ("|cff00ff00%s: %ss\n\n|cffff9900%s: |cffffffff%s\n|cffff9900%s: |cffffffff%s"):format(loc.UI_MUSIC_DURATION, floor(musicDuration + 0.5), loc.CM_L_CLICK, loc.REG_PLAYER_ABOUT_MUSIC_SELECT2, loc.CM_R_CLICK, loc.REG_PLAYER_ABOUT_MUSIC_LISTEN);
+	else
+		tooltipContent = ("|cffffff00%s: %s\n|cff00ff00%s: %ss\n\n|cffff9900%s: |cffffffff%s\n|cffff9900%s: |cffffffff%s"):format(loc.UI_MUSIC_ALTTITLE, musicDefaultName, loc.UI_MUSIC_DURATION, floor(musicDuration + 0.5), loc.CM_L_CLICK, loc.REG_PLAYER_ABOUT_MUSIC_SELECT2, loc.CM_R_CLICK, loc.REG_PLAYER_ABOUT_MUSIC_LISTEN);
+		musicName = musicName.."|cffffff00*";
+	end
+
+	setTooltipForFrame(lineFrame, lineFrame, "RIGHT", 0, -30, musicShortName, tooltipContent);
 	_G[lineFrame:GetName().."Text"]:SetText(musicName);
-	lineFrame.musicURL = musicURL;
+
+	lineFrame.musicURL = musicFile;
 end
 
 local function onMusicClick(lineFrame, mousebutton)
@@ -424,8 +453,6 @@ local TRP3_CompanionBrowser = TRP3_CompanionBrowser;
 local companionWidgetTab = {};
 local filteredCompanionList = {};
 local ui_CompanionBrowserContent = TRP3_CompanionBrowserContent;
-local GetNumPets, GetPetInfoByIndex = C_PetJournal.GetNumPets, C_PetJournal.GetPetInfoByIndex;
-local GetMountIDs, GetMountInfoByID = C_MountJournal.GetMountIDs, C_MountJournal.GetMountInfoByID;
 local currentCompanionType;
 
 local function onCompanionClick(button)
@@ -482,7 +509,7 @@ local function getWoWCompanionFilteredList(filter)
 		for _, id in pairs(GetMountIDs()) do
 			local creatureName, spellID, icon, _, _, _, _, _, _, _, isCollected = GetMountInfoByID(id);
 			if isCollected and creatureName and (filter:len() == 0 or safeMatch(creatureName:lower(), filter)) then
-				local _, description = C_MountJournal.GetMountInfoExtraByID(id);
+				local _, description = GetMountInfoExtraByID(id);
 				tinsert(filteredCompanionList, {creatureName, icon, description, loc.PR_CO_MOUNT, spellID, id});
 				count = count + 1;
 			end
@@ -527,7 +554,7 @@ local function initCompanionBrowser()
 	TRP3_CompanionBrowserFilterBox:SetScript("OnTextChanged", filteredCompanionBrowser);
 	TRP3_CompanionBrowserClose:SetScript("OnClick", onCompanionClose);
 	setTooltipForSameFrame(TRP3_CompanionBrowserFilterHelp, "TOPLEFT", 0, 0,
-		"|TInterface\\ICONS\\icon_petfamily_beast:25|t " .. loc.UI_COMPANION_BROWSER_HELP ,loc.UI_COMPANION_BROWSER_HELP_TT);
+		is_classic and "|TInterface\\ICONS\\Ability_Druid_CatForm:25|t " or "|TInterface\\ICONS\\icon_petfamily_beast:25|t " .. loc.UI_COMPANION_BROWSER_HELP ,loc.UI_COMPANION_BROWSER_HELP_TT);
 
 	TRP3_CompanionBrowserFilterBoxText:SetText(loc.UI_FILTER);
 end
@@ -577,18 +604,18 @@ local COLOR_PRESETS_BASIC = {
 }
 
 local COLOR_PRESETS_CLASS = {
-	{ CO = ColorManager.HUNTER, TX = ({GetClassInfo(3)})[1]},
-	{ CO = ColorManager.WARLOCK, TX = ({GetClassInfo(9)})[1]},
-	{ CO = ColorManager.PRIEST, TX = ({GetClassInfo(5)})[1]},
-	{ CO = ColorManager.PALADIN, TX = ({GetClassInfo(2)})[1]},
-	{ CO = ColorManager.MAGE, TX = ({GetClassInfo(8)})[1]},
-	{ CO = ColorManager.ROGUE, TX = ({GetClassInfo(4)})[1]},
-	{ CO = ColorManager.DRUID, TX = ({GetClassInfo(11)})[1]},
-	{ CO = ColorManager.SHAMAN, TX = ({GetClassInfo(7)})[1]},
-	{ CO = ColorManager.WARRIOR, TX = ({GetClassInfo(1)})[1]},
-	{ CO = ColorManager.DEATHKNIGHT, TX = ({GetClassInfo(6)})[1]},
-	{ CO = ColorManager.MONK, TX = ({GetClassInfo(10)})[1]},
-	{ CO = ColorManager.DEMONHUNTER, TX = ({GetClassInfo(12)})[1]},
+	{ CO = ColorManager.HUNTER, TX = LOCALIZED_CLASS_NAMES_MALE.HUNTER },
+	{ CO = ColorManager.WARLOCK, TX = LOCALIZED_CLASS_NAMES_MALE.WARLOCK },
+	{ CO = ColorManager.PRIEST, TX = LOCALIZED_CLASS_NAMES_MALE.PRIEST },
+	{ CO = ColorManager.PALADIN, TX = LOCALIZED_CLASS_NAMES_MALE.PALADIN },
+	{ CO = ColorManager.MAGE, TX = LOCALIZED_CLASS_NAMES_MALE.MAGE },
+	{ CO = ColorManager.ROGUE, TX = LOCALIZED_CLASS_NAMES_MALE.ROGUE },
+	{ CO = ColorManager.DRUID, TX = LOCALIZED_CLASS_NAMES_MALE.DRUID },
+	{ CO = ColorManager.SHAMAN, TX = LOCALIZED_CLASS_NAMES_MALE.SHAMAN },
+	{ CO = ColorManager.WARRIOR, TX = LOCALIZED_CLASS_NAMES_MALE.WARRIOR },
+	{ CO = ColorManager.DEATHKNIGHT, TX = LOCALIZED_CLASS_NAMES_MALE.DEATHKNIGHT or loc.CM_CLASS_DEATHKNIGHT },
+	{ CO = ColorManager.MONK, TX = LOCALIZED_CLASS_NAMES_MALE.MONK or loc.CM_CLASS_MONK },
+	{ CO = ColorManager.DEMONHUNTER, TX = LOCALIZED_CLASS_NAMES_MALE.DEMONHUNTER or loc.CM_CLASS_DEMONHUNTER },
 }
 table.sort(COLOR_PRESETS_CLASS, function(a,b) return a.TX<b.TX end)
 
@@ -804,7 +831,7 @@ function TRP3_ColorButtonLoad(self)
 			_G[self:GetName() .. "SwatchBg"]:SetColorTexture(red / 255, green / 255, blue / 255);
 			_G[self:GetName() .. "SwatchBgHighlight"]:SetVertexColor(red / 255, green / 255, blue / 255);
 		else
-			_G[self:GetName() .. "SwatchBg"]:SetTexture("Interface\\ICONS\\icon_petfamily_mechanical");
+			_G[self:GetName() .. "SwatchBg"]:SetTexture(is_classic and "Interface\\ICONS\\INV_Misc_Gear_01" or "Interface\\ICONS\\icon_petfamily_mechanical");
 			_G[self:GetName() .. "SwatchBgHighlight"]:SetVertexColor(1.0, 1.0, 1.0);
 		end
 		if self.onSelection then
