@@ -1,7 +1,12 @@
-changeset:   368:3f19c577ea61
-tag:         v8.1.5.368
-user:        Tercioo
-date:        Wed Apr 03 13:04:45 2019 -0300
-summary:     - Added accessibility strings to be localized.
+lightweight tag 0396ba9b438a86e803426d0cedb1f12b3e7a1a06 v8.2.5.385
+Author:	Tercio Jose <terciob19@hotmail.com>
+Date:	Sat Nov 9 19:20:51 2019 -0300
 
+commit 0396ba9b438a86e803426d0cedb1f12b3e7a1a06
+Author: Tercio Jose <terciob19@hotmail.com>
+Date:   Sat Nov 9 19:20:51 2019 -0300
+
+    Library and Localization Updates
+    
+    Regular maintenance patch.
 

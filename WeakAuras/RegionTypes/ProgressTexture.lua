@@ -1,5 +1,7 @@
-local L = WeakAuras.L;
+if not WeakAuras.IsCorrectVersion() then return end
 
+local L = WeakAuras.L;
+local GetAtlasInfo = WeakAuras.IsClassic() and GetAtlasInfo or C_Texture.GetAtlasInfo
 -- Credit to CommanderSirow for taking the time to properly craft the TransformPoint function
 -- to the enhance the abilities of Progress Textures.
 -- Also Credit to Semlar for explaining how circular progress can be shown
@@ -16,8 +18,8 @@ local L = WeakAuras.L;
 --   region.full_rotation (false) - Allow full rotation [bool]
 
 local default = {
-  foregroundTexture = "Textures\\SpellActivationOverlays\\Eclipse_Sun",
-  backgroundTexture = "Textures\\SpellActivationOverlays\\Eclipse_Sun",
+  foregroundTexture = "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Auras\\Aura3",
+  backgroundTexture = "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Auras\\Aura3",
   desaturateBackground = false,
   desaturateForeground = false,
   sameTexture = true,
@@ -37,7 +39,6 @@ local default = {
   user_y = 0,
   crop_x = 0.41,
   crop_y = 0.41,
-  crop = 0.41,
   rotation = 0,
   selfPoint = "CENTER",
   anchorPoint = "CENTER",
@@ -46,7 +47,6 @@ local default = {
   yOffset = 0,
   font = "Friz Quadrata TT",
   fontSize = 12,
-  stickyDuration = false,
   mirror = false,
   frameStrata = 1,
   slantMode = "INSIDE"
@@ -86,6 +86,7 @@ local properties = {
     min = 1,
     softMax = screenWidth,
     bigStep = 1,
+    default = 32
   },
   height = {
     display = L["Height"],
@@ -93,7 +94,8 @@ local properties = {
     type = "number",
     min = 1,
     softMax = screenHeight,
-    bigStep = 1
+    bigStep = 1,
+    default = 32
   },
   orientation = {
     display = L["Orientation"],
@@ -104,6 +106,11 @@ local properties = {
   inverse = {
     display = L["Inverse"],
     setter = "SetInverse",
+    type = "bool"
+  },
+  mirror = {
+    display = L["Mirror"],
+    setter = "SetMirror",
     type = "bool"
   }
 }
@@ -127,7 +134,7 @@ local function GetProperties(data)
 
     return auraProperties;
   else
-    return properties;
+    return CopyTable(properties);
   end
 end
 
@@ -180,19 +187,22 @@ function spinnerFunctions.SetProgress(self, region, angle1, angle2)
   self.angle1 = angle1;
   self.angle2 = angle2;
 
-  local scalex = region.scale_x or 1;
-  local scaley = region.scale_y or 1;
+  local crop_x = region.crop_x or 1;
+  local crop_y = region.crop_y or 1;
   local rotation = region.rotation or 0;
   local mirror_h = region.mirror_h or false;
+  if region.mirror then
+    mirror_h = not mirror_h
+  end
   local mirror_v = region.mirror_v or false;
 
-  local width = region.width - self.offset;
-  local height = region.height - self.offset;
+  local width = region.width * (region.scalex or 1) + 2 * self.offset;
+  local height = region.height * (region.scaley or 1) + 2 * self.offset;
 
   if (angle2 - angle1 >= 360) then
     -- SHOW everything
     self.coords[1]:SetFull();
-    self.coords[1]:Transform(scalex, scaley, rotation, mirror_h, mirror_v);
+    self.coords[1]:Transform(crop_x, crop_y, rotation, mirror_h, mirror_v);
     self.coords[1]:Show();
 
     self.coords[2]:Hide();
@@ -211,18 +221,18 @@ function spinnerFunctions.SetProgress(self, region, angle1, angle2)
 
   if (index1 + 1 >= index2) then
     self.coords[1]:SetAngle(width, height, angle1, angle2);
-    self.coords[1]:Transform(scalex, scaley, rotation, mirror_h, mirror_v);
+    self.coords[1]:Transform(crop_x, crop_y, rotation, mirror_h, mirror_v);
     self.coords[1]:Show();
     self.coords[2]:Hide();
     self.coords[3]:Hide();
   elseif(index1 + 3 >= index2) then
     local firstEndAngle = (index1 + 1) * 90 + 45;
     self.coords[1]:SetAngle(width, height, angle1, firstEndAngle);
-    self.coords[1]:Transform(scalex, scaley, rotation, mirror_h, mirror_v);
+    self.coords[1]:Transform(crop_x, crop_y, rotation, mirror_h, mirror_v);
     self.coords[1]:Show();
 
     self.coords[2]:SetAngle(width, height, firstEndAngle, angle2);
-    self.coords[2]:Transform(scalex, scaley, rotation, mirror_h, mirror_v);
+    self.coords[2]:Transform(crop_x, crop_y, rotation, mirror_h, mirror_v);
     self.coords[2]:Show();
 
     self.coords[3]:Hide();
@@ -231,15 +241,15 @@ function spinnerFunctions.SetProgress(self, region, angle1, angle2)
     local secondEndAngle = firstEndAngle + 180;
 
     self.coords[1]:SetAngle(width, height, angle1, firstEndAngle);
-    self.coords[1]:Transform(scalex, scaley, rotation, mirror_h, mirror_v);
+    self.coords[1]:Transform(crop_x, crop_y, rotation, mirror_h, mirror_v);
     self.coords[1]:Show();
 
     self.coords[2]:SetAngle(width, height, firstEndAngle, secondEndAngle);
-    self.coords[2]:Transform(scalex, scaley, rotation, mirror_h, mirror_v);
+    self.coords[2]:Transform(crop_x, crop_y, rotation, mirror_h, mirror_v);
     self.coords[2]:Show();
 
     self.coords[3]:SetAngle(width, height, secondEndAngle, angle2);
-    self.coords[3]:Transform(scalex, scaley, rotation, mirror_h, mirror_v);
+    self.coords[3]:Transform(crop_x, crop_y, rotation, mirror_h, mirror_v);
     self.coords[3]:Show();
   end
 end
@@ -465,6 +475,8 @@ local function createSpinner(parent, layer, drawlayer)
 
   for i = 1, 3 do
     local texture = parent:CreateTexture(nil, layer);
+    texture:SetSnapToPixelGrid(false)
+    texture:SetTexelSnappingBias(0)
     texture:SetDrawLayer(layer, drawlayer);
     texture:SetAllPoints(parent);
     spinner.textures[i] = texture;
@@ -648,15 +660,18 @@ local textureFunctions = {
     self:SetValueFunction(startProgress, endProgress);
 
     local region = self.region;
-    local scalex = region.scale_x or 1;
-    local scaley = region.scale_y or 1;
+    local crop_x = region.crop_x or 1;
+    local crop_y = region.crop_y or 1;
     local rotation = region.rotation or 0;
     local mirror_h = region.mirror_h or false;
+    if region.mirror then
+      mirror_h = not mirror_h
+    end
     local mirror_v = region.mirror_v or false;
     local user_x = region.user_x;
     local user_y = region.user_y;
 
-    self.coord:Transform(scalex, scaley, rotation, mirror_h, mirror_v, user_x, user_y);
+    self.coord:Transform(crop_x, crop_y, rotation, mirror_h, mirror_v, user_x, user_y);
     self.coord:Apply();
   end,
 
@@ -668,6 +683,8 @@ local textureFunctions = {
 
 local function createTexture(region, layer, drawlayer)
   local texture = region:CreateTexture(nil, layer);
+  texture:SetSnapToPixelGrid(false)
+  texture:SetTexelSnappingBias(0)
   texture:SetDrawLayer(layer, drawlayer);
 
   for k, v in pairs(textureFunctions) do
@@ -702,6 +719,8 @@ end
 
 local TextureSetValueFunction = function(self, progress)
   self.progress = progress;
+  progress = max(0, progress);
+  progress = min(1, progress);
   self.foreground:SetValue(0, progress);
 end
 
@@ -751,7 +770,7 @@ end
 
 local function ensureExtraTextures(region, count)
   for i = #region.extraTextures + 1, count do
-    local extraTexture = createTexture(region, "ARTWORK", i);
+    local extraTexture = createTexture(region, "ARTWORK", min(i, 7));
     extraTexture:SetTexture(region.currentTexture, region.textureWrapMode, region.textureWrapMode)
     extraTexture:SetBlendMode(region.foreground:GetBlendMode());
     extraTexture:SetOrientation(region.orientation, region.compress, region.slanted, region.slant, region.slantFirst, region.slantMode);
@@ -762,21 +781,21 @@ end
 local function ensureExtraSpinners(region, count)
   local parent = region:GetParent();
   for i = #region.extraSpinners + 1, count do
-    local extraSpinner = createSpinner(region, "OVERLAY", parent:GetFrameLevel() + 3, i);
+    local extraSpinner = createSpinner(region, "OVERLAY", min(i, 7));
     extraSpinner:SetTexture(region.currentTexture);
     extraSpinner:SetBlendMode(region.foreground:GetBlendMode());
     region.extraSpinners[i] = extraSpinner;
   end
 end
 
-local function convertToProgress(rprogress, additionalProgress, min, totalWidth, inverse)
+local function convertToProgress(rprogress, additionalProgress, adjustMin, totalWidth, inverse, clamp)
   local startProgress = 0;
   local endProgress = 0;
 
   if (additionalProgress.min and additionalProgress.max) then
     if (totalWidth ~= 0) then
-      startProgress = max( (additionalProgress.min - min) / totalWidth, 0);
-      endProgress = (additionalProgress.max - min) / totalWidth;
+      startProgress = max( (additionalProgress.min - adjustMin) / totalWidth, 0);
+      endProgress = (additionalProgress.max - adjustMin) / totalWidth;
 
       if (inverse) then
         startProgress = 1 - startProgress;
@@ -800,6 +819,12 @@ local function convertToProgress(rprogress, additionalProgress, min, totalWidth,
       end
     end
   end
+
+  if (clamp) then
+    startProgress = max(0, min(1, startProgress));
+    endProgress = max(0, min(1, endProgress));
+  end
+
   return startProgress, endProgress;
 end
 
@@ -821,7 +846,7 @@ local function SetAdditionalProgress(self, additionalProgress, min, max, inverse
       local extraTexture = self.extraTextures[index];
 
       local totalWidth = max - min;
-      local startProgress, endProgress = convertToProgress(self.progress, additionalProgress, min, totalWidth, effectiveInverse);
+      local startProgress, endProgress = convertToProgress(self.progress, additionalProgress, min, totalWidth, effectiveInverse, self.overlayclip);
       if ((endProgress - startProgress) == 0) then
         extraTexture:Hide();
       else
@@ -858,7 +883,7 @@ local function SetAdditionalProgressCircular(self, additionalProgress, min, max,
       local extraSpinner = self.extraSpinners[index];
 
       local totalWidth = max - min;
-      local startProgress, endProgress = convertToProgress(self.progress, additionalProgress, min, totalWidth, effectiveInverse);
+      local startProgress, endProgress = convertToProgress(self.progress, additionalProgress, min, totalWidth, effectiveInverse, self.overlayclip);
       if (endProgress < startProgress) then
         startProgress, endProgress = endProgress, startProgress;
       end
@@ -956,14 +981,13 @@ local function create(parent)
   local foreground = createTexture(region, "ARTWORK", 0);
   region.foreground = foreground;
 
-  region.foregroundSpinner = createSpinner(region, "ARTWORK", parent:GetFrameLevel() + 2, 1);
-  region.backgroundSpinner = createSpinner(region, "BACKGROUND", parent:GetFrameLevel() + 1, 1);
+  region.foregroundSpinner = createSpinner(region, "ARTWORK", 1);
+  region.backgroundSpinner = createSpinner(region, "BACKGROUND", 1);
 
   region.extraTextures = {};
   region.extraSpinners = {};
 
   region.values = {};
-  region.duration = 0;
 
   -- Use a dummy object for the SmoothStatusBarMixin, because our SetValue
   -- is used for a different purpose
@@ -982,27 +1006,20 @@ local function create(parent)
     return 0, 1;
   end
 
-  region.expirationTime = math.huge;
-
-  function region:SetTexture(path)	--added by Derangement
-    local texturePath = path;
-    region.foreground:SetTexture(texturePath);
-    region.background:SetTexture(texturePath);
-  end
-	  
-  function region:SetAtlas(atlas)		--added by Derangement
-    local atlasString = atlas;
-    region.foreground:SetAtlas(atlasString);
-    region.background:SetAtlas(atlasString);
-  end
-  
   region.SetOrientation = SetOrientation;
 
   WeakAuras.regionPrototype.create(region);
 
+  region.AnchorSubRegion = WeakAuras.regionPrototype.AnchorSubRegion
+
   return region;
 end
 
+local function TimerTick(self)
+  local adjustMin = self.adjustedMin or 0;
+  local duration = self.state.duration
+  self:SetTime( (duration ~= 0 and self.adjustedMax or duration) - adjustMin, self.state.expirationTime - adjustMin, self.state.inverse);
+end
 
 local function modify(parent, region, data)
   WeakAuras.regionPrototype.modify(parent, region, data);
@@ -1018,6 +1035,7 @@ local function modify(parent, region, data)
   region.scalex = 1;
   region.scaley = 1;
   region.aspect =  data.width / data.height;
+  region.overlayclip = data.overlayclip;
 
   region:SetAlpha(data.alpha);
   region.textureWrapMode = data.textureWrapMode;
@@ -1052,10 +1070,9 @@ local function modify(parent, region, data)
     extraSpinner:SetBlendMode(data.blendMode);
   end
 
-  region.mirror_h = data.mirror;
-  region.scale_x = 1 + (data.crop_x or 0.41);
-  region.scale_y = 1 + (data.crop_y or 0.41);
-  region.scale = 1 + (data.crop or 0.41);
+  region.mirror = data.mirror
+  region.crop_x = 1 + (data.crop_x or 0.41);
+  region.crop_y = 1 + (data.crop_y or 0.41);
   region.rotation = data.rotation or 0;
   region.user_x = -1 * (data.user_x or 0);
   region.user_y = data.user_y or 0;
@@ -1087,14 +1104,13 @@ local function modify(parent, region, data)
   region.slantMode = data.slantMode;
   region:SetOrientation(data.orientation);
 
-  function region:Scale(scalex, scaley)
-    if(scalex < 0) then
-      region.mirror_h = not data.mirror;
-      scalex = scalex * -1;
-    else
-      region.mirror_h = data.mirror;
+  local function DoPosition(region)
+    local mirror = region.mirror_h
+    if region.mirror then
+      mirror = not mirror
     end
-    if(region.mirror_h) then
+
+    if(mirror) then
       if(data.orientation == "HORIZONTAL_INVERSE") then
         foreground:SetPoint("RIGHT", region, "RIGHT");
       elseif(data.orientation == "HORIZONTAL") then
@@ -1107,16 +1123,14 @@ local function modify(parent, region, data)
         foreground:SetPoint("RIGHT", region, "RIGHT");
       end
     end
-    if(scaley < 0) then
-      region.mirror_v = true;
-      scaley = scaley * -1;
+
+    if(region.mirror_v) then
       if(data.orientation == "VERTICAL_INVERSE") then
         foreground:SetPoint("TOP", region, "TOP");
       elseif(data.orientation == "VERTICAL") then
         foreground:SetPoint("BOTTOM", region, "BOTTOM");
       end
     else
-      region.mirror_v = nil;
       if(data.orientation == "VERTICAL") then
         foreground:SetPoint("BOTTOM", region, "BOTTOM");
       elseif(data.orientation == "VERTICAL_INVERSE") then
@@ -1124,11 +1138,8 @@ local function modify(parent, region, data)
       end
     end
 
-    region.scalex = scalex;
-    region.scaley = scaley;
-
-    region:SetWidth(region.width * scalex);
-    region:SetHeight(region.height * scaley);
+    region:SetWidth(region.width * region.scalex);
+    region:SetHeight(region.height * region.scaley);
 
     if (data.orientation == "CLOCKWISE" or data.orientation == "ANTICLOCKWISE") then
       region.foregroundSpinner:UpdateSize();
@@ -1143,6 +1154,28 @@ local function modify(parent, region, data)
         extraTexture:Update();
       end
     end
+  end
+
+  function region:Scale(scalex, scaley)
+    if(scalex < 0) then
+      region.mirror_h = true;
+      scalex = scalex * -1;
+    end
+
+    if(scaley < 0) then
+      region.mirror_v = true;
+      scaley = scaley * -1;
+    end
+
+    region.scalex = scalex;
+    region.scaley = scaley;
+
+    DoPosition(region)
+  end
+
+  function region:SetMirror(mirror)
+    region.mirror = mirror
+    DoPosition(region)
   end
 
   function region:Rotate(angle)
@@ -1234,9 +1267,41 @@ local function modify(parent, region, data)
     end
   end
 
-  function region:TimerTick()
-    local adjustMin = region.adjustedMin or 0;
-    self:SetTime( (region.adjustedMax or region.duration) - adjustMin, region.expirationTime - adjustMin, region.inverse);
+  function region:Update()
+    local state = region.state
+    if state.progressType == "timed" then
+      local expirationTime = state.expirationTime and state.expirationTime > 0 and state.expirationTime or math.huge;
+      local duration = state.duration or 0
+
+      local adjustMin = region.adjustedMin or 0;
+      region:SetTime((duration ~= 0 and region.adjustedMax or duration) - adjustMin, expirationTime - adjustMin, state.inverse);
+      if not region.TimerTick then
+        region.TimerTick = TimerTick
+        region:UpdateRegionHasTimerTick()
+      end
+    elseif state.progressType == "static" then
+      local value = state.value or 0;
+      local total = state.total or 0;
+      local adjustMin = region.adjustedMin or 0;
+      local max = region.adjustedMax or total;
+      region:SetValue(value - adjustMin, max - adjustMin);
+      if region.TimerTick then
+        region.TimerTick = nil
+        region:UpdateRegionHasTimerTick()
+      end
+    else
+      region:SetTime(0, math.huge)
+      if region.TimerTick then
+        region.TimerTick = nil
+        region:UpdateRegionHasTimerTick()
+      end
+    end
+
+    region:SetAdditionalProgress(state.additionalProgress, region.adjustMin or 0, region.state.duration ~= 0 and region.adjustedMax or state.total or state.duration or 0, state.inverse)
+
+    if state.texture then
+      region:SetTexture(state.texture)
+    end
   end
 
   function region:SetTexture(texture)
@@ -1302,6 +1367,8 @@ local function modify(parent, region, data)
       self.extraSpinners[id]:Color(r, g, b, a);
     end
   end
+
+  WeakAuras.regionPrototype.modifyFinish(parent, region, data);
 end
 
 WeakAuras.RegisterRegionType("progresstexture", create, modify, default, GetProperties);

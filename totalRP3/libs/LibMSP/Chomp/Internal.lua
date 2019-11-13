@@ -14,7 +14,7 @@
 	CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ]]
 
-local VERSION = 8
+local VERSION = 10
 
 if IsLoggedIn() then
 	error(("Chomp Message Library (embedded: %s) cannot be loaded after login."):format((...)))
@@ -234,7 +234,17 @@ local function ParseInGameMessageLogged(prefix, text, kind, sender, target, zone
 end
 
 local function ParseBattleNetMessage(prefix, text, kind, bnetIDGameAccount)
-	local active, characterName, client, realmName = BNGetGameAccountInfo(bnetIDGameAccount)
+	local characterName;
+	local realmName;
+
+	if C_BattleNet and C_BattleNet.GetGameAccountInfoByID then
+		local gameAccountInfo = C_BattleNet.GetGameAccountInfoByID(bnetIDGameAccount)
+		characterName = gameAccountInfo.characterName;
+		realmName = gameAccountInfo.realmName;
+	else
+		local active, client;
+		active, characterName, client, realmName = BNGetGameAccountInfo(bnetIDGameAccount)
+	end
 	-- Build 27144: This can now be nil after removing someone from BattleTag.
 	-- Build 28807: This can be an empty string when someone is sending a message when they're offline.
 	if not characterName or characterName == "" then
@@ -374,7 +384,7 @@ local function MessageEventFilter_SYSTEM (self, event, text)
 end
 
 local function HookSendAddonMessage(prefix, text, kind, target)
-	if kind == "WHISPER" then
+	if kind == "WHISPER" and target then
 		Internal.Filter[target] = GetTime() + (select(3, GetNetStats()) * 0.001) + 5.000
 	end
 	if Internal.isSending then return end
@@ -384,7 +394,7 @@ local function HookSendAddonMessage(prefix, text, kind, target)
 end
 
 local function HookSendAddonMessageLogged(prefix, text, kind, target)
-	if kind == "WHISPER" then
+	if kind == "WHISPER" and target then
 		Internal.Filter[target] = GetTime() + (select(3, GetNetStats()) * 0.001) + 5.000
 	end
 	if Internal.isSending then return end

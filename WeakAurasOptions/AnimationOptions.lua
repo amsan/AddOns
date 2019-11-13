@@ -1,3 +1,4 @@
+if not WeakAuras.IsCorrectVersion() then return end
 
 local L = WeakAuras.L
 
@@ -120,6 +121,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       start_type = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 32,
         values = anim_types,
@@ -127,6 +129,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       start_preset = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Preset"],
         order = 33,
         values = function() return filterAnimPresetTypes(anim_start_preset_types, id) end,
@@ -134,9 +137,9 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       start_duration_type_no_choice = {
         type = "select",
+        width = WeakAuras.halfWidth,
         name = L["Time in"],
         order = 33,
-        width = "half",
         values = duration_types_no_choice,
         disabled = true,
         hidden = function() return data.animation.start.type ~= "custom" or WeakAuras.CanHaveDuration(data) end,
@@ -144,14 +147,15 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       start_duration_type = {
         type = "select",
+        width = WeakAuras.halfWidth,
         name = L["Time in"],
         order = 33,
-        width = "half",
         values = duration_types,
         hidden = function() return data.animation.start.type ~= "custom" or not WeakAuras.CanHaveDuration(data) end
       },
       start_duration = {
         type = "input",
+        width = WeakAuras.halfWidth,
         name = function()
           if(data.animation.start.duration_type == "relative") then
             return L["% of Progress"];
@@ -167,17 +171,18 @@ function WeakAuras.AddAnimationOption(id, data)
           end
         end,
         order = 33.5,
-        width = "half",
         hidden = function() return data.animation.start.type ~= "custom" end
       },
       start_use_alpha = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Fade In"],
         order = 34,
         hidden = function() return data.animation.start.type ~= "custom" end
       },
       start_alphaType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 35,
         values = anim_alpha_types,
@@ -186,8 +191,8 @@ function WeakAuras.AddAnimationOption(id, data)
       -- text editor added below
       start_alpha = {
         type = "range",
+        width = WeakAuras.doubleWidth,
         name = L["Alpha"],
-        width = "double",
         order = 36,
         min = 0,
         max = 1,
@@ -197,12 +202,14 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       start_use_translate = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Slide In"],
         order = 38,
         hidden = function() return data.animation.start.type ~= "custom" end
       },
       start_translateType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 39,
         values = anim_translate_types,
@@ -211,6 +218,7 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       start_x = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["X Offset"],
         order = 40,
         softMin = -200,
@@ -221,6 +229,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       start_y = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["Y Offset"],
         order = 41,
         softMin = -200,
@@ -231,6 +240,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       start_use_scale = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Zoom In"],
         order = 42,
         hidden = function()
@@ -241,6 +251,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       start_scaleType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 43,
         values = anim_scale_types,
@@ -249,6 +260,7 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       start_scalex = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["X Scale"],
         order = 44,
         softMin = 0,
@@ -259,6 +271,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       start_scaley = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["Y Scale"],
         order = 45,
         softMin = 0,
@@ -269,12 +282,14 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       start_use_rotate = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Rotate In"],
         order = 46,
         hidden = function() return (data.animation.start.type ~= "custom" or not WeakAuras.regions[id].region.Rotate) end
       },
       start_rotateType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 47,
         values = anim_rotate_types,
@@ -283,8 +298,8 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       start_rotate = {
         type = "range",
+        width = WeakAuras.doubleWidth,
         name = L["Angle"],
-        width = "double",
         order = 48,
         softMin = 0,
         softMax = 360,
@@ -293,12 +308,14 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       start_use_color = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Color"],
         order = 48.2,
         hidden = function() return (data.animation.start.type ~= "custom" or not WeakAuras.regions[id].region.Color) end
       },
       start_colorType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 48.5,
         values = anim_color_types,
@@ -307,8 +324,8 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       start_color = {
         type = "color",
+        width = WeakAuras.doubleWidth,
         name = L["Color"],
-        width = "double",
         order = 49.5,
         hidden = function() return (data.animation.start.type ~= "custom" or not WeakAuras.regions[id].region.Color) end,
         get = function()
@@ -331,6 +348,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       main_type = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 52,
         values = anim_types,
@@ -338,6 +356,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       main_preset = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Preset"],
         order = 53,
         values = function() return filterAnimPresetTypes(anim_main_preset_types, id) end,
@@ -345,9 +364,9 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       main_duration_type_no_choice = {
         type = "select",
+        width = WeakAuras.halfWidth,
         name = L["Time in"],
         order = 53,
-        width = "half",
         values = duration_types_no_choice,
         disabled = true,
         hidden = function() return data.animation.main.type ~= "custom" or WeakAuras.CanHaveDuration(data) end,
@@ -355,14 +374,15 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       main_duration_type = {
         type = "select",
+        width = WeakAuras.halfWidth,
         name = L["Time in"],
         order = 53,
-        width = "half",
         values = duration_types,
         hidden = function() return data.animation.main.type ~= "custom" or not WeakAuras.CanHaveDuration(data) end
       },
       main_duration = {
         type = "input",
+        width = WeakAuras.halfWidth,
         name = function()
           if(data.animation.main.duration_type == "relative") then
             return L["% of Progress"];
@@ -381,17 +401,18 @@ function WeakAuras.AddAnimationOption(id, data)
           end
         end,
         order = 53.5,
-        width = "half",
         hidden = function() return data.animation.main.type ~= "custom" end
       },
       main_use_alpha = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Fade"],
         order = 54,
         hidden = function() return data.animation.main.type ~= "custom" end
       },
       main_alphaType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 55,
         values = anim_alpha_types,
@@ -400,8 +421,8 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       main_alpha = {
         type = "range",
+        width = WeakAuras.doubleWidth,
         name = L["Alpha"],
-        width = "double",
         order = 56,
         min = 0,
         max = 1,
@@ -411,12 +432,14 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       main_use_translate = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Slide"],
         order = 58,
         hidden = function() return data.animation.main.type ~= "custom" end
       },
       main_translateType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 59,
         values = anim_translate_types,
@@ -425,6 +448,7 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       main_x = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["X Offset"],
         order = 60,
         softMin = -200,
@@ -435,6 +459,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       main_y = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["Y Offset"],
         order = 61,
         softMin = -200,
@@ -445,12 +470,14 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       main_use_scale = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Zoom"],
         order = 62,
         hidden = function() return (data.animation.main.type ~= "custom" or not WeakAuras.regions[id].region.Scale) end
       },
       main_scaleType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 63,
         values = anim_scale_types,
@@ -459,6 +486,7 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       main_scalex = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["X Scale"],
         order = 64,
         softMin = 0,
@@ -469,6 +497,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       main_scaley = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["Y Scale"],
         order = 65,
         softMin = 0,
@@ -479,12 +508,14 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       main_use_rotate = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Rotate"],
         order = 66,
         hidden = function() return (data.animation.main.type ~= "custom" or not WeakAuras.regions[id].region.Rotate) end
       },
       main_rotateType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 67,
         values = anim_rotate_types,
@@ -493,8 +524,8 @@ function WeakAuras.AddAnimationOption(id, data)
       -- text editor added below
       main_rotate = {
         type = "range",
+        width = WeakAuras.doubleWidth,
         name = L["Angle"],
-        width = "double",
         order = 68,
         softMin = 0,
         softMax = 360,
@@ -503,12 +534,14 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       main_use_color = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Color"],
         order = 68.2,
         hidden = function() return (data.animation.main.type ~= "custom" or not WeakAuras.regions[id].region.Color) end
       },
       main_colorType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 68.5,
         values = anim_color_types,
@@ -517,8 +550,8 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       main_color = {
         type = "color",
+        width = WeakAuras.doubleWidth,
         name = L["Color"],
-        width = "double",
         order = 69.5,
         hidden = function() return (data.animation.main.type ~= "custom" or not WeakAuras.regions[id].region.Color) end,
         get = function()
@@ -541,6 +574,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       finish_type = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 72,
         values = anim_types,
@@ -548,6 +582,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       finish_preset = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Preset"],
         order = 73,
         values = function() return filterAnimPresetTypes(anim_finish_preset_types, id) end,
@@ -555,9 +590,9 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       finish_duration_type_no_choice = {
         type = "select",
+        width = WeakAuras.halfWidth,
         name = L["Time in"],
         order = 73,
-        width = "half",
         values = duration_types_no_choice,
         disabled = true,
         hidden = function() return data.animation.finish.type ~= "custom" end,
@@ -565,20 +600,22 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       finish_duration = {
         type = "input",
+        width = WeakAuras.halfWidth,
         name = L["Duration (s)"],
         desc = L["The duration of the animation in seconds. The finish animation does not start playing until after the display would normally be hidden."],
         order = 73.5,
-        width = "half",
         hidden = function() return data.animation.finish.type ~= "custom" end
       },
       finish_use_alpha = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Fade Out"],
         order = 74,
         hidden = function() return data.animation.finish.type ~= "custom" end
       },
       finish_alphaType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 75,
         values = anim_alpha_types,
@@ -587,8 +624,8 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       finish_alpha = {
         type = "range",
+        width = WeakAuras.doubleWidth,
         name = L["Alpha"],
-        width = "double",
         order = 76,
         min = 0,
         max = 1,
@@ -598,12 +635,14 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       finish_use_translate = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Slide Out"],
         order = 78,
         hidden = function() return data.animation.finish.type ~= "custom" end
       },
       finish_translateType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 79,
         values = anim_translate_types,
@@ -612,6 +651,7 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       finish_x = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["X Offset"],
         order = 80,
         softMin = -200,
@@ -622,6 +662,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       finish_y = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["Y Offset"],
         order = 81,
         softMin = -200,
@@ -632,12 +673,14 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       finish_use_scale = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Zoom Out"],
         order = 82,
         hidden = function() return (data.animation.finish.type ~= "custom" or not WeakAuras.regions[id].region.Scale) end
       },
       finish_scaleType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 83,
         values = anim_scale_types,
@@ -646,6 +689,7 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       finish_scalex = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["X Scale"],
         order = 84,
         softMin = 0,
@@ -656,6 +700,7 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       finish_scaley = {
         type = "range",
+        width = WeakAuras.normalWidth,
         name = L["Y Scale"],
         order = 85,
         softMin = 0,
@@ -666,12 +711,14 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       finish_use_rotate = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Rotate Out"],
         order = 86,
         hidden = function() return (data.animation.finish.type ~= "custom" or not WeakAuras.regions[id].region.Rotate) end
       },
       finish_rotateType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 87,
         values = anim_rotate_types,
@@ -680,8 +727,8 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       finish_rotate = {
         type = "range",
+        width = WeakAuras.doubleWidth,
         name = L["Angle"],
-        width = "double",
         order = 88,
         softMin = 0,
         softMax = 360,
@@ -690,12 +737,14 @@ function WeakAuras.AddAnimationOption(id, data)
       },
       finish_use_color = {
         type = "toggle",
+        width = WeakAuras.normalWidth,
         name = L["Color"],
         order = 88.2,
         hidden = function() return (data.animation.finish.type ~= "custom" or not WeakAuras.regions[id].region.Color) end
       },
       finish_colorType = {
         type = "select",
+        width = WeakAuras.normalWidth,
         name = L["Type"],
         order = 88.5,
         values = anim_color_types,
@@ -704,8 +753,8 @@ function WeakAuras.AddAnimationOption(id, data)
       -- texteditor added below
       finish_color = {
         type = "color",
+        width = WeakAuras.doubleWidth,
         name = L["Color"],
-        width = "double",
         order = 89.5,
         hidden = function() return (data.animation.finish.type ~= "custom" or not WeakAuras.regions[id].region.Color) end,
         get = function()

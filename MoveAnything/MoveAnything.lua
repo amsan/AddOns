@@ -129,7 +129,7 @@ local MovAny = {
 		["WorldFrame"] = true,
 		["CinematicFrame"] = true,
 		["ArenaPrepFrames"] = true,
-		["ArenaEnemyFrames"] = true,
+		--["ArenaEnemyFrames"] = true,
 		["PetBattleFrame"] = true,
 		["StoreFrame"] = true
 	},
@@ -149,6 +149,9 @@ local MovAny = {
 		["AlwaysUpFrame3"] = true,
 		["CompactRaidFrameManager"] = true,
 	},
+	lForceForbidden = {
+		["NamePlateTooltip"] = true,
+	},
 	lForcedLock = {
 		["Boss1TargetFrame"] = true,
 		["Boss2TargetFrame"] = true,
@@ -156,7 +159,7 @@ local MovAny = {
 		["Boss4TargetFrame"] = true,
 		["Boss5TargetFrame"] = true,
 		["ActionButton1"] = true,
-		["ArenaEnemyFrame1"] = true,
+		--[[["ArenaEnemyFrame1"] = true,
 		["ArenaEnemyFrame2"] = true,
 		["ArenaEnemyFrame3"] = true,
 		["ArenaEnemyFrame4"] = true,
@@ -172,7 +175,7 @@ local MovAny = {
 		["ArenaEnemyFrame2PetFrame"] = true,
 		["ArenaEnemyFrame3PetFrame"] = true,
 		["ArenaEnemyFrame4PetFrame"] = true,
-		["ArenaEnemyFrame5PetFrame"] = true,
+		["ArenaEnemyFrame5PetFrame"] = true,--]]
 		["PetFrame"] = true,
 		--["BuffFrame"] = true,
 		["MinimapCluster"] = true,
@@ -310,7 +313,7 @@ local MovAny = {
 		{"Tooltip", "TOOLTIP"},
 	},
 	DetachFromParent = {
-		MainMenuBarPerformanceBarFrame = "UIParent",
+		--MainMenuBarPerformanceBarFrame = "UIParent",
 		TargetofFocusFrame = "UIParent",
 		PetFrame = "UIParent",
 		PartyMemberFrame1PetFrame = "UIParent",
@@ -319,14 +322,14 @@ local MovAny = {
 		PartyMemberFrame4PetFrame = "UIParent",
 		DebuffButton1 = "UIParent",
 		ReputationWatchBar = "UIParent",
-		MainMenuExpBar = "UIParent",
+		--MainMenuExpBar = "UIParent",
 		TimeManagerClockButton = "UIParent",
 		OverrideMenuBarHealthBar = "UIParent",
 		OverrideMenuBarLeaveButton = "UIParent",
 		OverrideMenuBarPowerBar = "UIParent",
 		MultiCastActionBarFrame = "UIParent",
-		MainMenuBarRightEndCap = "UIParent",
-		MainMenuBarMaxLevelBar = "UIParent",
+		--MainMenuBarRightEndCap = "UIParent",
+		--MainMenuBarMaxLevelBar = "UIParent",
 		TargetFrameSpellBar = "UIParent",
 		FocusFrameSpellBar = "UIParent",
 		MultiBarBottomLeft = "UIParent",
@@ -350,7 +353,7 @@ local MovAny = {
 		OverrideMenuBarLeaveButton = "OverrideMenuBarLeaveButton",
 		OverrideMenuBarPowerBar = "OverrideMenuBarPowerBar",
 		ArenaPrepFrames = "ArenaPrepFrames",
-		ArenaEnemyFrames = "ArenaEnemyFrames",
+		--ArenaEnemyFrames = "ArenaEnemyFrames",
 		MinimapCluster = "MinimapCluster",
 		ObjectiveTrackerFrameMover = "ObjectiveTrackerFrameMover",
 		ObjectiveTrackerFrameScaleMover = "ObjectiveTrackerFrameScaleMover",
@@ -376,7 +379,7 @@ local MovAny = {
 		TemporaryEnchantFrame = "TemporaryEnchantFrame",
 		AuctionDressUpFrame = "AuctionDressUpFrame",
 		MinimapCluster = "MinimapCluster",
-		ArenaEnemyFrame1PetFrame = "ArenaEnemyFrame1PetFrame",
+		--[[ArenaEnemyFrame1PetFrame = "ArenaEnemyFrame1PetFrame",
 		ArenaEnemyFrame2PetFrame = "ArenaEnemyFrame2PetFrame",
 		ArenaEnemyFrame3PetFrame = "ArenaEnemyFrame3PetFrame",
 		ArenaEnemyFrame4PetFrame = "ArenaEnemyFrame4PetFrame",
@@ -385,7 +388,7 @@ local MovAny = {
 		ArenaEnemyFrame2CastingBar = "ArenaEnemyFrame2CastingBar",
 		ArenaEnemyFrame3CastingBar = "ArenaEnemyFrame3CastingBar",
 		ArenaEnemyFrame4CastingBar = "ArenaEnemyFrame4CastingBar",
-		ArenaEnemyFrame5CastingBar = "ArenaEnemyFrame5CastingBar",
+		ArenaEnemyFrame5CastingBar = "ArenaEnemyFrame5CastingBar",--]]
 	},
 	lAllowedMAFrames = {
 		MAOptions = "MAOptions",
@@ -503,7 +506,7 @@ local MovAny = {
 			API:SyncElement("StanceButtonsVerticalMover")
 		end
 	end,
-	hookArenaEnemyFrames = function()
+	--[[hookArenaEnemyFrames = function()
 		if ArenaPrepFrames and not ArenaPrepFrames.hooked_ma then
 			ArenaPrepFrames.hooked_ma = true
 			ArenaPrepFrames.Hide = function()end
@@ -540,9 +543,9 @@ local MovAny = {
 				end
 			end
 		end
-	end,
-	arenaframes15hooked = false,
-	hookArenaEnemyFrames15 = function(self)
+	end,--]]
+	--arenaframes15hooked = false,
+	--[[hookArenaEnemyFrames15 = function(self)
 		if InCombatLockdown() then
 			return
 		end
@@ -579,7 +582,7 @@ local MovAny = {
 	hArenaEnemyFrames_Disable = function()
 		ArenaPrepFrames:ma_Hide()
 		ArenaEnemyFrames:ma_Hide()
-	end,
+	end,--]]
 	--[[hWatchFrameExpand = function()
 		if ArenaEnemyFrames then
 			local _, instanceType = IsInInstance()
@@ -707,7 +710,7 @@ if WorldMap_ToggleSizeDown then
 	end)
 end
 
-OverrideActionBar:HookScript("OnShow", function(self)
+--[[OverrideActionBar:HookScript("OnShow", function(self)
 	if not MovAny:IsModified(MicroButtonsMover) and not MovAny:IsModified(MicroButtonsSplitMover) and not MovAny:IsModified(MicroButtonsVerticalMover) then
 		return
 	end
@@ -753,7 +756,7 @@ OverrideActionBar:HookScript("OnHide", function(self)
 	elseif MovAny:IsModified(MicroButtonsVerticalMover) then
 		MovAny.API:SyncElement("MicroButtonsVerticalMover")
 	end
-end)
+end)--]]
 
 _G.MovAny = MovAny
 
@@ -909,8 +912,8 @@ function MovAny:Load()
 	end
 	MAOptions:RegisterUnitEvent("UNIT_AURA", "player")
 	MAOptions:RegisterEvent("BAG_UPDATE")
-	MAOptions:RegisterEvent("PET_BATTLE_OPENING_START")
-	MAOptions:RegisterEvent("PET_BATTLE_CLOSE")
+	--MAOptions:RegisterEvent("PET_BATTLE_OPENING_START")
+	--MAOptions:RegisterEvent("PET_BATTLE_CLOSE")
 end
 
 function MovAny:Boot()
@@ -962,7 +965,7 @@ function MovAny:Boot()
 	if UpdateContainerFrameAnchors then
 		hooksecurefunc("UpdateContainerFrameAnchors", self.hUpdateContainerFrameAnchors)
 	end
-	if SpellBookFrame_Update then
+	if SpellBookFrame_Update and SpellBookFrame and SpellBookPage1 then
 		hooksecurefunc("SpellBookFrame_Update", function()
 			SpellBookPage1:SetPoint("LEFT", SpellBookFrame)
 		end)
@@ -1366,6 +1369,18 @@ function MovAny:IsProtected(f)
 	end
 end
 
+function MovAny:IsForbidden(f)
+	if not f then
+		return
+	end
+	local isForbidden = f:IsForbidden()
+	if isForbidden or MovAny.lForceForbidden[f:GetName()] then
+		return true
+	else
+		return nil
+	end
+end
+
 function MovAny:GetCharacterIndex()
 	return GetRealmName().." "..UnitName("player")
 end
@@ -1762,7 +1777,9 @@ function MovAny:HookFrame(e, f, dontUnanchor, runBeforeInteract)
 			f.MAWasResizable = true
 		end
 		f:SetMovable(true)
-		f:SetUserPlaced(true)
+		if f ~= MainMenuBar then
+			f:SetUserPlaced(true)
+		end
 	end
 	f.MAE = e
 	if not opt.orgPos and e and not e.noMove then
@@ -4090,7 +4107,7 @@ function MovAny:UnanchorRelatives(e, f, opt)
 		local children = {p:GetChildren()}
 		if children ~= nil then
 			for i, v in ipairs(children) do
-				if not v:IsForbidden() and not v:IsProtected() then
+				if not self:IsForbidden(v) and not self:IsProtected(v) and v.GetPoint then
 					self:_AddDependents(relatives, v)
 				end
 			end
@@ -4137,9 +4154,17 @@ function MovAny:UnanchorRelatives(e, f, opt)
 end
 
 function MovAny:_AddDependents(l, f)
-	if MovAny:IsProtected(f) and InCombatLockdown() then
+	if (MovAny:IsProtected(f) and InCombatLockdown()) or not f.GetPoint then
 		return
 	end
+
+	local error = false
+	xpcall(function() return f:GetPoint(1) end,
+		   function() error = true end)
+	if error then
+		return
+	end
+
 	local _, relativeTo = f:GetPoint(1)
 	if relativeTo and l[relativeTo] then
 		l[f] = f
@@ -5746,7 +5771,7 @@ function MovAny_OnEvent(self, event, arg1)
 		end
 		--MovAny.API:SyncElement("RaidUnitFramesManagerMover")
 		MovAny.API:SyncElement("RaidUnitFramesMover")
-	elseif event == "PET_BATTLE_OPENING_START" then
+	--[[elseif event == "PET_BATTLE_OPENING_START" then
 		if not MovAny:IsModified(MicroButtonsMover) and not MovAny:IsModified(MicroButtonsSplitMover) and not MovAny:IsModified(MicroButtonsVerticalMover) then
 			return
 		end
@@ -5788,7 +5813,7 @@ function MovAny_OnEvent(self, event, arg1)
 			MovAny.API:SyncElement("MicroButtonsSplitMover")
 		elseif MovAny:IsModified(MicroButtonsVerticalMover) then
 			MovAny.API:SyncElement("MicroButtonsVerticalMover")
-		end
+		end--]]
 	elseif event == "PLAYER_FOCUS_CHANGED" then
 		MovAny.API:SyncElement("FocusFrame")
 	elseif event == "BANKFRAME_OPENED" then
@@ -6041,7 +6066,7 @@ function MovAny:CreateVM(name)
 		end, MovAny.SyncErrorHandler)
 	end
 	if not vm.MAPoint then
-		if data.point then
+		if data.point and _G[data.point[2]] then
 			vm:SetPoint(unpack(data.point))
 			if opt and opt.pos and not opt.orgPos then
 				opt.orgPos = data.point

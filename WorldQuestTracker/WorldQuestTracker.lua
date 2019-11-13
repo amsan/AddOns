@@ -1,5 +1,5 @@
 
-
+ 
 --new 8.1.5 C_TaskQuest.GetQuestTimeLeftSeconds
 
 hooksecurefunc (WorldQuestDataProviderMixin, "RefreshAllData", function (self, fromOnShow)
@@ -207,6 +207,12 @@ function WorldQuestTracker:OnInit()
 			if (not WorldQuestTrackerFinderFrame.IsRegistered) then
 				WorldQuestTracker.RegisterGroupFinderFrameOnLibWindow()
 			end
+		end
+	end
+	
+	if (WorldQuestTracker.db.profile.raredetected and WorldQuestTracker.MapData.RaresToScan) then
+		for npcId, _ in pairs (WorldQuestTracker.db.profile.raredetected) do
+			WorldQuestTracker.MapData.RaresToScan [npcId] = true
 		end
 	end
 	
@@ -856,10 +862,10 @@ end
 local tutorial_three = function()
 	local alert = CreateFrame ("frame", "WorldQuestTrackerTutorialAlert3", worldFramePOIs, "MicroButtonAlertTemplate")
 	alert:SetFrameLevel (302)
-	alert.label = "Click on Summary to see statistics and a saved list of quests on other characters."
+	alert.label = L["S_TUTORIAL_STATISTICS_BUTTON"]
 	alert.Text:SetSpacing (4)
 	MicroButtonAlert_SetText (alert, alert.label)
-	alert:SetPoint ("bottomleft", WorldQuestTrackerRewardHistoryButton, "topleft", 0, 32)
+	alert:SetPoint ("bottomleft", WorldQuestTrackerStatisticsButton, "topleft", 0, 32)
 	alert.Arrow:ClearAllPoints()
 	alert.Arrow:SetPoint ("topleft", alert, "bottomleft", 10, 0)
 	alert.CloseButton:HookScript ("OnClick", hook_AlertCloseButton)

@@ -20,9 +20,11 @@ local races = {
    "Lightforged Draenei",
    "Void Elf",
    "Dark Iron Dwarf",
+   "Kul Tiran",
    "Highmountain Tauren",
    "Nightborne",
    "Mag'har Orc",
+   "Zandalari Troll",
 }
 
 local raceID = {
@@ -43,6 +45,8 @@ local raceID = {
    ["Highmountain Tauren"] = 28,
    ["Void Elf"] = 29,
    ["Lightforged Draenei"] = 30,
+   ["Zandalari Troll"] = 31,
+   ["Kul Tiran"] = 32,
    ["Dark Iron Dwarf"] = 34,
    ["Mag'har Orc"] = 36,
 }
@@ -152,7 +156,6 @@ function mog:CreateModelFrame(parent)
 	f.model = CreateFrame("DressUpModel",nil,f);
 	f.model:SetAllPoints(f);
 	f.model:SetModelScale(2);
-	f.model:SetAutoDress(false);
 	f.model:SetUnit("PLAYER");
 	f.model:SetPosition(0,0,0);
 	f.model:SetLight(true, false, 0, 0.8, -1, 1, 1, 1, 1, 0.3, 1, 1, 1);
@@ -295,7 +298,17 @@ function ModelFramePrototype:TryOn(item, slot, itemAppearanceModID)
 end
 
 function ModelFramePrototype:Undress()
-	self.model:Undress()
+	-- the worst of hacks to prevent certain armor model pieces from getting stuck on the character
+	for i, slotName in ipairs(mog.slots) do
+		local slot = GetInventorySlotInfo(slotName);
+		local item = GetInventoryItemLink("player", slot);
+		if item then
+			self:TryOn(item);
+			self:UndressSlot(slot);
+		end
+	end
+	self:UndressSlot(GetInventorySlotInfo("MainHandSlot"));
+	self:UndressSlot(GetInventorySlotInfo("SecondaryHandSlot"));
 end
 
 function ModelFramePrototype:UndressSlot(slot)

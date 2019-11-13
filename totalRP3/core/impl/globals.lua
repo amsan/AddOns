@@ -50,14 +50,14 @@ TRP3_API.globals = {
 	addon_name_me = "Total RP 3",
 	addon_id_length = 15,
 
-	version = 64,
+	version = 79,
 
 	--[===[@debug@
 	version_display = "-dev",
 	--@end-debug@]===]
 
 	--@non-debug@
-	version_display = "1.5.4",
+	version_display = "1.6.7.1",
 	--@end-non-debug@
 
 
@@ -79,10 +79,12 @@ TRP3_API.globals = {
 	},
 
 	icons = {
-		default = "TEMP",
+		default = "INV_Misc_QuestionMark",
 		unknown = "INV_Misc_QuestionMark",
 		profile_default = "INV_Misc_GroupLooking",
 	},
+
+	is_classic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC,
 
 	-- Profile Constants
 	PSYCHO_DEFAULT_VALUE_V1 = 3,

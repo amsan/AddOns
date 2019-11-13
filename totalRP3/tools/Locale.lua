@@ -326,6 +326,7 @@ It also works on the |cffffff00"At first glance" bar|r!]],
 	REG_LIST_FILTERS = "Filters",
 	REG_LIST_FILTERS_TT = "|cffffff00Click:|r Apply filters\n|cffffff00Right-Click:|r Clear filters",
 	REG_LIST_REALMONLY = "This realm only",
+	REG_LIST_NOTESONLY = "Has notes only",
 	REG_LIST_GUILD = "Character's guild",
 	REG_LIST_NAME = "Character's name",
 	REG_LIST_FLAGS = "Flags",
@@ -575,6 +576,7 @@ Possible status:
 (When this option is enabled, you can ALT-SHIFT-Click on a name when you want the default behavior and insert the character name instead of the full RP name.)]],
 	CO_CHAT_MAIN_COLOR = "Use custom colors for names",
 	CO_CHAT_INCREASE_CONTRAST = "Increase color contrast",
+	CO_CHAT_SHOW_OOC = "Show OOC indicator",
 	CO_CHAT_USE_ICONS = "Show player icons",
 	CO_CHAT_USE = "Used chat channels",
 	CO_CHAT_USE_SAY = "Say channel",
@@ -603,6 +605,7 @@ Possible status:
 	CO_GLANCE_PRESET_TRP3 = "Use Total RP 3 style positions",
 	CO_GLANCE_PRESET_TRP3_HELP = "Shortcut to setup the bar in a TRP3 style : to the bottom of the TRP3 target frame.",
 	CO_GLANCE_TT_ANCHOR = "Tooltips anchor point",
+	CO_HIDE_EMPTY_MAP_BUTTON = "Hide when no scans available",
 	CO_MSP = "Mary Sue Protocol",
 	CO_WIM = "|cffff9900Whisper channels are disabled.",
 	CO_WIM_TT = "You are using |cff00ff00WIM|r, the handling for whisper channels is disabled for compatibility purposes",
@@ -611,6 +614,8 @@ Possible status:
 	CO_LOCATION_ACTIVATE_TT = "Enable the character location system, allowing you to scan for other Total RP users on the world map and allowing them to find you.",
 	CO_LOCATION_DISABLE_OOC = "Disable location when OOC",
 	CO_LOCATION_DISABLE_OOC_TT = "You will not respond to location requests from other players when you've set your RP status to Out Of Character.",
+	CO_LOCATION_DISABLE_CLASSIC_PVP = "Disable location when flagged for PvP",
+	CO_LOCATION_DISABLE_CLASSIC_PVP_TT = "You will not respond to location requests from other players when you are flagged for PvP.\n\nThis option is particularly useful to avoid abuses of the location system to track you.",
 	CO_SANITIZER = "Sanitize incoming profiles",
 	CO_SANITIZER_TT = "Remove escaped sequences in tooltip fields from incoming profiles when TRP doesn't allow it (color, images ...).",
 
@@ -755,6 +760,16 @@ Use the |cffffff00Import profile|r option to paste data from a previous export i
 	DB_STATUS_RP_EXP_TT = "Shows that you are an experienced roleplayer.\nIt will not show any specific icon on your tooltip.",
 	DB_STATUS_RP_VOLUNTEER = "Volunteer roleplayer",
 	DB_STATUS_RP_VOLUNTEER_TT = "This selection will show an icon on your tooltip, indicating\nto beginner roleplayers that you are willing to help them.",
+	DB_STATUS_LC = "Roleplay language",
+	DB_STATUS_LC_TT = [[Sets your preferred roleplaying language. This will be shared with other compatible RP addon users.
+
+|cffff9900Note:|r This does |cffff0000not|r change the user interface language of Total RP 3. This option can instead be found in the |cfffff569Advanced Settings|r page.]],
+
+	-- DB_STATUS_LC_DEFAULT will be formatted with the current locale name, eg. "Italiano".
+	DB_STATUS_LC_DEFAULT = "Default (%1$s)",
+
+	-- DB_STATUS_ICON_ITEM will be formatted with an icon texture and a label for a dropdown item.
+	DB_STATUS_ICON_ITEM = "%1$s %2$s",
 	DB_TUTO_1 = [[|cffffff00The character status|r indicates if you are currently playing your character's role or not.
 
 |cffffff00The roleplayer status|r allows you to state that you are a beginner, or a veteran willing to help rookies!
@@ -781,6 +796,8 @@ This will works:|cff00ff00
 	UI_ICON_SELECT = "Select icon",
 	UI_MUSIC_BROWSER = "Music browser",
 	UI_MUSIC_SELECT = "Select music",
+	UI_MUSIC_DURATION = "Duration",
+	UI_MUSIC_ALTTITLE = "Alternate title",
 	UI_COLOR_BROWSER = "Color browser",
 	UI_COLOR_BROWSER_SELECT = "Select color",
 	UI_COLOR_BROWSER_PRESETS = "Presets",
@@ -860,6 +877,7 @@ Total RP is not responsible for links leading to harmful content.]],
 	CM_CLASS_WARLOCK = "Warlock",
 	CM_CLASS_MONK = "Monk",
 	CM_CLASS_DRUID = "Druid",
+	CM_CLASS_DEMONHUNTER = "Demon Hunter",
 	CM_CLASS_UNKNOWN = "Unknown",
 	CM_RESIZE = "Resize",
 	CM_RESIZE_TT = "Drag to resize the frame.",
@@ -919,6 +937,18 @@ Total RP is not responsible for links leading to harmful content.]],
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 	ABOUT_TITLE = "About",
+
+	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+	-- Slash commands
+	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+	SLASH_CMD_STATUS_USAGE = "ic || ooc || toggle",
+	SLASH_CMD_STATUS_HELP = [[Usage: |cff00ff00/trp3 status ic || ooc || toggle|r
+Changes your character status to the specified option:
+
+|cffff9900/trp3 status ic|r will set your status to |cff00ff00in character|r.
+|cffff9900/trp3 status ooc|r will set your status to |cffff0000out of character|r.
+|cffff9900/trp3 status toggle|r will switch your status to the opposite state.]],
 
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	-- MAP
@@ -1090,11 +1120,8 @@ The Kui |cff9966ffNameplates|r module adds several Total RP 3 customizations to 
 %CONTRIBUTORS$s
 
 {h2}{icon:THUMBUP:20} Acknowledgements{/h2}
-{col:ffffff}Ellypse's {/col}{link*https://www.patreon.com/ellypse*Patreon}{col:ffffff} supporters:{/col}
-%s
-
 {col:ffffff}Logo and minimap button icon:{/col}
-- {link*https://ebonfeathers.tumblr.com/*EbonFeather@Tumblr}
+- {link*https://twitter.com/Kelandiir*@Kelandiir}
 
 {col:ffffff}Our pre-alpha QA team:{/col}
 %TESTERS$s
@@ -1187,86 +1214,8 @@ Please keep in mind that changing those settings might alter your experience wit
 	REG_REPORT_PLAYER_OPEN_URL = [[You can only report players directly from within the game if you can target them (use TRP3's target frame button).
 
 If you wish to report %s's profile and you cannot target them you will need to open a ticket with Blizzard's support using the link bellow.]],
+	REG_REPORT_PLAYER_OPEN_URL_160 = [[If you wish to report %s's profile, you will need to open a ticket with Blizzard's support using the link below.]],
 	NEW_VERSION_BEHIND = "You are currently %s versions behind and are missing on many bug fixes and new features. Other players might not be able to see your profile correctly. Please consider updating the add-on.",
-
-	---@language Markdown
-	WHATS_NEW_22 = [[
-# Changelog version 1.5.0
-
-## Re-implemented map scans feature
-
-You can now once again scan for Total RP 3 users on the world map.
-
-- Added support for War Mode. Players that are not in the same War Mode as you will not appear on the world map by default.
-- In the Location settings (Register settings tab) you can enable the option to show people who are in a different War Mode, they will appear greyed out and semi-transparent on the world map, and will be grouped separately when displayed in the tooltip.
-- You can opt in to not be visible to other players while you are in War Mode.
-- Map scans now differentiate between levels of a same zone (like Dalaran), and setting your home to a specific level of map will now correctly show on that level when users click on the home button on your profile.
-
-Please note: Only players with Total RP 3 version 1.5.0 and above will show up. Total RP 3: Extended's scans will be updated to working with this new system.
-
-## Profile reporting
-
-Since patch 8.0.1 you are able to report profiles that violates Blizzard's Terms of Services by opening a support ticket.
-
-- Following Blizzard's guidance, you can now report a player who have a profile that goes against the [Code of Conduct](https://battle.net/support/article/42673) via a new button on Total RP 3's target frame. A standard game report window will open pre-filled with information about the player you are reporting.
-- Since it is not technically possible to report a player you cannot target, we have added a button to the profile page when opening a profile that opens up a [link to a Blizzard support page on how to report add-on text](https://battle.net/support/help/product/wow/197/1501/solution).
-
-## Added
-
-- Added a workaround against a current game bug that will always reset the language currently selected after a loading screen. You can disable this workaround in cases of issues in the advanced settings.
-- Added a workaround to make sure Total RP 3's broadcast channel (xtensionxtooltip2) is always at the bottom of the channel list. This should fix issues where it would be the first channel and move all others channels you have joined down in the list. You can disable this workaround in cases of issues in the advanced settings.
-
-]],
-	---@language Markdown
-	WHATS_NEW_22_1 = [[
-# Changelog version 1.5.1
-
-## Fixed
-
-- Fixed an issue that would make users still send their map location when the option to not send it when your roleplaying status is set to "Out of character" was enabled and they were indeed "Out of character".
-- Fixed an issue that would prevent the `/trp3 roll` command to work properly when in a group or a raid.
-- Other players' characters information without a profile attached to them are now correctly purged on startup to avoid storing them indefinitely.
-- Profiles received from links are now correctly applied a "Last seen" timestamp so they are correctly treated by the automatic directory purge instead of being always deleted because of the lack of timestamp.
-- The add-on will now warn you with a different message than the regular one if you are several versions behind and are at risk of issues because of that.
-- The advanced settings would not get the user selected localization applied to their texts.
-- Fixed issues related to upcoming API changes in patch 8.1.
-]],
-	---@language Markdown
-	WHATS_NEW_22_2 = [[
-# Changelog version 1.5.3
-
-## Added
-
-- Added 562 icons, 51 images and 56 musics to Total RP 3's resources browsers for patch 8.1.
-
-## Fixed
-
-- Fixed a Lua error that could sometimes appear when trying to request data from one of your Battle.net friends while your Battle.net status is set to appear offline.
-]],
-	---@language Markdown
-	WHATS_NEW_22_3 = [[
-# Changelog version 1.5.4
-
-## Added
-
-- Added a relationship status dropdown in the Characteristics tab to display (if you wish) if your character is in a relationship. **This is unrelated to the relationship update planned at a later date.**
-- Added compatibility with the MSP protocol to share trial flag and music theme with other RP addons users.
-- Added new default icons for Kul Tirans and Zandalaris (sorry KT females, couldn't find a better icon).
-- Added 2 images, 36 musics and 46 icons from patch 8.1.5.
-
-## Fixed
-
-- Fixed an issue with map scans tooltips not working properly.
-- Fixed a bug occuring when scrolling down the music list if it passed over specific invalid musics.
-- Fixed an issue that would stop displaying a profile using template 3 halfway through.
-- Fixed an issue that would create duplicate profiles in the directory.
-- Fixed an issue that would not reload a profile coming from MSP properly after deleting it from the register.
-]],
-	------------------------------------------------------------------------------------------------
-	--- PLACE LOCALIZATION NOT ALREADY UPLOADED TO CURSEFORGE HERE
-	--- THEN MOVE IT UP ONCE IMPORTED
-	------------------------------------------------------------------------------------------------
-
 	REG_PLAYER_RELATIONSHIP_STATUS_UNKNOWN = "Do not show",
 	REG_PLAYER_RELATIONSHIP_STATUS_SINGLE = "Single",
 	REG_PLAYER_RELATIONSHIP_STATUS_TAKEN = "Taken",
@@ -1275,6 +1224,100 @@ Since patch 8.0.1 you are able to report profiles that violates Blizzard's Terms
 	REG_PLAYER_RELATIONSHIP_STATUS_WIDOWED = "Widowed",
 	REG_PLAYER_RELATIONSHIP_STATUS = "Relationship status",
 	REG_PLAYER_RELATIONSHIP_STATUS_TT = [[Indicate the relationship status of your character. Select "Do not show" if you wish to keep that information hidden.]],
+	REG_NOTES_PROFILE = "Notes",
+	REG_NOTES_PROFILE_TT = "Open the notes window for the target character.",
+	REG_PLAYER_NOTES = "Notes",
+	REG_PLAYER_NOTES_PROFILE = "Notes from %s",
+	REG_PLAYER_NOTES_PROFILE_NONAME = "Profile notes",
+	REG_PLAYER_NOTES_PROFILE_HELP = "These private notes are tied to your current profile and will change based on what profile you currently have active.",
+	REG_PLAYER_NOTES_ACCOUNT = "Common notes",
+	REG_PLAYER_NOTES_ACCOUNT_HELP = "These private notes are tied to your account and will be shared with all of your profiles.",
+	---@language Markdown
+	WHATS_NEW_23_4 = [[
+# Changelog version 1.6.4
+
+We are aware of a current issue on Retail causing **quest item usage from the objective tracker** to sometimes fail. While we do not have a fix for it just yet, **typing /reload after getting the error message** temporarily fixes the issue. Sorry for the inconvenience.
+
+## WoW: Classic support
+
+- Total RP 3: Classic is now available as a separate download on CurseForge and WoWInterface! Be sure to install it instead of the retail version of Total RP 3 if you plan on roleplaying in WoW: Classic.
+- Important points to be aware of for the Classic version:
+  - A few icons have been changed across the addon to replace missing icons in Classic.
+  - Companion profiles have been disabled for mounts and non-combat pets, as Blizzard did not provide us with beta access. We will work on implementing them back as soon as possible.
+  - Total RP 3: Extended will not be ported to Classic at launch. We will be evaluating if a Classic port makes sense for us to do at a later date.
+
+## Changed
+
+- When using the character map scan, characters with which you have set a relationship will now appear on top of the others.
+
+]],
+
+	---@language Markdown
+	WHATS_NEW_23_5 = [[
+# Changelog version 1.6.5
+
+## Added
+
+- Added Total RP 3: Extended version number alongside Total RP 3 version number at the bottom of the tooltip.
+
+## Fixed
+
+- Fixed an error when someone executes a scan in your zone. (Classic only)
+- Fixed a potential error when saving a glance slot.
+
+]],
+
+	---@language Markdown
+	WHATS_NEW_23_6 = [[
+# Changelog version 1.6.6
+
+## Added
+
+- Added slash commands to change your roleplay status, which you can use in macros. You can now use `/trp3 status ic` to get in character, `/trp3 status ooc` to get out of character, or `/trp3 status toggle` to switch status.
+- Added a chat setting to display the OOC indicator next to the name in chat.
+- Added a setting to hide the map scan button if no scan is available.
+- Added a roleplay language field to the main dashboard.
+  - This setting is profile-based, defaults to your addon language, and allows you to indicate the language you're roleplaying in.
+  - If your addon language doesn't match a player's roleplaying language, you'll see a flag at the bottom of their tooltip indicating their roleplaying language.
+  - This change is mainly aimed at Classic roleplayers, as only English RP realms were made.
+- Added back buttons to toggle helmet and cloak display for Classic.
+
+## Changed
+
+- Renamed the war mode setting to PvP mode for Classic.
+
+## Fixed
+
+- Fixed issues when the target bar module was disabled.
+- Fixed an issue causing duplicate Mary-Sue Protocol profiles to appear in the register when unchecking "This realm only".
+- Fixed a few remaining missing icons for Classic (default template 3 icons and `/trp3 roll` icons)
+- Fixed an issue when using the "Right-click to open profile" setting on Classic.
+
+]],
+
+	------------------------------------------------------------------------------------------------
+	--- PLACE LOCALIZATION NOT ALREADY UPLOADED TO CURSEFORGE HERE
+	--- THEN MOVE IT UP ONCE IMPORTED
+	------------------------------------------------------------------------------------------------
+
+	CO_CHAT_MAIN_SPEECH = "Speech detection",
+	CO_CHAT_MAIN_SPEECH_USE = "Use speech detection",
+	CO_CHAT_MAIN_SPEECH_USE_TT = "Text surrounded by quotation marks will be colored as if written in /say.",
+
+	---@language Markdown
+	WHATS_NEW_23_7 = [[
+# Changelog version 1.6.7
+
+## Added
+
+- Added a setting to detect speech in emotes and automatically color it.
+- Added 7 icons and 1 music from patch 8.2.5.
+
+## Changed
+
+- The companion profiles list accessed through the target frame is now alphabetically sorted, and "Create new profile" has been moved out of it.
+
+]],
 };
 
 -- Use Ellyb to generate the Localization system
@@ -1342,6 +1385,7 @@ Importing content coming from a different version may cause issues in case of in
 	["CM_CANCEL"] = "Cancel",
 	["CM_CENTER"] = "Center",
 	["CM_CLASS_DEATHKNIGHT"] = "Death Knight",
+	["CM_CLASS_DEMONHUNTER"] = "Demon Hunter",
 	["CM_CLASS_DRUID"] = "Druid",
 	["CM_CLASS_HUNTER"] = "Hunter",
 	["CM_CLASS_MAGE"] = "Mage",
@@ -1453,9 +1497,13 @@ Please keep in mind that changing those settings might alter your experience wit
 	["CO_CHAT_MAIN_OOC_COLOR"] = "OOC color",
 	["CO_CHAT_MAIN_OOC_PATTERN"] = "OOC detection pattern",
 	["CO_CHAT_MAIN_OOC_USE"] = "Use OOC detection",
+	["CO_CHAT_MAIN_SPEECH"] = "Speech detection",
+	["CO_CHAT_MAIN_SPEECH_USE"] = "Use speech detection",
+	["CO_CHAT_MAIN_SPEECH_USE_TT"] = "Text surrounded by quotation marks will be colored as if written in /say.",
 	["CO_CHAT_NPCSPEECH_REPLACEMENT"] = "Customize companion names in NPC speeches",
 	["CO_CHAT_NPCSPEECH_REPLACEMENT_TT"] = "If a companion name is in brackets in an NPC speech, it will be colored and its icon will be shown depending on your settings above.",
 	["CO_CHAT_REMOVE_REALM"] = "Remove realm from player names",
+	["CO_CHAT_SHOW_OOC"] = "Show OOC indicator",
 	["CO_CHAT_USE"] = "Used chat channels",
 	["CO_CHAT_USE_ICONS"] = "Show player icons",
 	["CO_CHAT_USE_SAY"] = "Say channel",
@@ -1505,9 +1553,14 @@ If not, the language will be changed on the next connection.]=],
 	["CO_GLANCE_PRESET_TRP3_HELP"] = "Shortcut to setup the bar in a TRP3 style : to the bottom of the TRP3 target frame.",
 	["CO_GLANCE_RESET_TT"] = "Reset the bar position to the bottom left of the anchored frame.",
 	["CO_GLANCE_TT_ANCHOR"] = "Tooltips anchor point",
+	["CO_HIDE_EMPTY_MAP_BUTTON"] = "Hide when no scans available",
 	["CO_LOCATION"] = "Location settings",
 	["CO_LOCATION_ACTIVATE"] = "Enable character location",
 	["CO_LOCATION_ACTIVATE_TT"] = "Enable the character location system, allowing you to scan for other Total RP users on the world map and allowing them to find you.",
+	["CO_LOCATION_DISABLE_CLASSIC_PVP"] = "Disable location when flagged for PvP",
+	["CO_LOCATION_DISABLE_CLASSIC_PVP_TT"] = [=[You will not respond to location requests from other players when you are flagged for PvP.
+
+This option is particularly useful to avoid abuses of the location system to track you.]=],
 	["CO_LOCATION_DISABLE_OOC"] = "Disable location when OOC",
 	["CO_LOCATION_DISABLE_OOC_TT"] = "You will not respond to location requests from other players when you've set your RP status to Out Of Character.",
 	["CO_LOCATION_DISABLE_PVP"] = "Disable location when flagged for PvP",
@@ -1673,6 +1726,12 @@ Your profiles, companions profiles and settings will be temporarily stashed away
 	["DB_STATUS_CURRENTLY_OOC"] = "Other information (OOC)",
 	["DB_STATUS_CURRENTLY_OOC_TT"] = "Here you can indicate something important about you, as a player, or anything out of your character.",
 	["DB_STATUS_CURRENTLY_TT"] = "Here you can indicate something important about your character.",
+	["DB_STATUS_ICON_ITEM"] = "%1$s %2$s",
+	["DB_STATUS_LC"] = "Roleplay language",
+	["DB_STATUS_LC_DEFAULT"] = "Default (%1$s)",
+	["DB_STATUS_LC_TT"] = [=[Sets your preferred roleplaying language. This will be shared with other compatible RP addon users.
+
+|cffff9900Note:|r This does |cffff0000not|r change the user interface language of Total RP 3. This option can instead be found in the |cfffff569Advanced Settings|r page.]=],
 	["DB_STATUS_RP"] = "Character status",
 	["DB_STATUS_RP_EXP"] = "Experienced roleplayer",
 	["DB_STATUS_RP_EXP_TT"] = [=[Shows that you are an experienced roleplayer.
@@ -2045,6 +2104,7 @@ The last column is for various flags. (ignored ..etc.)]=],
 
 |cffffff00Click to remove from ignore list]=],
 	["REG_LIST_NAME"] = "Character's name",
+	["REG_LIST_NOTESONLY"] = "Has notes only",
 	["REG_LIST_NOTIF_ADD"] = "New profile discovered for |cff00ff00%s",
 	["REG_LIST_NOTIF_ADD_CONFIG"] = "New profile discovered",
 	["REG_LIST_NOTIF_ADD_NOT"] = "This profile doesn't exist anymore.",
@@ -2068,6 +2128,8 @@ Currently loaded: |cff00ff00%s
 |cffff9900Therefore the MSP support for Total RP3 will be disabled.|r
 
 If you don't want TRP3 to be your MSP addon and don't want to see this alert again, you can disable the Mary Sue Protocol module in the TRP3 Settings -> Module status.]=],
+	["REG_NOTES_PROFILE"] = "Notes",
+	["REG_NOTES_PROFILE_TT"] = "Open the notes window for the target character.",
 	["REG_PLAYER"] = "Character",
 	["REG_PLAYER_ABOUT"] = "About",
 	["REG_PLAYER_ABOUT_ADD_FRAME"] = "Add a frame",
@@ -2216,6 +2278,12 @@ There are several ways to do this:|c0000ff00
 	["REG_PLAYER_MSP_NICK"] = "Nickname",
 	["REG_PLAYER_NAMESTITLES"] = "Names and titles",
 	["REG_PLAYER_NO_CHAR"] = "No characteristics",
+	["REG_PLAYER_NOTES"] = "Notes",
+	["REG_PLAYER_NOTES_ACCOUNT"] = "Common notes",
+	["REG_PLAYER_NOTES_ACCOUNT_HELP"] = "These private notes are tied to your account and will be shared with all of your profiles.",
+	["REG_PLAYER_NOTES_PROFILE"] = "Notes from %s",
+	["REG_PLAYER_NOTES_PROFILE_HELP"] = "These private notes are tied to your current profile and will change based on what profile you currently have active.",
+	["REG_PLAYER_NOTES_PROFILE_NONAME"] = "Profile notes",
 	["REG_PLAYER_PEEK"] = "Miscellaneous",
 	["REG_PLAYER_PHYSICAL"] = "Physical Description",
 	["REG_PLAYER_PSYCHO"] = "Personality Traits",
@@ -2394,6 +2462,7 @@ For instance they could be |c0000ff00slim, fat or muscular...|r Or they could si
 	["REG_REPORT_PLAYER_OPEN_URL"] = [=[You can only report players directly from within the game if you can target them (use TRP3's target frame button).
 
 If you wish to report %s's profile and you cannot target them you will need to open a ticket with Blizzard's support using the link bellow.]=],
+	["REG_REPORT_PLAYER_OPEN_URL_160"] = "If you wish to report %s's profile, you will need to open a ticket with Blizzard's support using the link below.",
 	["REG_REPORT_PLAYER_PROFILE"] = "Report profile to |cff449fe0Blizzard|r",
 	["REG_REPORT_PLAYER_PROFILE_TT"] = [=[You can report a profile that infringe on Blizzard's Terms of Service. This can include harassment, doxxing, hate speech, obscene content or other form of disruptive content.
 
@@ -2414,6 +2483,13 @@ If you wish to report %s's profile and you cannot target them you will need to o
 	["REG_TT_TARGET"] = "Target: |cffff9900%s",
 	["SCRIPT_ERROR"] = "Error in script.",
 	["SCRIPT_UNKNOWN_EFFECT"] = "Script error, unknown FX",
+	["SLASH_CMD_STATUS_HELP"] = [=[Usage: |cff00ff00/trp3 status ic || ooc || toggle|r
+Changes your character status to the specified option:
+
+|cffff9900/trp3 status ic|r will set your status to |cff00ff00in character|r.
+|cffff9900/trp3 status ooc|r will set your status to |cffff0000out of character|r.
+|cffff9900/trp3 status toggle|r will switch your status to the opposite state.]=],
+	["SLASH_CMD_STATUS_USAGE"] = "ic || ooc || toggle",
 	["TB_AFK_MODE"] = "Away",
 	["TB_DND_MODE"] = "Do not disturb",
 	["TB_GO_TO_MODE"] = "Switch to %s mode",
@@ -2462,11 +2538,8 @@ If you wish to report %s's profile and you cannot target them you will need to o
 %CONTRIBUTORS$s
 
 {h2}{icon:THUMBUP:20} Acknowledgements{/h2}
-{col:ffffff}Ellypse's {/col}{link*https://www.patreon.com/ellypse*Patreon}{col:ffffff} supporters:{/col}
-%s
-
 {col:ffffff}Logo and minimap button icon:{/col}
-- {link*https://ebonfeathers.tumblr.com/*EbonFeather@Tumblr}
+- {link*https://twitter.com/Kelandiir*@Kelandiir}
 
 {col:ffffff}Our pre-alpha QA team:{/col}
 %TESTERS$s
@@ -2520,28 +2593,171 @@ You can copy/paste it in your web browser.
 
 |cffff0000!! Disclaimer !!|r
 Total RP is not responsible for links leading to harmful content.]=],
+	["UI_MUSIC_ALTTITLE"] = "Alternate title",
 	["UI_MUSIC_BROWSER"] = "Music browser",
+	["UI_MUSIC_DURATION"] = "Duration",
 	["UI_MUSIC_SELECT"] = "Select music",
 	["UI_TUTO_BUTTON"] = "Tutorial mode",
 	["UI_TUTO_BUTTON_TT"] = "Click to toggle on/off the tutorial mode",
-	["WHATS_NEW_16"] = [=[
-## 1.2.11 - 2017-11-09
+	["WHATS_NEW_23"] = [=[
+# Changelog version 1.6.0
 
-### Added
+## Personal notes
 
-- Added support for the profile downloading indicator from and to the XRP add-on.
+You can now write personal notes inside the addon !
 
-### Fixed
+These notes can either be written on your own profile (if you wish to take generic notes for your character), or on someone else's profile (the top field being tied to your current profile, the bottom field being common to all your profiles). These notes are obviously private, nobody else but you can see them.
 
-- Fixed an error when trying to whitelist a profile that has been flagged as containing mature content when the profile hasn't been entirely downloaded yet ([ticket #133](https://wow.curseforge.com/projects/total-rp-3/issues/133)).
-- Fixed an issue allowing the user to send empty NPC messages when using the Enter key ([ticket #124](https://wow.curseforge.com/projects/total-rp-3/issues/124)).
-- Fixed an error when targeting battle pets that are participating in a pet battle ([ticket #96](https://wow.curseforge.com/projects/total-rp-3/issues/96)).
-- Fixed an issue where if you used a single space character for your class (like to indicate you have none) it would be considered as empty and your character's real class would be used instead ([ticket #103](https://wow.curseforge.com/projects/total-rp-3/issues/103)).
-- Fixed an issue where players with custom RP status from other add-ons sent via the Mary Sue Protocol would be shown as Out Of Character.
+{img:Interface\AddOns\totalRP3\resources\160-1.tga:480:480}
 
-### Removed
+To access personal notes, simply click on the new Notes button on the target frame, or open a profile and click on the Notes tab.
 
-- Removed workaround for the text box issue introduced in patch 7.3 as this issue has been fixed in patch 7.3.2.
+{img:Interface\AddOns\totalRP3\resources\160-2.tga:240:120}
+
+The register also received a checkbox to only display profiles on which you wrote notes.
+
+{img:Interface\AddOns\totalRP3\resources\160-3.tga:480:120}
+
+## Added
+
+- Added HTML support for About templates 2 and 3. You can now use the full array of HTML tags while using those templates to format their fields, using the toolbar which is now visible for all templates.
+
+{img:Interface\AddOns\totalRP3\resources\160-4.tga:480:480}
+
+- Added compatibility with other RP addons for personality traits and HTML tags.
+
+## Changed
+
+- The "Report profile" buttons will now both link to the [support website's page on harassment via addons](https://battle.net/support/help/product/wow/197/1501/solution), as the in-game report feature previously added was an invalid method to report addon abuse. The popup will still show a timestamp for the profile's reception, which you can provide to Blizzard CS to help them track the offense.
+
+## Fixed
+
+- Fixed an error which could prevent the addon from loading.
+- Fixed a compatibility issue for template 3 if the addon locale was not English.
+
+## Removed
+
+- Removed auto-highlighting of the full text when entering focus of a text area (About fields, Currently, OOC Info...)
+- Removed April Fools' code (including the forgotten rainbow companion names).
+
+]=],
+	["WHATS_NEW_23_1"] = [=[
+# Changelog version 1.6.1
+
+## Music system rework
+
+- Technical changes in patch 8.2 required us to change how music is handled by the addon. **This means the update is required for musics to work.** This change should be seamless and backwards compatible (music themes from profiles coming from outdated versions should still play fine).
+- This allowed for the addition of musics previously unavailable (looking at you, void elf musics).
+- The duration of all musics should now be visible in the music browser line tooltips.
+
+## Changed
+
+- Settings to increase color contrast in tooltips and chat have been consolidated in a single setting for both which can be found in the General settings. It also applies in more places, like the map scan tooltips.
+
+## Fixed
+
+- The anchor for the map scan button can now properly be set.
+- Fixed a switch in Headers/Paragraph dropdown titles
+- Fixed an error message that could be caused by other addons misusing official API functions.
+
+]=],
+	["WHATS_NEW_23_2"] = [=[
+# Changelog version 1.6.2
+
+## Added
+
+- Added 328 icons and 20 images from patch 8.2.
+- Added an indicator to the music browser when the default name of a music differs from the one matching the current filter.
+
+## Fixed
+
+- Fixed issues in the music data transfer between TRP and MRP.
+- Fixed an issue with duplicated lines on the map scan button tooltip.
+- Further speculative fixes to the map issue on login.
+
+]=],
+	["WHATS_NEW_23_3"] = [=[
+# Changelog version 1.6.3
+
+## Changed
+
+- Companion tooltips will now adjust contrast for the custom color if the setting is enabled.
+
+## Fixed
+
+- Fixed a companion tooltip error when the API fails to return the pet type.
+- Fixed an issue which could make the toolbar appear above the world map.
+- Fixed an anchoring error with the target frame.
+
+]=],
+	["WHATS_NEW_23_4"] = [=[
+# Changelog version 1.6.4
+
+We are aware of a current issue on Retail causing **quest item usage from the objective tracker** to sometimes fail. While we do not have a fix for it just yet, **typing /reload after getting the error message** temporarily fixes the issue. Sorry for the inconvenience.
+
+## WoW: Classic support
+
+- Total RP 3: Classic is now available as a separate download on CurseForge and WoWInterface! Be sure to install it instead of the retail version of Total RP 3 if you plan on roleplaying in WoW: Classic.
+- Important points to be aware of for the Classic version:
+  - A few icons have been changed across the addon to replace missing icons in Classic.
+  - Companion profiles have been disabled for mounts and non-combat pets, as Blizzard did not provide us with beta access. We will work on implementing them back as soon as possible.
+  - Total RP 3: Extended will not be ported to Classic at launch. We will be evaluating if a Classic port makes sense for us to do at a later date.
+
+## Changed
+
+- When using the character map scan, characters with which you have set a relationship will now appear on top of the others.
+
+]=],
+	["WHATS_NEW_23_5"] = [=[
+# Changelog version 1.6.5
+
+## Added
+
+- Added Total RP 3: Extended version number alongside Total RP 3 version number at the bottom of the tooltip.
+
+## Fixed
+
+- Fixed an error when someone executes a scan in your zone. (Classic only)
+- Fixed a potential error when saving a glance slot.
+
+]=],
+	["WHATS_NEW_23_6"] = [=[
+# Changelog version 1.6.6
+
+## Added
+
+- Added slash commands to change your roleplay status, which you can use in macros. You can now use `/trp3 status ic` to get in character, `/trp3 status ooc` to get out of character, or `/trp3 status toggle` to switch status.
+- Added a chat setting to display the OOC indicator next to the name in chat.
+- Added a setting to hide the map scan button if no scan is available.
+- Added a roleplay language field to the main dashboard.
+  - This setting is profile-based, defaults to your addon language, and allows you to indicate the language you're roleplaying in.
+  - If your addon language doesn't match a player's roleplaying language, you'll see a flag at the bottom of their tooltip indicating their roleplaying language.
+  - This change is mainly aimed at Classic roleplayers, as only English RP realms were made.
+- Added back buttons to toggle helmet and cloak display for Classic.
+
+## Changed
+
+- Renamed the war mode setting to PvP mode for Classic.
+
+## Fixed
+
+- Fixed issues when the target bar module was disabled.
+- Fixed an issue causing duplicate Mary-Sue Protocol profiles to appear in the register when unchecking "This realm only".
+- Fixed a few remaining missing icons for Classic (default template 3 icons and `/trp3 roll` icons)
+- Fixed an issue when using the "Right-click to open profile" setting on Classic.
+
+]=],
+	["WHATS_NEW_23_7"] = [=[
+# Changelog version 1.6.7
+
+## Added
+
+- Added a setting to detect speech in emotes and automatically color it.
+- Added 7 icons and 1 music from patch 8.2.5.
+
+## Changed
+
+- The companion profiles list accessed through the target frame is now alphabetically sorted, and "Create new profile" has been moved out of it.
 
 ]=]
 }
@@ -2562,12 +2778,14 @@ localeContent = {
 	["BW_COLOR_CODE"] = "Farbcode",
 	["BW_COLOR_CODE_ALERT"] = "Falscher hexadezimaler Farbcode!",
 	["BW_COLOR_CODE_TT"] = "Hier kannst du 6 Zeichen hexadezimalen Farbcode eintragen und mit ENTER bestätigen.",
+	["BW_COLOR_PRESET_DELETE"] = "Lösche Einstellung von %s",
 	["BW_COLOR_PRESET_SAVE"] = "Aktuelle Farbe speichern",
 	["BW_CUSTOM_NAME"] = "Eigener Farbname",
 	["BW_CUSTOM_NAME_TITLE"] = "Name (Optional)",
 	["BW_CUSTOM_NAME_TT"] = "Du kannst der eigenen Farbe, die du speicherst, einen Namen geben. Wenn du sie nicht benennst wird der hexadezimale Farbcode verwendet.",
 	["CL_COMPANION_PROFILE"] = "Begleiterprofil",
 	["CL_CONTENT_SIZE"] = "Größe: %s",
+	["CL_DOWNLOADING"] = "Lade Herunter: %0.1f %%",
 	["CL_EXPIRED"] = "Dieser Link ist abgelaufen.",
 	["CL_GLANCE"] = "Auf den ersten Blick",
 	["CL_IMPORT_COMPANION"] = "Begleiterprofil importieren",
@@ -2578,10 +2796,15 @@ localeContent = {
 Möchtest du diesen Link für andere Spieler importierbar machen? Dann wären sie in der Lage den Inhalt dieses Links zu kopieren und zu nutzen.
 
 Wenn du mit nein antwortest werden sie den Inhalt des Links nur anschauen können.]=],
+	["CL_MAKE_IMPORTABLE_SIMPLER"] = [=[Diesen %s Link importierbar machen?
+
+Andere Leute können den Inhalt des Links kopieren und nutzen.]=],
+	["CL_MAKE_NON_IMPORTABLE"] = "Nur Ansehbar",
 	["CL_OPEN_COMPANION"] = "Begleiterprofil öffnen",
 	["CL_OPEN_PROFILE"] = "Profil öffnen",
 	["CL_PLAYER_PROFILE"] = "Spielerprofil",
 	["CL_REQUESTING_DATA"] = "Frage Datenverbindung von %s an.",
+	["CL_SENDING_COMMAND"] = "Sende Befehl...",
 	["CL_SENT_BY"] = "Link gesendet von: %s",
 	["CL_TOOLTIP"] = "Erstelle einen Chat-Link",
 	["CL_VERSIONS_DIFFER"] = [=[Dieser Link wurde mit einer anderen Version von Total RP 3 generiert.
@@ -2651,8 +2874,15 @@ Das Importieren des Inhaltes einer anderen Version könnte aufgrund von Inkompat
 	["CM_VALUE"] = "Wert",
 	["CM_WHITE"] = "Weiß",
 	["CM_YELLOW"] = "Gelb",
+	["CO_ADVANCED_BROADCAST"] = "Add-on Kommunikationen",
+	["CO_ADVANCED_BROADCAST_CHANNEL_ALWAYS_LAST_TT"] = "Durch diese Option bleibt dieser Kanal immer der letzte in Eurer Kanalliste.",
+	["CO_ADVANCED_LANGUAGE_WORKAROUND_TT"] = "Seit Patch 8.0.1 setzt das Spiel die ausgewählte Sprache nach jedem Ladebildschirm zur Standardsprache Eurer Fraktion zurück. Diese Überbrückung sorgt dafür, dass Eure Sprache nach einem Ladebildschirm weiterhin ausgewählt bleibt.",
 	["CO_ADVANCED_LANGUAGES"] = "Sprachen",
 	["CO_ADVANCED_SETTINGS"] = "Erweiterte Einstellungen",
+	["CO_ADVANCED_SETTINGS_MENU_NAME"] = "Erweitert",
+	["CO_ADVANCED_SETTINGS_POPUP"] = "Ihr habt eine erweiterte Einstellung verändert. Bitte denkt daran, dass diese Einstellungen Eure Spielerfahrungen mit dem Add-on beeinflussen und diverse Funktionen daran hindern können korrekt zu funktionieren. Benutzung auf eigene Gefahr.",
+	["CO_ADVANCED_SETTINGS_RESET"] = "Erweiterte Einstellungen zurücksetzen",
+	["CO_ADVANCED_SETTINGS_RESET_TT"] = "Sämtliche erweiterte Einstellungen zurücksetzen. Nutzt dies falls Ihr Probleme habt, nachdem Ihr die Einstellungen verändert habt.",
 	["CO_ANCHOR_BOTTOM"] = "Unten",
 	["CO_ANCHOR_BOTTOM_LEFT"] = "Unten Links",
 	["CO_ANCHOR_BOTTOM_RIGHT"] = "Unten Rechts",
@@ -2663,7 +2893,7 @@ Das Importieren des Inhaltes einer anderen Version könnte aufgrund von Inkompat
 	["CO_ANCHOR_TOP_LEFT"] = "Oben Links",
 	["CO_ANCHOR_TOP_RIGHT"] = "Oben Rechts",
 	["CO_CHAT"] = "Chat-Einstellungen",
-	["CO_CHAT_DISABLE_OOC"] = "Deaktiviere Anpassungen wenn OOC",
+	["CO_CHAT_DISABLE_OOC"] = "Deaktiviere Anpassungen wenn Ihr OOC seid",
 	["CO_CHAT_DISABLE_OOC_TT"] = "Deaktiviere alle Total RP 3 Chatanpassungen (benutzerdefinierte Namen, Emote-Erkennung, NPC-Reden, etc.), wenn dein Charakter als \"Out Of Character\" markiert ist.",
 	["CO_CHAT_INCREASE_CONTRAST"] = "Farbkontrast erhöhen",
 	["CO_CHAT_INSERT_FULL_RP_NAME"] = "RP-Namen bei Shift-Klick einfügen",
@@ -2704,6 +2934,11 @@ Das Importieren des Inhaltes einer anderen Version könnte aufgrund von Inkompat
 	["CO_CURSOR_DISABLE_OOC_TT"] = "Deaktiviert Modifikationen vom Cursor während dein Rollenspielstatus |cffccccccOut Of Character|r ist.",
 	["CO_CURSOR_MODIFIER_KEY"] = "Modifiziertaste",
 	["CO_CURSOR_RIGHT_CLICK"] = "Rechtsklick um Profil zu öffnen",
+	["CO_CURSOR_RIGHT_CLICK_TT"] = [=[Rechtsklick auf einen Spieler in der 3D Welt, wird sein Profil öffnen, falls er eines besitzt.
+
+|TInterface\Cursor\WorkOrders:25|t Dieses Symbol wird an dem Mauszeiger angeheftet, wenn ein Spieler ein Profil hat und Ihr es rechtsklicken könnt.
+
+|cffccccccNote: Diese Funktion wird während eines Kampfes deaktiviert. |r]=],
 	["CO_CURSOR_TITLE"] = "Cursorinteraktionen",
 	["CO_GENERAL"] = "Allgemeine Einstellungen",
 	["CO_GENERAL_BROADCAST"] = "Broadcast-Kanal nutzen",
@@ -2748,6 +2983,7 @@ Wenn nicht, wird die Sprache beim nächsten Login geändert.]=],
 	["CO_LOCATION_DISABLE_PVP_TT"] = [=[Du wirst keine Antworten auf Standortanfragen anderer Spieler senden, wenn du für PvP geflaggt bist.
 
 Diese Option is besonders auf PvP Realms nützlich, auf denen Spieler der anderen Fraktion das System ausnutzen können um dich zu verfolgen.]=],
+	["CO_LOCATION_SHOW_DIFFERENT_WAR_MODES_TT"] = "Spieler die zur Zeit in dem Gebiet sind, aber einen anderen Kriegsmodus-Status als Ihr haben, werden mit weniger Deckkraft auf der Karte angezeigt und bekommen ein spezielles Symbol im Tooltip.",
 	["CO_MAP_BUTTON"] = "Kartenscan-Button",
 	["CO_MAP_BUTTON_POS"] = "Position des Scan-Buttons auf der Karte",
 	["CO_MINIMAP_BUTTON"] = "Minimap Button",
@@ -2921,6 +3157,8 @@ Dein Handeln wird nicht mit dem Charakter in Verbindung gebracht.]=],
 	["MAP_BUTTON_NO_SCAN"] = "Kein Scan verfügbar",
 	["MAP_BUTTON_SCANNING"] = "Scanne",
 	["MAP_BUTTON_SUBTITLE"] = "Klicken um verfügbare Scans anzuzeigen",
+	["MAP_BUTTON_SUBTITLE_80_DISABLED"] = [=[Aufgrund von 8.0 Änderungen sind Scans momentan nicht möglich.
+]=],
 	["MAP_BUTTON_SUBTITLE_CONNECTING"] = "Das Scannen der Karte wird eingerichtet. Bitte warten.",
 	["MAP_BUTTON_SUBTITLE_OFFLINE"] = "Das Scannen der Karte ist momentan nicht verfügbar: %s",
 	["MAP_BUTTON_TITLE"] = "Nach Rollenspiel scannen",
@@ -3072,6 +3310,7 @@ Benutze die |cffffff00Profil importieren|r Option um Daten aus einem früheren E
 
 Profilgröße: %0.2f kB
 Max: 20 kB]=],
+	["PR_EXPORT_WARNING_TITLE"] = "Warnung:",
 	["PR_IMPORT"] = "Importieren",
 	["PR_IMPORT_CHAR_TAB"] = "Charakterimporteur",
 	["PR_IMPORT_EMPTY"] = "Kein importierbares Profil",
@@ -3125,6 +3364,14 @@ Den gesamten Inhalt des Profils %s mit den importierten Daten überschreiben?]=]
 	["PR_SLASH_SWITCH_HELP"] = [=[
 Wechsel zu einem anderen Profil mit diesem Namen.]=],
 	["PR_UNUSED_PROFILE"] = "Dieses Profil ist aktuell an keinen WoW Charakter gebunden.",
+	["REG_CODE_INSERTION_WARNING"] = [=[|TInterface\AddOns\totalRP3\resources\policegar.tga:50:50|t
+Moment mal!
+
+Wir haben bemerkt, das Ihr manuell ungültige Codes in Euer Total RP 3 Profil eingegeben habt.
+Dies wird nicht unterstützt und wir raten jedem dringend davon ab dieses zu tun.
+Es kann zu Instabilität und Bugs im Add-on, beschädigten Daten und/oder Verlust von Profilen führen. Des weiteren können Kompatibilitätsprobleme mit anderen Add-ons (wie MRP) entstehen.
+
+Die Codes, die Ihr in Euer Profil eingefügt habt, wurden entfernt um zu verhindern, dass Ihr das Add-on beschädigt.]=],
 	["REG_COMPANION"] = "Begleiter",
 	["REG_COMPANION_BOUND_TO"] = "Gebunden an ...",
 	["REG_COMPANION_BOUND_TO_TARGET"] = "Ziel",
@@ -3247,6 +3494,7 @@ Die letzte Spalte ist für diverse Angaben. (ignoriert ..etc.)]=],
 	["REG_LIST_PETS_TOOLTIP"] = "Wurde gesehen bei",
 	["REG_LIST_PETS_TOOLTIP2"] = "Wurde gesehen mit",
 	["REG_LIST_REALMONLY"] = "Nur dieser Realm",
+	["REG_LOCATION_DIFFERENT_WAR_MODE"] = "Anderer Kriegsmodus",
 	["REG_MSP_ALERT"] = [=[|cffff0000WARNUNG
 
 Du kannst nicht mehrere Addons nutzen, die das Mary Sue Protocol (MSP) nutzen, da das zu Fehlern führen kann!|r
@@ -3267,6 +3515,7 @@ Wenn du TRP3 nicht als dein MSP Addon nutzen und diese Meldung nicht noch einmal
 	["REG_PLAYER_ABOUT_MUSIC_SELECT"] = "Charakter Soundtrack wählen",
 	["REG_PLAYER_ABOUT_MUSIC_SELECT2"] = "Soundtrack wählen",
 	["REG_PLAYER_ABOUT_MUSIC_STOP"] = "Soundtrack stoppen",
+	["REG_PLAYER_ABOUT_MUSIC_THEME"] = "Charakter-Musikthema",
 	["REG_PLAYER_ABOUT_NOMUSIC"] = "|cffff9900Kein Soundtrack",
 	["REG_PLAYER_ABOUT_P"] = "Paragraph tag",
 	["REG_PLAYER_ABOUT_REMOVE_FRAME"] = "Diese Fenster entfernen",
@@ -3322,6 +3571,7 @@ Ritter, Pyromane, Nekromant, Eliteschütze, Arkanwirker, Magd ...]=],
 	["REG_PLAYER_CURRENT"] = "Aktuelles",
 	["REG_PLAYER_CURRENT_OOC"] = "Dies ist eine OOC Information.",
 	["REG_PLAYER_CURRENTOOC"] = "Aktuelles (OOC)",
+	["REG_PLAYER_EDIT_MUSIC_THEME"] = "Musikthema",
 	["REG_PLAYER_EYE"] = "Augenfarbe",
 	["REG_PLAYER_EYE_TT"] = [=[Hier kannst du die Augenfarbe eintragen.
 
@@ -3435,6 +3685,13 @@ Hierfür gibt es mehrere Möglichkeiten:|c0000ff00
 	["REG_PLAYER_RACE"] = "Rasse",
 	["REG_PLAYER_RACE_TT"] = "Hier gehört die Rasse des Charakters hin. Die Rasse muss nicht der Spielrasse entsprechen. Es gibt im Warcraft-Universum genügend Kreaturen, die sich ähnlich sehen.",
 	["REG_PLAYER_REGISTER"] = "Registerinformationen",
+	["REG_PLAYER_RELATIONSHIP_STATUS"] = "Beziehungsstatus ",
+	["REG_PLAYER_RELATIONSHIP_STATUS_DIVORCED"] = "Geschieden",
+	["REG_PLAYER_RELATIONSHIP_STATUS_MARRIED"] = "Verheiratet",
+	["REG_PLAYER_RELATIONSHIP_STATUS_SINGLE"] = "Ledig",
+	["REG_PLAYER_RELATIONSHIP_STATUS_TAKEN"] = "Vergeben",
+	["REG_PLAYER_RELATIONSHIP_STATUS_UNKNOWN"] = "Nicht zeigen",
+	["REG_PLAYER_RELATIONSHIP_STATUS_WIDOWED"] = "Verwitwet",
 	["REG_PLAYER_RESIDENCE"] = "Heimat",
 	["REG_PLAYER_RESIDENCE_SHOW"] = "Wohnort Koordinaten",
 	["REG_PLAYER_RESIDENCE_SHOW_TT"] = [=[|cff00ff00%s
@@ -3530,6 +3787,7 @@ Jedes Fenster wird von einem eigenen |cffffff00Icon, einem Hintergrund und einem
 	["REG_PLAYER_WEIGHT"] = "Körperform",
 	["REG_PLAYER_WEIGHT_TT"] = [=[Dies ist die Körperform deines Charakters.
 Zum Beispiel kann du folgendes angeben: |c0000ff00schlank, dick or muskulös...|r oder einfach durchschnittlich!]=],
+	["REG_PLAYERS"] = "Spieler",
 	["REG_REGISTER"] = "Register",
 	["REG_REGISTER_CHAR_LIST"] = "Charakterliste",
 	["REG_RELATION"] = "Beziehung",
@@ -3611,11 +3869,8 @@ Zum Beispiel kann du folgendes angeben: |c0000ff00schlank, dick or muskulös...|
 
 
 {h2}{icon:THUMBUP:20} Danksagungen{/h2}
-{col:ffffff}Ellypse's {/col}{link*https://www.patreon.com/ellypse*Patreon} {col:ffffff}supporters:{/col}
-%s
-
 {col:ffffff}Logo and minimap button icon:{/col}
-- {link*https://ebonfeathers.tumblr.com/*EbonFeather@Tumblr}
+- {link*https://twitter.com/Kelandiir*@Kelandiir}
 
 {col:ffffff}Unser Pre-Alpha QA Team:{/col}
 - Saelora
@@ -3635,6 +3890,8 @@ Zum Beispiel kann du folgendes angeben: |c0000ff00schlank, dick or muskulös...|
 - Leylou
 
 {col:ffffff}Danke an Horionne für das zusend einer Ausgabe von dem Magazin "Gamer Culte Online #14" mit einem Artikel über Total RP.{/col}]=],
+	["THANK_YOU_ROLE_AUTHOR"] = "Autor",
+	["THANK_YOU_ROLE_GUILD_MEMBER"] = "Gildenmitglied",
 	["UI_BKG"] = "Hintergrund %s",
 	["UI_CLOSE_ALL"] = "Alle schließen",
 	["UI_COLOR_BROWSER"] = "Farbwähler",
@@ -3737,6 +3994,7 @@ Importer du contenu créé avec une version différente peut poser des soucis en
 	["CM_CANCEL"] = "Annuler",
 	["CM_CENTER"] = "Centre",
 	["CM_CLASS_DEATHKNIGHT"] = "Chevalier de la mort",
+	["CM_CLASS_DEMONHUNTER"] = "Chasseur de démons",
 	["CM_CLASS_DRUID"] = "Druide",
 	["CM_CLASS_HUNTER"] = "Chasseur",
 	["CM_CLASS_MAGE"] = "Mage",
@@ -3848,9 +4106,13 @@ Gardez à l'esprit que changer ces paramètres peut altérer votre expérience a
 	["CO_CHAT_MAIN_OOC_COLOR"] = "Couleur du HRP",
 	["CO_CHAT_MAIN_OOC_PATTERN"] = "Schéma de détection du HRP",
 	["CO_CHAT_MAIN_OOC_USE"] = "Utiliser la détection du HRP",
+	["CO_CHAT_MAIN_SPEECH"] = "Détection de dialogue",
+	["CO_CHAT_MAIN_SPEECH_USE"] = "Activer la détection de dialogue",
+	["CO_CHAT_MAIN_SPEECH_USE_TT"] = "Les textes entourés de guillemets seront colorés comme s'ils étaient écrits en /dire.",
 	["CO_CHAT_NPCSPEECH_REPLACEMENT"] = "Noms de companion dans les textes de PNJ",
 	["CO_CHAT_NPCSPEECH_REPLACEMENT_TT"] = "Si un nom de companion est indiqué entre crochet dans un texte de PNJ, il sera formatté suivant les réglages de discussion (coloré, avec une icône, etc.).",
 	["CO_CHAT_REMOVE_REALM"] = "Retirer le royaume du nom des joueurs",
+	["CO_CHAT_SHOW_OOC"] = "Afficher indicateur HRP",
 	["CO_CHAT_USE"] = "Canaux de discussion utilisés",
 	["CO_CHAT_USE_ICONS"] = "Afficher les icônes",
 	["CO_CHAT_USE_SAY"] = "Canal /dire",
@@ -3899,9 +4161,14 @@ Cela provoquera un rechargement de l'interface.]=],
 	["CO_GLANCE_PRESET_TRP3_HELP"] = "Raccourci pour configurer la barre dans le style de TRP3 : en-dessous du portrait de la cible.",
 	["CO_GLANCE_RESET_TT"] = "Réinitialiser la position de la barre en bas à gauche du cadre d'ancrage.",
 	["CO_GLANCE_TT_ANCHOR"] = "Point d'ancrage des infobulles",
+	["CO_HIDE_EMPTY_MAP_BUTTON"] = "Cacher si aucun scan disponible",
 	["CO_LOCATION"] = "Paramètres de position",
 	["CO_LOCATION_ACTIVATE"] = "Activer la position du personnage",
 	["CO_LOCATION_ACTIVATE_TT"] = "Active la fonctionnalité de position du personnage, vous permettant de lancer un scan afin d'afficher sur la carte les autres utilisateurs de Total RP ayant activé cette fonctionnalité. Cela leur permet aussi de vous scanner.",
+	["CO_LOCATION_DISABLE_CLASSIC_PVP"] = "Désactiver le scan si PvP",
+	["CO_LOCATION_DISABLE_CLASSIC_PVP_TT"] = [=[Vous ne répondrez pas aux requêtes de positions de personnages si vous êtes en mode PvP.
+
+Cette option est particulièrement utile pour éviter les abus du système pour vous traquer.]=],
 	["CO_LOCATION_DISABLE_OOC"] = "Désactiver le scan si HRP",
 	["CO_LOCATION_DISABLE_OOC_TT"] = "Vous ne répondrez pas aux requêtes de positions de personnages si vous êtes en statut HRP.",
 	["CO_LOCATION_DISABLE_PVP"] = "Désactiver le scan si PvP",
@@ -4062,6 +4329,12 @@ Vos profils, les profils de vos compagnons et vos préférences seront temporair
 	["DB_STATUS_CURRENTLY_OOC"] = "Autres informations (HRP)",
 	["DB_STATUS_CURRENTLY_OOC_TT"] = "Vous pouvez indiquer ici quelque chose d'important sur vous, le joueur, ou autre chose hors de votre personnage.",
 	["DB_STATUS_CURRENTLY_TT"] = "Vous pouvez indiquer ici quelque chose d'important sur votre personnage.",
+	["DB_STATUS_ICON_ITEM"] = "%1$s %2$s",
+	["DB_STATUS_LC"] = "Langage de jeu de rôle",
+	["DB_STATUS_LC_DEFAULT"] = "Par défaut (%1$s)",
+	["DB_STATUS_LC_TT"] = [=[Règle votre langage de jeu de rôle préféré. Ce réglage sera partagé avec les autres utilisateurs d'addons RP compatibles.
+
+|cffff9900Note:|r Ceci ne change |cffff0000pas|r le langage de l'interface de Total RP 3. Cette option peut être trouvée dans la page de |cfffff569Paramètres avancés|r.]=],
 	["DB_STATUS_RP"] = "Statut du personnage",
 	["DB_STATUS_RP_EXP"] = "Rôliste confirmé",
 	["DB_STATUS_RP_EXP_TT"] = [=[Montre que vous êtes un rôliste confirmé.
@@ -4425,6 +4698,7 @@ La dernière colonne correspond aux différents marqueurs. (ignoré ..etc.)]=],
 
 |cffffff00Cliquer pour supprimer de la liste des ignorés]=],
 	["REG_LIST_NAME"] = "Nom du personnage",
+	["REG_LIST_NOTESONLY"] = "Avec notes uniquement",
 	["REG_LIST_NOTIF_ADD"] = "Nouveau profil découvert pour |cff00ff00%s",
 	["REG_LIST_NOTIF_ADD_CONFIG"] = "Nouveau profil découvert",
 	["REG_LIST_NOTIF_ADD_NOT"] = "Ce profil n'existe plus.",
@@ -4448,6 +4722,8 @@ Actuellement chargé: |cff00ff00%s
 |cffff9900En conséquence, le support MSP pour Total RP3 sera désactivé.|r
 
 Si vous ne souhaitez pas que TRP3 soit votre addon MSP et ne voulez plus voir cette alerte à nouveau, vous pouvez désactiver le module Mary Sue Protocol dans les paramètres TRP3 -> Statut des modules.]=],
+	["REG_NOTES_PROFILE"] = "Notes",
+	["REG_NOTES_PROFILE_TT"] = "Ouvre l'onglet de notes pour le personnage ciblé.",
 	["REG_PLAYER"] = "Personnage",
 	["REG_PLAYER_ABOUT"] = "À propos",
 	["REG_PLAYER_ABOUT_ADD_FRAME"] = "Ajouter un cadre",
@@ -4595,6 +4871,12 @@ Il y a plusieurs manières de l'indiquer:|c0000ff00
 	["REG_PLAYER_MSP_NICK"] = "Surnom",
 	["REG_PLAYER_NAMESTITLES"] = "Noms et titres",
 	["REG_PLAYER_NO_CHAR"] = "Pas de caractéristiques",
+	["REG_PLAYER_NOTES"] = "Notes",
+	["REG_PLAYER_NOTES_ACCOUNT"] = "Notes communes",
+	["REG_PLAYER_NOTES_ACCOUNT_HELP"] = "Ces notes privées sont liées à votre compte et seront partagées avec tous vos profils.",
+	["REG_PLAYER_NOTES_PROFILE"] = "Notes de %s",
+	["REG_PLAYER_NOTES_PROFILE_HELP"] = "Ces notes privées sont liées à votre profil actuel et changeront en fonction de votre profil actuel.",
+	["REG_PLAYER_NOTES_PROFILE_NONAME"] = "Notes du profil",
 	["REG_PLAYER_PEEK"] = "Divers",
 	["REG_PLAYER_PHYSICAL"] = "Physique",
 	["REG_PLAYER_PSYCHO"] = "Personnalité",
@@ -4646,7 +4928,7 @@ Il y a plusieurs manières de l'indiquer:|c0000ff00
 	["REG_PLAYER_REGISTER"] = "Informations du registre",
 	["REG_PLAYER_RELATIONSHIP_STATUS"] = "Situation amoureuse",
 	["REG_PLAYER_RELATIONSHIP_STATUS_DIVORCED"] = "Divorcé(e)",
-	["REG_PLAYER_RELATIONSHIP_STATUS_MARRIED"] = "Marrié(e)",
+	["REG_PLAYER_RELATIONSHIP_STATUS_MARRIED"] = "Marié(e)",
 	["REG_PLAYER_RELATIONSHIP_STATUS_SINGLE"] = "Célibataire",
 	["REG_PLAYER_RELATIONSHIP_STATUS_TAKEN"] = "En couple",
 	["REG_PLAYER_RELATIONSHIP_STATUS_TT"] = "Indique la situation amoureuse de votre personnage. Sélectionnez \"Ne pas afficher\" si vous désirez garder cette information confidentielle.",
@@ -4773,6 +5055,7 @@ Il pourrait par exemple être |c0000ff00mince, gros ou musclé...|r Ou tout simp
 	["REG_REPORT_PLAYER_OPEN_URL"] = [=[Vous pouvez uniquement signaler les joueurs en jeu depuis la barre de ciblage de Total RP 3, via le bouton de signalement.
 
 Si vous souhaitez signaler le profil de %s comme enfreignant le Code de Conduite et ne pouvez pas cibler ce joueur, vous devez ouvrir un ticket avec l'assistance de Blizzard en utilisant le lien ci-dessous.]=],
+	["REG_REPORT_PLAYER_OPEN_URL_160"] = "Si vous souhaitez signaler le profil de %s comme enfreignant le Code de Conduite, vous devez ouvrir un ticket avec l'assistance de Blizzard en utilisant le lien ci-dessous.",
 	["REG_REPORT_PLAYER_PROFILE"] = "Signaler ce profil à |cff449fe0Blizzard|r",
 	["REG_REPORT_PLAYER_PROFILE_TT"] = [=[Vous pouvez signaler un profil qui enfreint les conditions d'utilisation de Blizzard. Cela inclut le harcèlement, partage de données privées, incitation à la haine, contenu obscène ou autre forme de contenu perturbant.
 
@@ -4793,6 +5076,13 @@ Si vous souhaitez signaler le profil de %s comme enfreignant le Code de Conduite
 	["REG_TT_TARGET"] = "Cible: |cffff9900%s",
 	["SCRIPT_ERROR"] = "Erreur dans le script.",
 	["SCRIPT_UNKNOWN_EFFECT"] = "Erreur dans le script, effet inconnu.",
+	["SLASH_CMD_STATUS_HELP"] = [=[Usage: |cff00ff00/trp3 status ic || ooc || toggle|r
+Change le statut de votre personnage en fonction de l'option spécifiée:
+
+|cffff9900/trp3 status ic|r met votre personnage en |cff00ff00RP|r.
+|cffff9900/trp3 status ooc|r met votre personnage en |cffff0000HRP|r.
+|cffff9900/trp3 status toggle|r change votre statut pour le statut opposé.]=],
+	["SLASH_CMD_STATUS_USAGE"] = "ic || ooc || toggle",
 	["TB_AFK_MODE"] = "Absent",
 	["TB_DND_MODE"] = "Ne pas déranger",
 	["TB_GO_TO_MODE"] = "Passer en mode %s",
@@ -4842,11 +5132,8 @@ Si vous souhaitez signaler le profil de %s comme enfreignant le Code de Conduite
 - {twitter*Solanya_*Solanya} (Community Manager)
 
 {h2}{icon:THUMBUP:20} Remerciements{/h2}
-{col:ffffff}Les supporteurs {/col}{link*https://www.patreon.com/ellypse*Patreon} {col:ffffff} d'Ellypse :{/col}
-%s
-
 {col:ffffff}Les logos et icône de la carte ont été réalisés par:{/col}
-- {link*https://ebonfeathers.tumblr.com/*EbonFeather@Tumblr}
+- {link*https://twitter.com/Kelandiir*@Kelandiir}
 
 {col:ffffff}Notre équipe de test:{/col}
 - Erzan
@@ -4906,29 +5193,131 @@ Vous pouvez le copier-coller dans votre navigateur web.
 
 |cffff0000!! Attention !!|r
 Total RP n'est pas responsable du contenu des liens partagés.]=],
+	["UI_MUSIC_ALTTITLE"] = "Titre alternatif",
 	["UI_MUSIC_BROWSER"] = "Navigateur de musiques",
+	["UI_MUSIC_DURATION"] = "Durée",
 	["UI_MUSIC_SELECT"] = "Choisir une musique",
 	["UI_TUTO_BUTTON"] = "Mode tutoriel",
 	["UI_TUTO_BUTTON_TT"] = "Cliquer pour afficher ou masquer le mode tutoriel",
-	["WHATS_NEW_16"] = [=[
-## 1.2.11 - 2017-11-09
+	["WHATS_NEW_23"] = [=[# Liste des changements de la version 1.6.0
 
-### Ajouts
+## Notes personnelles
 
-- Ajout du support pour l'indication de téléchargement d'un profil RP depuis et vers l'add-on XRP.
+Vous pouvez désormais prendre des notes personnelles depuis l'addon !
 
-### Corrections
+Ces notes peuvent être écrites sur votre propre profil (si vous désirez prendre des notes génériques pour votre personnage), ou sur le profil de quelqu'un d'autre (le champ supérieur étant lié à votre profil actuel, le champ inférieur étant commun à tous vos profils). Ces notes sont privées, personne d'autre que vous ne peut les voir.
 
-- Correction d'une erreur lors de l'ajout d'un profile ayant été marqué comme contenant du contenu mature à la liste blanche ([ticket #133](https://wow.curseforge.com/projects/total-rp-3/issues/133)).
-- Correction d'un problème permettant d'envoyer des messages de PNJ vides en utilisant la toucher Entrée ([ticket #124](https://wow.curseforge.com/projects/total-rp-3/issues/124)).
-- Correction d'une erreur lorsque des mascottes qui sont dans un combat de mascottes sont ciblées ([ticket #96](https://wow.curseforge.com/projects/total-rp-3/issues/96)).
-- Correction d'un problème empêchant d'utiliser le caractère espace comme classe pour afficher une classe vide (like to indicate you have none) it would be considered as empty and your character's real class would be used instead ([ticket #103](https://wow.curseforge.com/projects/total-rp-3/issues/103)).
-- Correction d'un soucis affichant les joueurs ayant défini un statut roleplay personnalisé dans un autre add-on roleplay que Total RP 3 comme étant HRP.
+{img:Interface\AddOns\totalRP3\resources\160-1.tga:480:480}
 
-### Suppressions
+Pour accéder aux notes personnelles, cliquez simplement sur le nouveau bouton Notes sur la fenêtre de cible, ou ouvrez un profil et cliquez sur l'onglet Notes.
 
-- Nous avons enlevé la rustine qu'on avait ajouté pour le soucis d'alignement de curseur de texte dans les boîtes de texte de plusieurs lignes, puisque le problème a été corrigé avec la mise-à-jour 7.3.2.
-]=]
+{img:Interface\AddOns\totalRP3\resources\160-2.tga:240:120}
+
+Le registre a aussi reçu une option pour n'afficher que les profils pour lesquels vous avez écrit des notes.
+
+{img:Interface\AddOns\totalRP3\resources\160-3.tga:480:120}
+
+## Ajouté
+
+- Ajout du format HTML pour les modèles 2 et 3 de l'onglet À propos. Vous pouvez désormais utiliser l'ensemble des balises lorsque vous utilisez ces modèles pour formatter leurs champs, en utilisant la barre d'outils désormais visible pour tous les modèles.
+
+{img:Interface\AddOns\totalRP3\resources\160-4.tga:480:480}
+
+- Ajout de la compatibilité avec d'autres addons RP pour les traits de personnalité et les balises HTML.
+
+## Modifié
+
+- Les boutons "Signaler un profil" renvoient désormais tous vers le [site d'assistance de Blizzard](https://battle.net/support/help/product/wow/197/1501/solution), la fonctionnalité de signalement en jeu précédemment ajoutée n'étant pas une méthode valide pour signaler l'abus par addon. La fenêtre affiche toujours une date et heure de réception du profil que vous pouvez fournir au service client de Blizzard afin de les aider à identifier l'offense.
+
+## Corrigé
+
+- Correction d'une erreur pouvant empêcher l'addon de charger.
+- Correction d'une erreur de compatibilité pour le modèle 3 si la langue de l'addon n'était pas anglaise.
+
+## Supprimé
+
+- Suppression de la sélection automatique du texte complet après un clic dans une zone de texte (champs À propos, Actuellement, Informations HRP...)
+- Suppression du code pour le poisson d'avril (RP.IO ainsi que les noms arc-en-ciel de compagnons accidentellement oubliés l'an dernier).]=],
+	["WHATS_NEW_23_1"] = [=[# Liste des changements de la version 1.6.1
+
+## Refonte du système de musiques
+
+- Des changements techniques du patch 8.2 ont requis de modifier la manière de gérer la musique dans l'addon. **Ceci signifie que la mise à jour est nécessaire pour pouvoir jouer des musiques dans l'addon.** Ce changement devrait être invisible et rétrocompatible (les thèmes musicaux de profils provenant de versions antérieures devraient pouvoir être jouer sans problème).
+- Ceci a permis l'ajout de musiques précédemment indisponibles (*fait signe aux musiques des elfes du vide*).
+- La durée de toutes les musiques est désormais visible dans l'infobulle au survol d'une musique dans la liste.
+
+## Modifié
+
+- Les réglages pour augmenter le contraste des couleurs dans les infobulles et la fenêtre de discussion ont été consolidés en un seul réglage dans les paramètres généraux. Ce réglage s'applique dans des endroits supplémentaires, comme les infobulles du scan sur la carte.
+
+## Corrigé
+
+- L'ancrage pour le bouton de scan de la carte peut désormais être réglé correctement.
+- Correction d'un échange de titres de menu déroulants pour les titres/paragraphes.
+- Correction d'un message d'erreur pouvant être causé par d'autres addons utilisant mal certains fonctions de l'API de WoW.]=],
+	["WHATS_NEW_23_2"] = [=[# Liste des changements de la version 1.6.2
+
+## Ajouté
+
+- Ajout de 328 icônes et 20 images du patch 8.2.
+- Ajout d'un indicateur au navigateur de musiques lorsque le nom par défaut d'une musique diffère du nom correspondant au filtre actuel.
+
+## Corrigé
+
+- Correction de problèmes dans l'échange de données de musique entre TRP3 et MRP.=
+- Correction d'une duplication de lines dans l'infobulle du bouton de scan de la carte.
+- Corrections additionnelles potentielles au problème lié à la carte du monde à la connexion.]=],
+	["WHATS_NEW_23_4"] = [=[# Liste des changements de la version 1.6.4
+
+Nous sommes au courant d'un bug depuis le patch 8.2 bloquant parfois **l'utilisation des objets de quête depuis la liste d'objectifs**. Nous n'avons pas encore de correctif, mais **vous pouvez taper /reload lorsque le message d'erreur apparaît** pour corriger temporairement le problème. Nos excuses pour le désagrément.
+
+## Support pour WoW: Classic
+
+- Total RP 3: Classic est désormais disponible en téléchargement séparé sur CurseForge et WoWInterface ! Assurez-vous d'installer cette version à la place de la version standard de Total RP 3 si vous prévoyez de faire du jeu de rôle sur WoW: Classic.
+- Les points importants à noter pour la version Classic :
+  - Quelques icônes ont été changées dans l'addon pour remplacer des icônes manquantes dans Classic.
+  - Les profils pour montures et familiers pacifiques ont été désactivés, Blizzard ne nous ayant pas fourni d'accès à la beta. Nous les réimplémenterons dès que possible.
+  - Total RP 3: Extended ne sera pas porté pour Classic à sa sortie. Nous évaluerons à l'avenir l'intérêt d'un portage.
+
+## Modifié
+
+- Lors d'un scan de personnages sur la carte, les personnages avec lesquels vous avez une relation apparaîtront désormais au-dessus des autres.]=],
+	["WHATS_NEW_23_6"] = [=[
+# Liste des changements de la version 1.6.6
+
+## Ajouté
+
+- Ajout de commandes pour changer votre statut roleplay, utilisables dans des macros. Vous pouvez désormais utiliser `/trp3 status ic` pour passer RP, `/trp3 status ooc` pour passer HRP, ou `/trp3 status toggle` pour inverser votre statut.
+- Ajout d'un paramètre de discussion pour afficher un indicateur HRP à côté du nom dans la fenêtre de discussion.
+- Ajout d'un paramètre pour cacher de bouton de scan de la carte si aucun scan n'est disponible.
+- Ajout d'un champ de langage de jeu de rôle sur la fenêtre principale.
+  - Ce paramètre est défini par profil, choisit le langage de l'addon par défaut, et vous permet d'indiquer la langage dans lequel vous effectuez du jeu de rôle.
+  - Si le langage de votre addon ne correspond pas au langage de jeu de rôle d'un autre joueur, un drapeau en bas de l'infobulle indique leur langage de jeu de rôle.
+  - Ce changement est principalement destiné aux rôlistes sur Classic, du fait de l'absence de serveurs RP non-anglais.
+- Ajout de boutons pour changer l'affichage des casques et capes pour Classic.
+
+## Modifié
+
+- Le paramètre de mode de guerre a été renommé pour Classic pour référencer le mode PvP.
+
+## Corrigé
+
+- Correction de problèmes lorsque le module de fenêtre de cible était désactivé.
+- Correction d'un bug causant l'apparition de profils Mary-Sue Protocol en double dans le registre en désélectionnant "Ce royaume uniquement".
+- Correction de quelques icônes manquantes sur Classic (icônes par défaut du modèle 3, icônes pour `/trp3 roll`)
+- Correction d'un bug avec l'utilisation du paramètre "Clic droit pour ouvrir un profil" sur Classic.
+
+]=],
+	["WHATS_NEW_23_7"] = [=[# Liste des changements de la version 1.6.7
+
+## Ajouté
+
+- Ajout d'un paramètre de détection de dialogue dans les emotes pour les colorer automatiquement.
+- Ajout de 7 icones et 1 musique du patch 8.2.5.
+
+## Modifié
+
+- La liste de profils de compagnons accessible via la fenêtre de cible est désormais triée par ordre alphabétique, et "Créer nouveau profil" a été déplacé hors de cette liste.]=]
 }
 
 TRP3_API.loc:RegisterNewLocale("frFR", "Français", localeContent);
@@ -5049,8 +5438,11 @@ Importar contenido de otra versión puede causar problemas en caso de incompatib
 	["CM_VALUE"] = "Valor",
 	["CM_WHITE"] = "Blanco",
 	["CM_YELLOW"] = "Amarillo",
+	["CO_ADVANCED_BROADCAST"] = "Comunicaciones del add-on",
+	["CO_ADVANCED_BROADCAST_CHANNEL_ALWAYS_LAST"] = "Mantener el canal de emisión al final",
+	["CO_ADVANCED_BROADCAST_CHANNEL_ALWAYS_LAST_TT"] = "Esta opción hará que el canal de emisión siempre sea el último en tu lista de canales.",
 	["CO_ADVANCED_LANGUAGE_WORKAROUND"] = "Habilitar solución al reinicio de idiomas",
-	["CO_ADVANCED_LANGUAGE_WORKAROUND_TT"] = "Desde el parche 8.0.1 el juego reinicio el idioma seleccionado al idioma por defecto de tu facción durante las pantallas de carga. Esta solución restaura el idioma seleccionado tras cada pantalla de carga.",
+	["CO_ADVANCED_LANGUAGE_WORKAROUND_TT"] = "Desde el parche 8.0.1, el juego reiniciará el idioma seleccionado al idioma por defecto de tu facción durante cada pantalla de carga. Esta solución se asegura de restaurar el idioma seleccionado tras cada pantalla de carga.",
 	["CO_ADVANCED_LANGUAGES"] = "Idiomas",
 	["CO_ADVANCED_LANGUAGES_REMEMBER"] = "Recordar último idioma usado",
 	["CO_ADVANCED_LANGUAGES_REMEMBER_TT"] = "Total RP 3 recordará el último idioma que estabas usando antes de desconectar y lo seleccionará automáticamente en tu próxima conexión.",
@@ -5162,12 +5554,12 @@ Si no, el idioma será cambiado en la próxima conexión.]=],
 	["CO_LOCATION_DISABLE_PVP_TT"] = [=[No aparecerás en la solicitud de localización de otros personajes cuando estés con el JcJ activado.
 
 Esta opción es útil en los reinos JcJ donde los jugadores de la facción contraria pueden usar este sistema para localizarte.]=],
-	["CO_LOCATION_DISABLE_WAR_MODE"] = "Deshabilitar ubicación en Modo Guerra",
+	["CO_LOCATION_DISABLE_WAR_MODE"] = "Deshabilitar ubicación en Modo de Guerra",
 	["CO_LOCATION_DISABLE_WAR_MODE_TT"] = [=[No aparecerás en la solicitud de localización de otros personajes cuando hayas activado el Modo Guerra y estés fuera de un |cff69CCF0santuario|r.
 
 Esta opción es útil para evitar abusos del sistema por parte de otros jugadores para rastrearte.]=],
-	["CO_LOCATION_SHOW_DIFFERENT_WAR_MODES"] = "Mostrar jugadores en diferente Modo Guerra",
-	["CO_LOCATION_SHOW_DIFFERENT_WAR_MODES_TT"] = "Los jugadores que están en la zona pero tienen un estatus diferente del Modo Guerra aparecerán en el mapa, con menos opacidad y un icono especial en Herramientas.",
+	["CO_LOCATION_SHOW_DIFFERENT_WAR_MODES"] = "Mostrar jugadores en diferente Modo de Guerra",
+	["CO_LOCATION_SHOW_DIFFERENT_WAR_MODES_TT"] = "Los jugadores que están en la zona pero tienen un estado diferente del Modo de Guerra aparecerán en el mapa, con menos opacidad y un icono especial en la herramienta.",
 	["CO_MAP_BUTTON"] = "Botón de escaneo de mapa",
 	["CO_MAP_BUTTON_POS"] = "Anclar el botón de escaneo en el mapa",
 	["CO_MINIMAP_BUTTON"] = "Botón del minimapa",
@@ -5264,7 +5656,7 @@ Título: 150 caracteres
 Raza: 50 caracteres 
 Clase: 50 caracteres|r]=],
 	["CO_TOOLTIP_CURRENT"] = "Mostrar información \"actual\"",
-	["CO_TOOLTIP_CURRENT_LINES"] = "Saltos de línea máximos en información \"actual\"",
+	["CO_TOOLTIP_CURRENT_LINES"] = "Saltos de línea máximos en información \"Actualmente\"",
 	["CO_TOOLTIP_CURRENT_SIZE"] = "Longitud máxima de información \"actual\"",
 	["CO_TOOLTIP_FT"] = "Mostrar título completo",
 	["CO_TOOLTIP_GUILD"] = "Mostrar información de hermandad",
@@ -5278,7 +5670,7 @@ Clase: 50 caracteres|r]=],
 	["CO_TOOLTIP_OWNER"] = "Mostrar propietario",
 	["CO_TOOLTIP_PETS"] = "Herramienta de compañeros",
 	["CO_TOOLTIP_PETS_INFO"] = "Mostrar información de compañero",
-	["CO_TOOLTIP_PREFERRED_OOC_INDICATOR"] = "Indicador de FDP preferido",
+	["CO_TOOLTIP_PREFERRED_OOC_INDICATOR"] = "Indicador de FDP principal",
 	["CO_TOOLTIP_PREFERRED_OOC_INDICATOR_ICON"] = "Icono:",
 	["CO_TOOLTIP_PREFERRED_OOC_INDICATOR_TEXT"] = "Texto:",
 	["CO_TOOLTIP_PROFILE_ONLY"] = "Utilizar sólo si el objetivo tiene un perfil",
@@ -5350,7 +5742,7 @@ a otros que eres recién iniciado en el rol.]=],
 	["DTBK_RP"] = "Total RP 3 - ER/FdR",
 	["GEN_VERSION"] = "Versión: %s (Build %s)",
 	["GEN_WELCOME_MESSAGE"] = "¡Gracias por usar Total RP 3 (v %s)! ¡Diviértase!",
-	["LANG_CHANGE_CAUSED_REVERT_TO_DEFAULT"] = "El lenguaje actual ha vuelto al valor %s por defecto %s porque ya no conoces el lenguaje %s seleccionado anteriormente.",
+	["LANG_CHANGE_CAUSED_REVERT_TO_DEFAULT"] = "El idioma actual ha vuelto al %s por defecto %s porque ya no conoces el idioma %s seleccionado anteriormente.",
 	["MAP_BUTTON_NO_SCAN"] = "Rastreo no disponible",
 	["MAP_BUTTON_SCANNING"] = "Rastreando",
 	["MAP_BUTTON_SUBTITLE"] = "Haz clic para mostrar los rastreos disponibles",
@@ -5435,6 +5827,7 @@ El módulo |cff9999ffTipTac|r añade compatibilidad entre los add-ons TipTac y T
 |cffffff00Recomendamos encarecidamente mantenerlo actualizado.|r
 
 Este mensaje sólo aparecerá una vez por sesión y puede ser deshabilitado en los ajustes (Ajustes generales => Varios).]=],
+	["NEW_VERSION_BEHIND"] = "Actualmente estás %s versiones atrasado y te faltan bugs arreglados y nuevas características. Puede que otros jugadores no vean tu perfil correctamente. Por favor, considera actualizar tu add-on.",
 	["NEW_VERSION_TITLE"] = "Nueva actualización disponible",
 	["NPC_TALK_BUTTON_TT"] = "Abre el marco de diálogos de PNJ el cual permite realizar diálogos y emociones de PNJ.",
 	["NPC_TALK_CHANNEL"] = "Canal:",
@@ -5511,9 +5904,9 @@ Máx.: 20 kB]=],
 
 Si planeas copiar el texto de abajo en un documento, usa herramientas de edición más sencillas que no cambien caracteres automáticamente (en Text Edit ve a "Formato > Convertir en texto normal" antes de pegar)]=],
 	["PR_EXPORT_WARNING_TITLE"] = "Atención:",
-	["PR_EXPORT_WARNING_WINDOWS"] = [=[Algunas herramientas de edición de texto avanzada como Microsoft Word o Discord formatearán caracteres especiales como citas, alterando el contenido de los datos.
+	["PR_EXPORT_WARNING_WINDOWS"] = [=[Ten en cuenta que algunas herramientas de edición de texto avanzadas como Microsoft Word o Discord reformarán caracteres especiales como citas, alterando el contenido de la información.
 
-Si planeas copiar el texto de abajo en un documento, usa herramientas de edición más sencillas que no cambien caracteres automáticamente, como Bloc de Notas.]=],
+Si planeas copiar el texto de abajo en un documento, usa herramientas de edición más sencillas que no cambien caracteres automáticamente, como Notepad.]=],
 	["PR_IMPORT"] = "Importar",
 	["PR_IMPORT_CHAR_TAB"] = "Importar personajes",
 	["PR_IMPORT_EMPTY"] = "Sin perfiles importables",
@@ -5681,6 +6074,7 @@ La última columna es para varias señales. (ignorados, etc...)]=],
 
 |cffffff00Click para eliminar de la lista de ignorados]=],
 	["REG_LIST_NAME"] = "Nombre del personaje",
+	["REG_LIST_NOTESONLY"] = "Solo hay notas",
 	["REG_LIST_NOTIF_ADD"] = "Nuevo perfil descubierto: |cff00ff00%s",
 	["REG_LIST_NOTIF_ADD_CONFIG"] = "Nuevo perfil descubierto",
 	["REG_LIST_NOTIF_ADD_NOT"] = "Este perfil ya no existe.",
@@ -5694,7 +6088,7 @@ La última columna es para varias señales. (ignorados, etc...)]=],
 	["REG_LIST_PETS_TOOLTIP"] = "Se ha visto en",
 	["REG_LIST_PETS_TOOLTIP2"] = "Se ha visto con",
 	["REG_LIST_REALMONLY"] = "Sólo en este reino",
-	["REG_LOCATION_DIFFERENT_WAR_MODE"] = "Modo Guerra diferente",
+	["REG_LOCATION_DIFFERENT_WAR_MODE"] = "Modo de Guerra distinto",
 	["REG_MSP_ALERT"] = [=[|cffff0000ADVERTENCIA
 
 No se puede tener más de un addon utilizando el Protocolo Mary Sue, ya que podrían entrar en conflicto.|r
@@ -5704,6 +6098,8 @@ Actualmente cargado: |cff00ff00%s
 |cffff9900Por lo tanto, se desactivará el apoyo PMS para el Total RP3|r
 
 Si no quieres que el TRP3 sea tu PMS y no quieres ver esta alerta de nuevo, puedes desactivarlo en el módulo Protocolo Mary Sue en ajustes de Total RP3 en -> Estado del módulo.]=],
+	["REG_NOTES_PROFILE"] = "Notas",
+	["REG_NOTES_PROFILE_TT"] = "Abre la ventana de notas para el personaje objetivo.",
 	["REG_PLAYER"] = "Personaje",
 	["REG_PLAYER_ABOUT"] = "Acerca de",
 	["REG_PLAYER_ABOUT_ADD_FRAME"] = "Añadir un marco",
@@ -5850,6 +6246,12 @@ Tienes varias formas de hacerlo:|c0000ff00
 	["REG_PLAYER_MSP_NICK"] = "Apodo",
 	["REG_PLAYER_NAMESTITLES"] = "Nombre y títulos",
 	["REG_PLAYER_NO_CHAR"] = "Sin características",
+	["REG_PLAYER_NOTES"] = "Notas",
+	["REG_PLAYER_NOTES_ACCOUNT"] = "Notas comunes",
+	["REG_PLAYER_NOTES_ACCOUNT_HELP"] = "Estas notas privadas están ligadas a tu cuenta y se compartirán con todos tus perfiles.",
+	["REG_PLAYER_NOTES_PROFILE"] = "Notas de %s",
+	["REG_PLAYER_NOTES_PROFILE_HELP"] = "Estas notas privadas están ligadas a tu perfil actual y cambiarán según el perfil que tengas activado.",
+	["REG_PLAYER_NOTES_PROFILE_NONAME"] = "Notas del perfil",
 	["REG_PLAYER_PEEK"] = "Varios",
 	["REG_PLAYER_PHYSICAL"] = "Descripción física",
 	["REG_PLAYER_PSYCHO"] = "Rasgos de personalidad",
@@ -5870,11 +6272,11 @@ Tienes varias formas de hacerlo:|c0000ff00
 |cffffff00Click:|r Seleccionar color
 |cffffff00Click derecho:|r Descartar color
 |cffffff00Mayus + click:|r Usar seleccionador de color por defecto]=],
-	["REG_PLAYER_PSYCHO_CUSTOMCOLOR_RIGHT_TT"] = [=[Selecciona un color para la barra del atributo de la derecha
+	["REG_PLAYER_PSYCHO_CUSTOMCOLOR_RIGHT_TT"] = [=[Selecciona un color para la barra del atributo de la derecha.
 
-|cffffff00Click:|r Seleccionar color
-|cffffff00Click derecho:|r Descartar color
-|cffffff00Mayus + click:|r Usar seleccionador de color por defecto]=],
+|cffffff00Clic:|r Seleccionar color
+|cffffff00Clic derecho:|r Descartar color
+|cffffff00Shift+click:|r Usar el seleccionador de color por defecto]=],
 	["REG_PLAYER_PSYCHO_Egoiste"] = "Egoísta",
 	["REG_PLAYER_PSYCHO_Genereux"] = "Altruista",
 	["REG_PLAYER_PSYCHO_Impulsif"] = "Impulsivo",
@@ -5899,6 +6301,14 @@ Tienes varias formas de hacerlo:|c0000ff00
 	["REG_PLAYER_RACE"] = "Raza",
 	["REG_PLAYER_RACE_TT"] = "Aquí va la raza de tu personaje. No está restringido a las razas jugables. Hay muchas razas del Warcraft que pueden asumir formas comunes...",
 	["REG_PLAYER_REGISTER"] = "Información del directorio",
+	["REG_PLAYER_RELATIONSHIP_STATUS"] = "Estado de relación",
+	["REG_PLAYER_RELATIONSHIP_STATUS_DIVORCED"] = "Divorciado",
+	["REG_PLAYER_RELATIONSHIP_STATUS_MARRIED"] = "Casado",
+	["REG_PLAYER_RELATIONSHIP_STATUS_SINGLE"] = "Soltero",
+	["REG_PLAYER_RELATIONSHIP_STATUS_TAKEN"] = "En pareja",
+	["REG_PLAYER_RELATIONSHIP_STATUS_TT"] = "Indica el estado de relación de tu personaje. Selecciona \"No mostrar\" si quieres mantener esta información oculta.",
+	["REG_PLAYER_RELATIONSHIP_STATUS_UNKNOWN"] = "No mostrar",
+	["REG_PLAYER_RELATIONSHIP_STATUS_WIDOWED"] = "Viudo",
 	["REG_PLAYER_RESIDENCE"] = "Residencia",
 	["REG_PLAYER_RESIDENCE_SHOW"] = "Coordenadas de residencia",
 	["REG_PLAYER_RESIDENCE_SHOW_TT"] = [=[|cff00ff00%s
@@ -6020,11 +6430,14 @@ Por ejemplo podría ser |c0000ff00delgado, gordo o musculoso...|r ¡O simplement
 	["REG_REPORT_PLAYER_OPEN_URL"] = [=[Solo puedes denunciar a jugadores desde el juego si los marcas como objetivo (usa el botón de marco de objetivo de TRP3).
 
 Si quieres denunciar el perfil de %s y no puedes marcarlo como objetivo tendrás que enviar un ticket al soporte de Blizzard usando el link a continuación.]=],
+	["REG_REPORT_PLAYER_OPEN_URL_160"] = "Si quieres denunciar el perfil de %s tendrás que enviar un ticket al soporte de Blizzard usando el link a continuación.",
 	["REG_REPORT_PLAYER_PROFILE"] = "Denunciar perfil a |cff449fe0Blizzard|r",
 	["REG_REPORT_PLAYER_PROFILE_TT"] = [=[Puedes denunciar un perfil que infrinja los Términos de Servicio de Blizzard. Esto puede incluir acoso, publicación de información privada, lenguaje de odio, contenido obsceno u otras formas de contenido inadecuado.
 
 |cffff0000Recuerda que esta opción no es para denunciar perfiles de rol de baja calidad. ¡Los abusos de esta función serán sancionados!]=],
 	["REG_REPORT_PLAYER_TEMPLATE"] = "Este jugador está usando el perfil de rol %s del addon para compartir contenido en contra de los Términos de Servicio.",
+	["REG_REPORT_PLAYER_TEMPLATE_DATE"] = "La información del addon fue transferida a través del historial de mensajes del addon en %s.",
+	["REG_REPORT_PLAYER_TEMPLATE_TRIAL_ACCOUNT"] = "Este jugador tiene una cuenta de prueba.",
 	["REG_TIME"] = "Última vez visto",
 	["REG_TRIAL_ACCOUNT"] = "Cuenta de prueba",
 	["REG_TT_GUILD"] = "%s de |cffff9900%s",
@@ -6084,13 +6497,10 @@ Si quieres denunciar el perfil de %s y no puedes marcarlo como objetivo tendrás
 
 
 {h2}{icon:THUMBUP:20} Reconocimientos{/h2}
-{col:ffffff}Ellypse's {/col}{link*https://www.patreon.com/ellypse*Patreon} {col:ffffff}supporters:{/col}
-%s
+{col:ffffff}Logo e icono del botón del minimapa:{/col}
+- {link*https://twitter.com/Kelandiir*@Kelandiir}
 
-{col:ffffff}Logo and minimap button icon:{/col}
-- {link*https://ebonfeathers.tumblr.com/*EbonFeather@Tumblr}
-
-{col:ffffff}Nuestro equpo PR pre-alpha:{/col}
+{col:ffffff}Nuestro equipo PR pre-alpha:{/col}
 - Saelora
 - Erzan
 - Calian
@@ -6100,7 +6510,7 @@ Si quieres denunciar el perfil de %s y no puedes marcarlo como objetivo tendrás
 
 {col:ffffff}Gracias a todos nuestros amigos por su apoyo todos estos años:{/col}
 - Para Telkos: Kharess, Kathryl, Marud, Solona, Stretcher, Lisma...
-- Para Ellypse: The guilds Maison Celwë'Belore, Mercenaires Atal'ai, y más particularmente Erzan, Elenna, Caleb, Siana and Adaeria
+- Para Ellypse: Las hermandades Maison Celwë'Belore, Mercenaires Atal'ai, y más particularmente Erzan, Elenna, Caleb, Siana and Adaeria
 
 {col:ffffff}Por ayudarnos a crear la hermandad Total RP en Kirin Tor (EU):{/col}
 - Azane
@@ -6111,6 +6521,7 @@ Si quieres denunciar el perfil de %s y no puedes marcarlo como objetivo tendrás
 	["THANK_YOU_ROLE_CONTRIBUTOR"] = "Colaborador",
 	["THANK_YOU_ROLE_GUILD_MEMBER"] = "Miembro de hermandad",
 	["THANK_YOU_ROLE_TESTER"] = "Control de Calidad",
+	["TT_ELVUI_SKIN"] = "Skin ElvUI",
 	["TT_ELVUI_SKIN_ENABLE_TARGET_FRAME"] = "Aspecto del marco de objetivo",
 	["TT_ELVUI_SKIN_ENABLE_TOOLTIPS"] = "Herramientas de aspecto",
 	["UI_BKG"] = "Trasfondo %s",
@@ -6150,26 +6561,48 @@ Total RP no es responsable de los enlaces que conducen a contenidos nocivos.]=],
 	["UI_MUSIC_SELECT"] = "Seleccionar música",
 	["UI_TUTO_BUTTON"] = "Modo tutorial",
 	["UI_TUTO_BUTTON_TT"] = "Haz clic para activar/desactivar el modo tutorial",
-	["WHATS_NEW_16"] = [=[## 1.2.11 - 2017-11-09 
+	["WHATS_NEW_23"] = [=[# Historial de cambios de la versión 1.6.0
 
-### Añadido
+## Notas personales
 
-- Añadido indicador de descarga de perfil de y hacia el add-on XRP. 
+¡Ahora puedes escribir notas personales en el addon!
 
-### Solucionado 
+Estas notas podrán ser escritas tanto en tu propio perfil (si quieres tomar notas genéricas para tu personaje) o en el de otra persona (el campo superior ligado a tu perfil actual, el campo inferior es el común a todos tus perfiles). Estas notas son obviamente privadas, por lo que solo tú podrás verlas.
 
-- Arreglado un error que se producía al intentar eliminar la marca de contenido adulto cuando el perfil aún no se había descargado completamente ([ticket #133](https://wow.curseforge.com/projects/total-rp-3/issues/133)). 
-- Arreglado un error que permitía a un usuario enviar mensajes de NPC vacíos cuando se usaba la tecla Enter ([ticket #124](https://wow.curseforge.com/projects/total-rp-3/issues/124)).
-- Arreglado un error que se producía al marcar como objetivo a mascotas que estaban participando en una batalla de mascotas ([ticket #96](https://wow.curseforge.com/projects/total-rp-3/issues/96)). 
-- Arreglado un error en el que si se usaba una caracter de espacio simple para tu clase (como para indicar que no se tiene) se consideraba vacío y la clase real de tu personaje se usaría por defecto ([ticket #103](https://wow.curseforge.com/projects/total-rp-3/issues/103)).
-- Arreglado un error por el que los jugadores con estátus RP personalizado de otros add-ons enviados por el Protocolo Mary Sue se mostrabajn como Fuera de Rol.
+{img:Interface\AddOns\totalRP3\resources\160-1.tga:480:480}
 
-### Eliminado
+Para acceder a las notas personales, haz clic en el nuevo botón Notas del marco del objetivo, o abre un perfil y haz clic en la pestaña de Notas.
 
-- Eliminada solución temporal para el problema de caja de texto introducida en el parche 7.3 ya que este problema se solucionó en el parche 7.3.2. ]=]
+{img:Interface\AddOns\totalRP3\resources\160-2.tga:240:120}
+
+El registro también tiene una casilla de verificación para solo mostrar aquellos perfiles en los que hayas escrito notas.
+
+{img:Interface\AddOns\totalRP3\resources\160-3.tga:480:120}
+
+## Añadido
+
+- Se ha añadido soporte HTML para los modelos 2 y 3 de Acerca de. Puedes formar etiquetas HTML mientras usas dichos modelos para dar formato a los campos, usando la barra de herramientas que ahora es visible para todos los modelos.
+
+{img:Interface\AddOns\totalRP3\resources\160-4.tga:480:480}
+
+- Se ha agregado compatibilidad con otros addons de rol para los rasgos de personalidad y etiquetas HTML.
+
+## Cambios
+
+- Los botones de "Reportar perfil" ahora llevarán a [la página de soporte de acoso a través de addons] (https://battle.net/support/help/product/wow/197/1501/solution), puesto que la herramienta de reporte del juego anteriormente añadido era un método inválido para reportar el abuso del addon. El popup mostrará la hora en la recepción del perfil, lo cual puedes proporcionar al soporte de Blizzard para ayudarles a rastrear la ofensa.
+
+## Arreglado
+
+- Se ha arreglado un error que provocaba que el addon no cargara.
+- Se ha solventado un problema de compatibilidad con el modelo 3 si el idioma del addon no era el inglés.
+
+## Eliminado
+
+- Se ha eliminado el resaltado automático del texto al ingresar el foco de un área de texto (campos Acerca de, Actualmente, Fuera de personaje, Información...)
+- Se ha eliminado el código de April Fool's (incluido el olvidado arcoíris en los nombres de compañero).]=]
 }
 
-TRP3_API.loc:RegisterNewLocale("esES", "Español", localeContent);
+TRP3_API.loc:RegisterNewLocale("esES", "Español (EU)", localeContent);
 
 localeContent = {
 	["ABOUT_TITLE"] = "Acerca de",
@@ -6701,24 +7134,61 @@ Por ejemplo podría ser |c0000ff00delgado, gordo o musculoso...|r ¡O simplement
 	["UI_TUTO_BUTTON_TT"] = "Haz clic para activar/desactivar el modo tutorial"
 }
 
-TRP3_API.loc:RegisterNewLocale("esMX", "Español (Latin American)", localeContent);
+TRP3_API.loc:RegisterNewLocale("esMX", "Español (AL)", localeContent);
 
 localeContent = {
 	["ABOUT_TITLE"] = "Di",
-	["BINDING_NAME_TRP3_TOGGLE"] = "dis/attivare cornice principale",
+	["BINDING_NAME_TRP3_TOGGLE"] = "dis/attivare sezione principale",
 	["BINDING_NAME_TRP3_TOOLBAR_TOGGLE"] = "dis/attivare barra degli strumenti",
-	["BROADCAST_10"] = "Sei già in 10 canali. TRP3 non proverà più di collegare al canale di trasmissione, ma non potrai usare qualche elementi come vedere il posto dei giocatori sulla mappa.",
-	["BROADCAST_PASSWORD"] = [=[C'è una password messa nel canale di trasmissione.
-TRP3 non proverà più di collegartelo ma non potrai usare qualche elemento come vedere il posto dei giocatori sulla mappa.
-Si può attivare o cambiare il canale di trasmissione nell'impostazioni generali di TRP3.]=],
-	["BROADCAST_PASSWORDED"] = [=[L'utente |r%s| ha appena messo un password sul canale di trasmissione (%s).
-Se non sai quel password, non potrai usare elementi come vedere il posto dei giocatori sulla mappa.]=],
+	["BROADCAST_10"] = "|cffff9900 Sei già in 10 canali. TRP3 non proverà più a collegarsi al canale di trasmissione, ma non potrai usare alcune funzionalità come vedere la posizione dei giocatori sulla mappa.",
+	["BROADCAST_OFFLINE_DISABLED"] = "Trasmissione disabilitata",
+	["BROADCAST_PASSWORD"] = [=[|cffff0000 C'è una password messa nel canale di trasmissione (%s).
+|cffff9900 TRP3 non proverà più a collegarsi ma non potrai usarealcune funzionalità come vedere la posizione dei giocatori sulla mappa
+|cff00ff00 Puoi disattivare o cambiare il canale di trasmissione nelle impostazioni generali di TRP3]=],
+	["BROADCAST_PASSWORDED"] = [=[|cffff0000L'utente |r%s| cffff0000 ha appena inserito una password sul canale di trasmissione (%s).
+|cffff9900 Se non sai qual'è la password, non potrai usare alcune funzionalità come vedere la posizione dei giocatori sulla mappa]=],
 	["BW_COLOR_CODE"] = "Codice colore",
-	["BW_COLOR_CODE_ALERT"] = "Codice esadecimale sbagliata!",
-	["BW_COLOR_CODE_TT"] = "Si può incollare un codice colore esidecimale a 6 cifre qui e poi premere Invio.",
+	["BW_COLOR_CODE_ALERT"] = "Codice esadecimale sbagliato!",
+	["BW_COLOR_CODE_TT"] = "Si può incollare un codice esadecimale del colore a 6 cifre qui e poi premere Invio.",
+	["BW_COLOR_PRESET_DELETE"] = "Cancella le impostazioni di %s",
+	["BW_COLOR_PRESET_RENAME"] = "Rinomina le impostazioni di %s",
+	["BW_COLOR_PRESET_SAVE"] = "Salva il colore corrente",
+	["BW_COLOR_PRESET_TITLE"] = "Impostazioni colore",
+	["BW_CUSTOM_NAME"] = "Nome personalizzato del colore",
+	["BW_CUSTOM_NAME_TITLE"] = "Nome (Opzionale)",
+	["BW_CUSTOM_NAME_TT"] = "Poi impostare un nome per il tuo colore personalizzato che stai salvando. Se lasciato vuoto, verrà utilizzato il codice esadecimale del colore.",
+	["CL_COMPANION_PROFILE"] = "Profilo personaggio",
+	["CL_CONTENT_SIZE"] = "Taglia: %s",
+	["CL_DIRECTORY_COMPANION_PROFILE"] = "Directory profilo personaggio",
+	["CL_DIRECTORY_PLAYER_PROFILE"] = "Directory profilo giocatore",
+	["CL_DOWNLOADING"] = "Scaricamento: %0.1f %%",
+	["CL_EXPIRED"] = "Questo link è scaduto.",
+	["CL_GLANCE"] = "Prima-impressione",
+	["CL_IMPORT_COMPANION"] = "Importa profilo personaggio",
+	["CL_IMPORT_GLANCE"] = "Importa Prima-impressione",
+	["CL_IMPORT_PROFILE"] = "Importa profilo",
+	["CL_MAKE_IMPORTABLE"] = "Rendi non importabile",
+	["CL_MAKE_IMPORTABLE_BUTTON_TEXT"] = "Rendi non importabile",
+	["CL_MAKE_IMPORTABLE_SIMPLER"] = [=[Rendere questo %s link importabile?
+
+Le persone potranno copiare ed usare il contenuto di questo link.]=],
+	["CL_MAKE_NON_IMPORTABLE"] = "Solo visualizzazione",
+	["CL_OPEN_COMPANION"] = "Apri profilo personaggio",
+	["CL_OPEN_PROFILE"] = "Apri profilo",
+	["CL_PLAYER_PROFILE"] = "Profilo giocatore",
+	["CL_REQUESTING_DATA"] = "Richiesta informazioni del link da %s",
+	["CL_SENDING_COMMAND"] = "Inviando comandi...",
+	["CL_SENT_BY"] = "Link inviato da: %s",
+	["CL_TOOLTIP"] = "Crea link di chat",
+	["CL_TYPE"] = "Tipo di link TRP3: %s",
+	["CL_VERSIONS_DIFFER"] = [=[Questo link è stato generato utilizzando una versione differente di Total RP 3.
+
+Importare contenuto derivato da una versione differente può causare problematiche in caso di incompatibilità. Vuoi procedere comunque?]=],
 	["CM_ACTIONS"] = "Azioni",
 	["CM_ALT"] = "Alt",
 	["CM_APPLY"] = "Applicare",
+	["CM_BLACK"] = "Nero",
+	["CM_BLUE"] = "Blu",
 	["CM_CANCEL"] = "Annullare",
 	["CM_CENTER"] = "Centrare",
 	["CM_CLASS_DEATHKNIGHT"] = "Cavalliere della Morte",
@@ -6736,10 +7206,14 @@ Se non sai quel password, non potrai usare elementi come vedere il posto dei gio
 	["CM_CLICK"] = "Clic",
 	["CM_COLOR"] = "Colore",
 	["CM_CTRL"] = "Ctrl",
+	["CM_CYAN"] = "Ciano",
+	["CM_DELETE"] = "Cancellare",
 	["CM_DOUBLECLICK"] = "Doppio-clic",
 	["CM_DRAGDROP"] = "Trascinare e rilasciare",
 	["CM_EDIT"] = "Modifica",
-	["CM_IC"] = "IC (nel personaggio)",
+	["CM_GREEN"] = "Verde",
+	["CM_GREY"] = "Grigio",
+	["CM_IC"] = "IP/IC",
 	["CM_ICON"] = "Icona",
 	["CM_IMAGE"] = "Immagine",
 	["CM_L_CLICK"] = "Clic-sinistro",
@@ -6747,27 +7221,49 @@ Se non sai quel password, non potrai usare elementi come vedere il posto dei gio
 	["CM_LINK"] = "Link",
 	["CM_LOAD"] = "Carico",
 	["CM_M_CLICK"] = "Clic centrale",
-	["CM_MOVE_DOWN"] = "spostarsi giù",
-	["CM_MOVE_UP"] = "spostarsi su",
+	["CM_MOVE_DOWN"] = "Sposta giù",
+	["CM_MOVE_UP"] = "Sposta su",
 	["CM_NAME"] = "Nome",
-	["CM_OOC"] = "OOC (fuori dal personaggio)",
+	["CM_OOC"] = "FDP/OOC",
 	["CM_OPEN"] = "Aprire",
+	["CM_ORANGE"] = "Arancio",
+	["CM_PINK"] = "Rosa",
 	["CM_PLAY"] = "Giocare",
+	["CM_PURPLE"] = "Viola",
 	["CM_R_CLICK"] = "Clic-destro",
+	["CM_RED"] = "Rosso",
 	["CM_REMOVE"] = "Rimuovere",
+	["CM_RESET"] = "Resettare",
 	["CM_RESIZE"] = "Ridimensiona",
-	["CM_RESIZE_TT"] = "Trascinare per ridimensionare la cornice.",
+	["CM_RESIZE_TT"] = "Trascina per ridimensionare la cornice",
 	["CM_RIGHT"] = "Destra",
 	["CM_SAVE"] = "Salva",
 	["CM_SELECT"] = "Selezionare",
 	["CM_SHIFT"] = "Shift",
 	["CM_SHOW"] = "Mostrare",
-	["CM_STOP"] = "Fermare",
+	["CM_STOP"] = "Ferma",
 	["CM_TWEET"] = "Invia un tweet",
 	["CM_TWEET_PROFILE"] = "Mostra url profilo",
 	["CM_UNKNOWN"] = "Sconosciuto",
 	["CM_VALUE"] = "Valore",
-	["CO_ANCHOR_BOTTOM"] = "In basso",
+	["CM_WHITE"] = "Bianco",
+	["CM_YELLOW"] = "Giallo",
+	["CO_ADVANCED_BROADCAST"] = "Comunicazioni add-on",
+	["CO_ADVANCED_BROADCAST_CHANNEL_ALWAYS_LAST"] = "Tieni il canale di trasmissione per ultimo",
+	["CO_ADVANCED_BROADCAST_CHANNEL_ALWAYS_LAST_TT"] = "Questa opzione farà sì che il canale di trasmissione sia sempre l'ultimo canale nella tua lista canali.",
+	["CO_ADVANCED_LANGUAGE_WORKAROUND"] = "Abilita workaround contro reset di lingua",
+	["CO_ADVANCED_LANGUAGE_WORKAROUND_TT"] = "Dalla patch 8.0.1, il gioco resetterà la lingua scelta alla lingua comune della tua fazione ad ogni caricamento. Questo workaround farà sì di ripristinare la lingua scelta dopo ogni caricamento.",
+	["CO_ADVANCED_LANGUAGES"] = "Linguaggi",
+	["CO_ADVANCED_LANGUAGES_REMEMBER"] = "Ricorda ultima lingua usata",
+	["CO_ADVANCED_LANGUAGES_REMEMBER_TT"] = "Total RP 3 si ricorderà quale linguaggio stavi usando prima di sloggare, ed automaticamente sceglierà quel linguaggio al prossimo login.",
+	["CO_ADVANCED_SETTINGS"] = "Impostazioni avanzate",
+	["CO_ADVANCED_SETTINGS_MENU_NAME"] = "Avanzate",
+	["CO_ADVANCED_SETTINGS_POPUP"] = [=[Hai appena modificato una impostazione avanzata.
+
+Per favore ricorda che cambiare queste impostazioni potrebbero alterare la tua esperienza con questo add-on e potrebbe causare un problema in alcune funzionalità. Cambiala a tuo rischio.]=],
+	["CO_ADVANCED_SETTINGS_RESET"] = "Ripristina impostazioni avanzate",
+	["CO_ADVANCED_SETTINGS_RESET_TT"] = "Ripristina tutte le impostazioni avanzate al valore iniziale. Utilizza questa funzionalità se hai problemi dopo aver modificato le impostazioni.",
+	["CO_ANCHOR_BOTTOM"] = "In fondo",
 	["CO_ANCHOR_BOTTOM_LEFT"] = "In basso a sinistra",
 	["CO_ANCHOR_BOTTOM_RIGHT"] = "In basso a destra",
 	["CO_ANCHOR_CURSOR"] = "Mostrare sul cursore",
@@ -7140,7 +7636,7 @@ Ci sono diverse maniere per farlo:|c0000ff00
 	["UI_MUSIC_SELECT"] = "Seleziona musica"
 }
 
-TRP3_API.loc:RegisterNewLocale("itIT", "Italian", localeContent);
+TRP3_API.loc:RegisterNewLocale("itIT", "Italiano", localeContent);
 
 localeContent = {
 	["ABOUT_TITLE"] = "약",
@@ -7182,7 +7678,7 @@ localeContent = {
 	["GEN_WELCOME_MESSAGE"] = "Total RP 3 (v %s)를 사용하여 주셔서 감사합니다! 재미를!"
 }
 
-TRP3_API.loc:RegisterNewLocale("koKR", "Korean", localeContent);
+TRP3_API.loc:RegisterNewLocale("koKR", "한국어", localeContent);
 
 localeContent = {
 	["ABOUT_TITLE"] = "Sobre",
@@ -8187,11 +8683,8 @@ Por exemplo, ele pode ser |c0000ff00esbelto, gordo ou musculoso...|r. Ou ele pod
 
 
 {h2}{icon:THUMBUP:20} Reconhecimentos{/h2}
-{col:ffffff}Ellypse's {/col}{link*https://www.patreon.com/ellypse*Patreon} {col:ffffff}supporters:{/col}
-%s
-
 {col:ffffff}Logo and minimap button icon:{/col}
-- {link*https://ebonfeathers.tumblr.com/*EbonFeather@Tumblr}
+- {link*https://twitter.com/Kelandiir*@Kelandiir}
 
 {col:ffffff}Nossa equipe de QA do pré-alpha:{/col}
 - Saelora
@@ -8243,7 +8736,7 @@ O Total RP não é responsável por links que levem a conteúdo nocivo.
 	["UI_TUTO_BUTTON_TT"] = "Clique para ativar/desativar o modo tutorial"
 }
 
-TRP3_API.loc:RegisterNewLocale("ptBR", "Brazilian Portuguese", localeContent);
+TRP3_API.loc:RegisterNewLocale("ptBR", "Português", localeContent);
 
 localeContent = {
 	["ABOUT_TITLE"] = [=[О персонаже
@@ -8251,14 +8744,17 @@ localeContent = {
 	["BINDING_NAME_TRP3_TOGGLE"] = "Показать/спрятать главное окно",
 	["BINDING_NAME_TRP3_TOOLBAR_TOGGLE"] = "Отображение панели инструментов",
 	["BROADCAST_10"] = "Вы уже находитесь больше, чем в 10 каналах. TRP3 не будет пытаться присоединиться к техническому каналу, но вы не сможете больше использовать некоторые функции аддона, к примеру поиск игроков на карте. ",
+	["BROADCAST_OFFLINE_DISABLED"] = "Передача была отключена.",
 	["BW_COLOR_CODE"] = "Цветовой код",
 	["BW_COLOR_CODE_ALERT"] = "Некорректный 16-ричный код!",
 	["BW_COLOR_CODE_TT"] = "Здесь можно вставить 6 цифр 16-ричного цветового кода и нажать Enter.",
-	["BW_COLOR_PRESET_DELETE"] = "Удалить %s настройки",
+	["BW_COLOR_PRESET_DELETE"] = "Удалить заготовку %s ",
+	["BW_COLOR_PRESET_RENAME"] = "Переименовать заготовку %s",
 	["BW_COLOR_PRESET_SAVE"] = "Сохранить текущий цвет",
-	["BW_COLOR_PRESET_TITLE"] = "Настройки цвета",
-	["BW_CUSTOM_NAME"] = "Выбранный цвет имени",
-	["BW_CUSTOM_NAME_TITLE"] = "Имя (опционально)",
+	["BW_COLOR_PRESET_TITLE"] = "Заготовленные цвета",
+	["BW_CUSTOM_NAME"] = "Пользовательский цвет имени",
+	["BW_CUSTOM_NAME_TITLE"] = "Имя (Опционально)",
+	["BW_CUSTOM_NAME_TT"] = "Вы можете дать имя пользовательскому цвету при сохранении. Если оставить поле пустым, вместо имени будет использован соответствующий шестидесятеричный цветовой код.",
 	["CL_COMPANION_PROFILE"] = "Профиль спутника",
 	["CL_CONTENT_SIZE"] = "Размер: %s",
 	["CL_DIRECTORY_COMPANION_PROFILE"] = "Каталог профилей спутников",
@@ -8279,6 +8775,7 @@ localeContent = {
 	["CL_OPEN_PROFILE"] = "Открыть профиль",
 	["CL_PLAYER_PROFILE"] = "Профиль игрока",
 	["CL_REQUESTING_DATA"] = "Запрос информации из %s",
+	["CL_SENDING_COMMAND"] = "Отправка команды...",
 	["CL_SENT_BY"] = "Ссылка отправлена: %s",
 	["CL_TOOLTIP"] = "Создать ссылку для чата",
 	["CL_TYPE"] = "TRP3 ссылка: %s",
@@ -8286,12 +8783,14 @@ localeContent = {
 
 Импорт содержимого из другой версии может вызвать проблемы в случае несовместимости. Вы желаете продолжить?]=],
 	["CM_ACTIONS"] = "Действия",
+	["CM_ALT"] = "Alt",
 	["CM_APPLY"] = "Применить",
 	["CM_BLACK"] = "Черный",
 	["CM_BLUE"] = "Синий",
 	["CM_CANCEL"] = "Отмена",
 	["CM_CENTER"] = "Центр",
 	["CM_CLASS_DEATHKNIGHT"] = "Рыцарь Смерти",
+	["CM_CLASS_DEMONHUNTER"] = "Охотник на Демонов",
 	["CM_CLASS_DRUID"] = "Друид",
 	["CM_CLASS_HUNTER"] = "Охотник",
 	["CM_CLASS_MAGE"] = "Маг",
@@ -8306,7 +8805,7 @@ localeContent = {
 	["CM_CLICK"] = "Клик",
 	["CM_COLOR"] = "Цвет",
 	["CM_CTRL"] = "Ctrl",
-	["CM_CYAN"] = "Циан",
+	["CM_CYAN"] = "Бирюзовый",
 	["CM_DELETE"] = "Удалить",
 	["CM_DOUBLECLICK"] = "Двойной клик",
 	["CM_DRAGDROP"] = "Перетащить",
@@ -8314,7 +8813,7 @@ localeContent = {
 	["CM_GREEN"] = "Зелёный",
 	["CM_GREY"] = "Серый",
 	["CM_IC"] = "IC (в роли)",
-	["CM_ICON"] = "Иконка",
+	["CM_ICON"] = "Значок",
 	["CM_IMAGE"] = "Изображение",
 	["CM_L_CLICK"] = "ЛКМ",
 	["CM_LEFT"] = "Влево",
@@ -8335,22 +8834,27 @@ localeContent = {
 	["CM_REMOVE"] = "Убрать",
 	["CM_RESET"] = "Сбросить",
 	["CM_RESIZE"] = "Изменить размер",
-	["CM_RESIZE_TT"] = "Потяните для изменения размера окна",
+	["CM_RESIZE_TT"] = "Потяните для изменения размера окна.",
 	["CM_RIGHT"] = "Вправо",
 	["CM_SAVE"] = "Сохранить",
 	["CM_SELECT"] = "Выбрать",
 	["CM_SHIFT"] = "Shift",
 	["CM_SHOW"] = "Показать",
-	["CM_STOP"] = "Стоп",
+	["CM_STOP"] = "Остановить",
 	["CM_TWEET"] = "Отправить твит",
 	["CM_TWEET_PROFILE"] = "Показать ссылку профиля",
 	["CM_UNKNOWN"] = "Неизвестно",
 	["CM_VALUE"] = "Значение",
 	["CM_WHITE"] = "Белый",
-	["CM_YELLOW"] = "Желтый",
+	["CM_YELLOW"] = "Жёлтый",
+	["CO_ADVANCED_BROADCAST"] = "Канал чата",
+	["CO_ADVANCED_BROADCAST_CHANNEL_ALWAYS_LAST"] = "Переносить канал в конец списка",
+	["CO_ADVANCED_BROADCAST_CHANNEL_ALWAYS_LAST_TT"] = "Данная опция удостоверит то что общий канал чата всегда будет последним каналом в вашем списке каналов.",
+	["CO_ADVANCED_LANGUAGE_WORKAROUND"] = "Разрешить обход сброса языка.",
+	["CO_ADVANCED_LANGUAGE_WORKAROUND_TT"] = "С патча 8.0.1 игра меняет ваш выбранный язык на язык вашей фракции после каждого загрузочного экрана. Это решение позволит восстанавливать выбранный язык обратно после экрана загрузки.",
 	["CO_ADVANCED_LANGUAGES"] = "Языки",
 	["CO_ADVANCED_LANGUAGES_REMEMBER"] = "Запомнить последний используемый язык",
-	["CO_ADVANCED_LANGUAGES_REMEMBER_TT"] = "Total RP3 запомнит, какой язык вы использовали последним и автоматически будет использовать его при следующем заходе в игру. ",
+	["CO_ADVANCED_LANGUAGES_REMEMBER_TT"] = "Total RP 3 запомнит, какой язык вы использовали перед выходом из игры и автоматически будет использовать его при следующем заходе в игру. ",
 	["CO_ADVANCED_SETTINGS"] = "Расширенные настройки",
 	["CO_ADVANCED_SETTINGS_MENU_NAME"] = "Расширенные",
 	["CO_ADVANCED_SETTINGS_POPUP"] = [=[Вы вошли в раздел расширенных настроек.
@@ -8376,7 +8880,7 @@ localeContent = {
 
 (Когда эта функция включена, вы можете нажать alt+shift+клик на имени персонажа и вставить его стандартное имя вместо ролевого.)]=],
 	["CO_CHAT_MAIN"] = "Основные настройки чата",
-	["CO_CHAT_MAIN_COLOR"] = "Использовать особые цвета имен",
+	["CO_CHAT_MAIN_COLOR"] = "Использовать нестандартные цвета имен",
 	["CO_CHAT_MAIN_EMOTE"] = "Обнаружение эмоций",
 	["CO_CHAT_MAIN_EMOTE_PATTERN"] = "Шаблон обнаружения эмоций",
 	["CO_CHAT_MAIN_EMOTE_USE"] = "Использовать обнаружение эмоций",
@@ -8387,26 +8891,32 @@ localeContent = {
 	["CO_CHAT_MAIN_NAMING_2"] = "Использовать свои имена",
 	["CO_CHAT_MAIN_NAMING_3"] = "Имя + Фамилия",
 	["CO_CHAT_MAIN_NAMING_4"] = "Короткий титул + имя + фамилия",
-	["CO_CHAT_MAIN_NPC"] = "Обнаружение разговоров НИПов",
-	["CO_CHAT_MAIN_NPC_PREFIX"] = "Шаблон обнаружения разговоров НИПов",
+	["CO_CHAT_MAIN_NPC"] = "Обнаружение речи НИПов",
+	["CO_CHAT_MAIN_NPC_PREFIX"] = "Шаблон обнаружения речи НИПов",
 	["CO_CHAT_MAIN_NPC_PREFIX_TT"] = [=[Если фраза в чате с этим префиксом будет сказана в каналах /сказать, /эмоция, /группа или /рейд, она будет распознана как фраза НИПа.
 
 |cff00ff00By default : "|| "
 (без кавычек" и с пробелом после разделительной линии)]=],
-	["CO_CHAT_MAIN_NPC_USE"] = "Использовать обнаружение разговора НИПов.",
+	["CO_CHAT_MAIN_NPC_USE"] = "Использовать обнаружение речи НИПов.",
 	["CO_CHAT_MAIN_OOC"] = "Обнаружение персонажей вне отыгрыша",
 	["CO_CHAT_MAIN_OOC_COLOR"] = "Цвет \"вне отыгрыша\"",
 	["CO_CHAT_MAIN_OOC_PATTERN"] = "Шаблон обнаружения \"вне отыгрыша\"",
 	["CO_CHAT_MAIN_OOC_USE"] = "Использовать обнаружение \"вне отыгрыша\"",
+	["CO_CHAT_MAIN_SPEECH"] = "Обнаружение речи",
+	["CO_CHAT_MAIN_SPEECH_USE"] = "Использовать обнаружение речи",
+	["CO_CHAT_MAIN_SPEECH_USE_TT"] = "Текст в кавычках будет иметь тот же цвет какой был бы при использовании /сказать.",
 	["CO_CHAT_NPCSPEECH_REPLACEMENT"] = "Кастомизировать имя компаньона в речи НИП",
 	["CO_CHAT_NPCSPEECH_REPLACEMENT_TT"] = "Если имя компаньона есть в речи НИП, оно будет окрашено и его иконка будет отображаться согласно от ваших настроек выше.",
 	["CO_CHAT_REMOVE_REALM"] = "Не отображать название мира в именах персонажей",
+	["CO_CHAT_SHOW_OOC"] = "Показать индикатор Вне Роли",
 	["CO_CHAT_USE"] = "Используемые каналы чата",
-	["CO_CHAT_USE_ICONS"] = "Отображать иконку игрока",
+	["CO_CHAT_USE_ICONS"] = "Отображать значки игроков",
 	["CO_CHAT_USE_SAY"] = "Канал /сказать",
 	["CO_CONFIGURATION"] = "Настройки",
 	["CO_CURSOR_DISABLE_OOC"] = "Отключить, пока статус \"Вне отыгрыша\" активен",
 	["CO_CURSOR_DISABLE_OOC_TT"] = "Отключить модификации курсора, пока установлен статус персонажа | cffccccccВне отыгрыша | r.",
+	["CO_CURSOR_MODIFIER_KEY"] = "Клавиша-модификатор",
+	["CO_CURSOR_MODIFIER_KEY_TT"] = "Требует зажатия клавиши-модификатора при правом клике по игроку для избежания случайных кликов.",
 	["CO_CURSOR_RIGHT_CLICK"] = "ПКМ чтобы открыть профиль.",
 	["CO_CURSOR_RIGHT_CLICK_TT"] = [=[ПКМ на игрока в мире, чтобы открыть профиль, если он создан им.
 
@@ -8431,8 +8941,7 @@ localeContent = {
 	["CO_GENERAL_NEW_VERSION"] = "Оповещение об обновлениях",
 	["CO_GENERAL_NEW_VERSION_TT"] = "Оповестить, когда будет доступна новая версия аддона.",
 	["CO_GENERAL_RESET_CUSTOM_COLORS"] = "Сбросить пользовательские цвета",
-	["CO_GENERAL_RESET_CUSTOM_COLORS_TT"] = [=[
-Удаляет все пользовательские цвета, сохраненные в наборе.]=],
+	["CO_GENERAL_RESET_CUSTOM_COLORS_TT"] = "Удаляет все пользовательские цвета, сохраненные в наборе.",
 	["CO_GENERAL_RESET_CUSTOM_COLORS_WARNING"] = "Вы уверены, что делаете удалить все сохраненные в наборе пользовательские цвета?",
 	["CO_GENERAL_TT_SIZE"] = "Размер текста подсказок",
 	["CO_GENERAL_UI_ANIMATIONS"] = "Анимация интерфейса",
@@ -8449,15 +8958,24 @@ localeContent = {
 	["CO_GLANCE_PRESET_TRP3_HELP"] = "Ярлык для установки панели в стиле TRP3: снизу от рамки цели TRP3.",
 	["CO_GLANCE_RESET_TT"] = "Сбросить позиционирование панели вниз влево от закрепленной рамки.",
 	["CO_GLANCE_TT_ANCHOR"] = "Точка закрепления подсказок",
+	["CO_HIDE_EMPTY_MAP_BUTTON"] = "Скрыть когда нет доступных сканов",
 	["CO_LOCATION"] = "Настройки местоположения",
 	["CO_LOCATION_ACTIVATE"] = "Активировать местоположение персонажа",
 	["CO_LOCATION_ACTIVATE_TT"] = "Активирование местоположение персонажа позволит Вам сканировать и обнаруживать на карте других пользователей Total RP, и так же позволит другим пользователям найти Вас.",
+	["CO_LOCATION_DISABLE_CLASSIC_PVP"] = "Отключить локацию когда включен PvP режим",
+	["CO_LOCATION_DISABLE_CLASSIC_PVP_TT"] = "Вы не будете реагировать на запросы локации от других игроков когда вы отмечены для PvP. Эта опция частично полезна для избежания злоупотребления системы локации для вашего отслеживания.",
 	["CO_LOCATION_DISABLE_OOC"] = "Отключить местоположение персонажа вне отыгрыша",
 	["CO_LOCATION_DISABLE_OOC_TT"] = "Другие игроки не смогут отследить Ваше местоположение с помощью сканирования карты, пока активен статус \"Вне отыгрыша\".",
 	["CO_LOCATION_DISABLE_PVP"] = "Отключить местоположение персонажа пока активен режим PvP",
 	["CO_LOCATION_DISABLE_PVP_TT"] = [=[Другие игроки не смогут отследить Ваше местоположение с помощью сканирования карты, пока активен режим PvP. 
 
 Эта опция будет полезна для PvP-серверов, где игроки из другой фракции могут злоупотреблять системой определения местоположения, чтобы отслеживать Вас.]=],
+	["CO_LOCATION_DISABLE_WAR_MODE"] = "Не делиться местоположением в Режиме Войны",
+	["CO_LOCATION_DISABLE_WAR_MODE_TT"] = [=[Вы не будете отвечать на запросы местоположения от других игроков когда у вас включен Режим Войны и вы не находитесь в |cff69CCF0Святилище|r.
+
+Данная опция отчасти полезна для избежания злоупотребления системой местоположения для вашего отслеживания.]=],
+	["CO_LOCATION_SHOW_DIFFERENT_WAR_MODES"] = "Отображать игроков в другом Режиме Войны",
+	["CO_LOCATION_SHOW_DIFFERENT_WAR_MODES_TT"] = "Игроки, находящиеся в данный момент в локации, но с Режимом Войны, отличным от вашего будут показываться на карте с пониженной прозрачностью и особой иконкой во всплывающем окне.",
 	["CO_MAP_BUTTON"] = "Кнопка сканирования карты",
 	["CO_MAP_BUTTON_POS"] = "Сканирование кнопки якоря у карты",
 	["CO_MINIMAP_BUTTON"] = "Кнопка у миникарты",
@@ -8516,7 +9034,7 @@ localeContent = {
 
 | cffff9900 В WoW есть ошибка, из-за которой теряются все сохраненные профили, когда те достигают определенного порога. Мы настоятельно рекомендуем избегать отключения системы очистки.]=],
 	["CO_TARGETFRAME"] = "Настройки рамки цели",
-	["CO_TARGETFRAME_ICON_SIZE"] = "Размер иконок",
+	["CO_TARGETFRAME_ICON_SIZE"] = "Размер значков",
 	["CO_TARGETFRAME_USE"] = "Показать условия",
 	["CO_TARGETFRAME_USE_1"] = "Всегда",
 	["CO_TARGETFRAME_USE_2"] = "Только когда \"в отыгрыше\"",
@@ -8530,7 +9048,7 @@ localeContent = {
 	["CO_TOOLBAR_CONTENT_STATUS"] = "Статус игрока (Отсутствует/Не беспокоить)",
 	["CO_TOOLBAR_HIDE_TITLE"] = "Скрыть заголовок панели инструментов",
 	["CO_TOOLBAR_HIDE_TITLE_HELP"] = "Скрывает заголовок, показанный над панелью инструментов.",
-	["CO_TOOLBAR_ICON_SIZE"] = "Размер иконок",
+	["CO_TOOLBAR_ICON_SIZE"] = "Размер значков",
 	["CO_TOOLBAR_MAX"] = "Максимум иконок в строке",
 	["CO_TOOLBAR_MAX_TT"] = "Чтобы панель отображалась вертикально, задайте значение 1!",
 	["CO_TOOLBAR_SHOW_ON_LOGIN"] = "Показать панель инструментов при входе",
@@ -8546,18 +9064,31 @@ localeContent = {
 	["CO_TOOLTIP_CONTRAST"] = "Увеличить цветовой контраст",
 	["CO_TOOLTIP_CONTRAST_TT"] = "Включите эту опцию, чтобы Total RP 3 мог изменять пользовательские цвета, чтобы сделать текст более читаемым, если цвет слишком темный.",
 	["CO_TOOLTIP_CROP_TEXT"] = "Обрезать необоснованно длинные тексты",
+	["CO_TOOLTIP_CROP_TEXT_TT"] = [=[Ограничивает количество символов в каждом поле всплывающего окна, дабы избежать излишне длинных текстов и возможных неполадок при отображении.
+
+|cfffff569Детали ограничения: 
+Имя: 100 символов 
+Звание: 150 символов 
+Раса: 50 символов 
+Класс: 50 символов|r]=],
 	["CO_TOOLTIP_CURRENT"] = "Показывать текст \"текущее\"",
+	["CO_TOOLTIP_CURRENT_LINES"] = "Максимальное количество разрывов строки в \"Текущее\"",
 	["CO_TOOLTIP_CURRENT_SIZE"] = "Максимальная длина текста \"текущее\"",
 	["CO_TOOLTIP_FT"] = "Показывать полный титул",
 	["CO_TOOLTIP_GUILD"] = "Показывать информацию о гильдии",
 	["CO_TOOLTIP_HIDE_ORIGINAL"] = "Скрывать подсказки игры",
 	["CO_TOOLTIP_ICONS"] = "Показывать иконки",
+	["CO_TOOLTIP_IN_CHARACTER_ONLY"] = "Скрвать когда вне роли",
 	["CO_TOOLTIP_MAINSIZE"] = "Размер основного шрифта",
+	["CO_TOOLTIP_NO_FADE_OUT"] = "Спрятать мгновенно вместо затухания",
 	["CO_TOOLTIP_NOTIF"] = "Показывать уведомления",
 	["CO_TOOLTIP_NOTIF_TT"] = "Строка уведомлений — строка, содержащая версию клиента, метку непрочитанного описания и метку \"На первый взгляд\".",
 	["CO_TOOLTIP_OWNER"] = "Показать владельца",
 	["CO_TOOLTIP_PETS"] = "Подсказки спутников",
 	["CO_TOOLTIP_PETS_INFO"] = "Показать информацию о спутнике",
+	["CO_TOOLTIP_PREFERRED_OOC_INDICATOR"] = "Предпочитаемый индикатор \"Вне Роли\"",
+	["CO_TOOLTIP_PREFERRED_OOC_INDICATOR_ICON"] = "Значок:",
+	["CO_TOOLTIP_PREFERRED_OOC_INDICATOR_TEXT"] = "Текст:",
 	["CO_TOOLTIP_PROFILE_ONLY"] = "Использовать, только если у цели есть профиль",
 	["CO_TOOLTIP_RACE"] = "Показывать расу, класс и уровень",
 	["CO_TOOLTIP_REALM"] = "Показывать игровой мир",
@@ -8585,10 +9116,14 @@ localeContent = {
 	["DB_NEW"] = "Что нового?",
 	["DB_STATUS"] = "Статус",
 	["DB_STATUS_CURRENTLY"] = "Текущее (Отыгрываю)",
-	["DB_STATUS_CURRENTLY_COMMON"] = "Эти статусы будут показаны в подсказке вашего персонажа. Делайте их краткими, так как |cffff9900by по умолчанию игроки с TRP3 будут видеть только первые 140 символов",
+	["DB_STATUS_CURRENTLY_COMMON"] = "Эти статусы будут показаны в подсказке вашего персонажа. Делайте их краткими, так как |cffff9900по умолчанию игроки с TRP3 будут видеть только первые 140 символов!",
 	["DB_STATUS_CURRENTLY_OOC"] = "Другая информация (Вне отыгрыша)",
 	["DB_STATUS_CURRENTLY_OOC_TT"] = "Здесь вы можете указать что-то важное о вас, как игроке, или что-нибудь еще вне отыгрыша.",
 	["DB_STATUS_CURRENTLY_TT"] = "Здесь вы можете указать что-нибудь важное о вашем персонаже.",
+	["DB_STATUS_ICON_ITEM"] = "%1$s %2$s",
+	["DB_STATUS_LC"] = "Язык ролевой игры",
+	["DB_STATUS_LC_DEFAULT"] = "По умолчанию (%1$s)",
+	["DB_STATUS_LC_TT"] = "Устанавливает ваш предпочитаемый язык ролевой игры. Эта информация будет доступна другим пользователям совместимых ролевых аддонов.  |cffff9900Заметка:|r Это |cffff0000не|r меняет язык интерфейса Total RP 3. Данная опция может быть найдена на странице |cfffff569Расширенных Настроек|r.",
 	["DB_STATUS_RP"] = "Статус персонажа",
 	["DB_STATUS_RP_EXP"] = "Опытный ролевик",
 	["DB_STATUS_RP_EXP_TT"] = [=[Показывает, что вы опытный ролевик.
@@ -8596,10 +9131,10 @@ localeContent = {
 	["DB_STATUS_RP_IC"] = "Отыгрываю",
 	["DB_STATUS_RP_IC_TT"] = [=[Это значит, что сейчас вы отыгрываете своего персонажа.
 Все ваши действия рассматриваются как выполненные вашим персонажем.]=],
-	["DB_STATUS_RP_OOC"] = "Вне отыгрыша",
+	["DB_STATUS_RP_OOC"] = "Вне роли",
 	["DB_STATUS_RP_OOC_TT"] = [=[Вы вне роли.
 Ваши действия не могут быть связаны с вашим персонажем.]=],
-	["DB_STATUS_RP_VOLUNTEER"] = "Волонтер",
+	["DB_STATUS_RP_VOLUNTEER"] = "Волонтёр",
 	["DB_STATUS_RP_VOLUNTEER_TT"] = "Если выбрать этот статус, в вашей подсказке отобразится специальная иконка, показывающая ролевикам-новичкам, что Вы хотите помочь им.",
 	["DB_STATUS_XP"] = "Статус ролевика",
 	["DB_STATUS_XP_BEGINNER"] = "Новичок",
@@ -8609,11 +9144,50 @@ localeContent = {
 |cffffff00Статус персонажа|r позволяет указать Ваш опыт в ролевых играх: будь то новичок или ветеран, желающий помочь новобранцам.
 
 |cff00ff00Эта информация будет указана в описании вашего персонажа.]=],
+	["DICE_HELP"] = "Бросок или броски кубика, разделенные пробелом. Пример: 1d6, 2d12 3d20 ...",
+	["DICE_ROLL"] = "%s Выбрасывает |cffff9900%sx d%s|r И получает |cff00ff00%s|r.",
+	["DICE_ROLL_T"] = "%s %s бросил |cffff9900%sx d%s|r и ему выпало |cff00ff00%s|r.",
+	["DICE_TOTAL"] = "%s Итого |cff00ff00%s|r за бросок.",
+	["DICE_TOTAL_T"] = "%s %s получил в общей сложности |cff00ff00%s|r за бросок.",
+	["DTBK_AFK"] = "Total RP 3 - Отсутствует/DND",
+	["DTBK_CLOAK"] = "Total RP 3 - Плащ",
+	["DTBK_HELMET"] = "Total RP 3 - Шлем",
+	["DTBK_LANGUAGES"] = "Total RP 3 - Языки",
+	["DTBK_RP"] = "Total RP 3 - В Роли/Вне Роли",
 	["GEN_VERSION"] = "Версия: %s (Сборка %s)",
 	["GEN_WELCOME_MESSAGE"] = "Благодарим за использование TotalRP3 (версии %s)! Приятной игры!",
+	["LANG_CHANGE_CAUSED_REVERT_TO_DEFAULT"] = "Используемый в настоящий моммент язык сменен на язык по умолчанию %s так как вам более не известен выбранный ранее язык %s.",
+	["MAP_BUTTON_NO_SCAN"] = "Сканирование недоступно",
 	["MAP_BUTTON_SCANNING"] = "Сканирование",
+	["MAP_BUTTON_SUBTITLE"] = "Нажмите чтобы показать доступные варианты сканирования",
+	["MAP_BUTTON_SUBTITLE_80_DISABLED"] = "Сканирование временно недоступно в виду изменений 8.0.",
+	["MAP_BUTTON_SUBTITLE_CONNECTING"] = "Сканирование карты настраивается. Пожалуйста подождите.",
+	["MAP_BUTTON_SUBTITLE_OFFLINE"] = "Сканирование карты недоступно в данный момент: %s",
+	["MAP_BUTTON_TITLE"] = "Поиск ролевиков на карте",
 	["MAP_SCAN_CHAR"] = "Поиск персонажей",
 	["MAP_SCAN_CHAR_TITLE"] = "Персонажи",
+	["MATURE_FILTER_ADD_TO_WHITELIST"] = "Добавить этот профиль в |cffffffffбелый список взрослых профилей|r",
+	["MATURE_FILTER_ADD_TO_WHITELIST_OPTION"] = "Добавить в |cffffffffбелый список взрослых профилей|r",
+	["MATURE_FILTER_ADD_TO_WHITELIST_TT"] = "Добавить этот профиль в |cffffffffбелый список взрослых профилей|r и раскрыть взрослый контент находящийся внутри него.",
+	["MATURE_FILTER_EDIT_DICTIONARY"] = "Редактировать пользовательский словарь",
+	["MATURE_FILTER_EDIT_DICTIONARY_ADD_BUTTON"] = "Добавить",
+	["MATURE_FILTER_EDIT_DICTIONARY_ADD_TEXT"] = "Добавить новое слово в словарь",
+	["MATURE_FILTER_EDIT_DICTIONARY_BUTTON"] = "Редактировать",
+	["MATURE_FILTER_EDIT_DICTIONARY_DELETE_WORD"] = "Удалить это слово из пользовательского словаря",
+	["MATURE_FILTER_EDIT_DICTIONARY_EDIT_WORD"] = "Редактировать это слово",
+	["MATURE_FILTER_EDIT_DICTIONARY_RESET_BUTTON"] = "Сбросить",
+	["MATURE_FILTER_EDIT_DICTIONARY_RESET_TITLE"] = "Сбросить словарь",
+	["MATURE_FILTER_EDIT_DICTIONARY_RESET_WARNING"] = "Вы уверены что хотите сбросить словарь? Это опустошит словарь и заполнит его стандартными словами для вашего текущего языка (если доступно).",
+	["MATURE_FILTER_EDIT_DICTIONARY_TITLE"] = "Редактор пользовательского словаря",
+	["MATURE_FILTER_FLAG_PLAYER_OPTION"] = "Пометить как контент для взрослых",
+	["MATURE_FILTER_OPTION"] = "Фильтровать взрослые профили",
+	["MATURE_FILTER_STRENGTH"] = "Степень взрослого фильтра",
+	["MATURE_FILTER_TITLE"] = "Фильтр взрослых профилей",
+	["MATURE_FILTER_TOOLTIP_WARNING"] = "Взрослый контент",
+	["MATURE_FILTER_WARNING_CONTINUE"] = "Продолжить",
+	["MATURE_FILTER_WARNING_GO_BACK"] = "Назад",
+	["MATURE_FILTER_WARNING_TEXT"] = "Ваша система фильтровки взрослых профилей Total RP 3 включена. Этот профиль был отмечен как содержащий взрослый контент. Вы уверены что вы желаете посмотреть данный профиль?",
+	["MATURE_FILTER_WARNING_TITLE"] = "Взрослый контент",
 	["MM_SHOW_HIDE_MAIN"] = "Отображение основной рамки",
 	["MM_SHOW_HIDE_MOVE"] = "Переместить кнопку",
 	["MM_SHOW_HIDE_SHORTCUT"] = "Отображение панели инструментов",
@@ -8623,15 +9197,31 @@ localeContent = {
 | cffffff00 Мы настоятельно рекомендуем вам использовать актуальную версию.
 
 Это сообщение будет появляться только один раз за сеанс, его можно отключить в настройках (Общие настройки => Разное).]=],
+	["NEW_VERSION_BEHIND"] = "Вы на данный момент отстаёте на %s версия и пропускаете множество исправлений багов и новых возможностей. Другие игроки могут не видеть ваш профиль корректно. Пожалуйста, подумайте обновить аддон.",
 	["NEW_VERSION_TITLE"] = "Доступно новое обновление",
+	["NPC_TALK_BUTTON_TT"] = "Открыт окно речи НИП позволяющее вам использовать речь и эмоции НИП.",
+	["NPC_TALK_CHANNEL"] = "Канал:",
+	["NPC_TALK_COMMAND_HELP"] = "Открыть окно речи НИП.",
+	["NPC_TALK_ERROR_EMPTY_MESSAGE"] = "Сообщение не может быть пустым.",
+	["NPC_TALK_MESSAGE"] = "Сообщение",
 	["NPC_TALK_NAME"] = "Имя НИП",
+	["NPC_TALK_NAME_TT"] = [=[Вы можете использовать стандартные метки в чате как например %t чтобы вставить имя вашей цели или %f чтобы вставить имя вашей запомненной цели.
+
+Так же вы можете оставить это поле пустым чтобы создавать эмоции без имени НИП в начале.
+
+Добавление имени вашего спутника в [скобках] позволит использовать модифицированные цвет и иконку.]=],
 	["NPC_TALK_SAY_PATTERN"] = "говорит:",
+	["NPC_TALK_SEND"] = "Отправить",
+	["NPC_TALK_TITLE"] = "Речи НИП",
 	["NPC_TALK_WHISPER_PATTERN"] = "шепчет:",
 	["NPC_TALK_YELL_PATTERN"] = "кричит:",
+	["OPTION_DISABLED_TOAST"] = "Опция отключена",
+	["OPTION_ENABLED_TOAST"] = "Опция включена",
 	["PR_CO_BATTLE"] = "Боевой питомец",
 	["PR_CO_COUNT"] = "%s питомцев/средств передвижения привязано к данному профилю.",
 	["PR_CO_EMPTY"] = "Профиль спутника отсутствует",
 	["PR_CO_MASTERS"] = "Хозяева",
+	["PR_CO_MOUNT"] = "Средство Передвижения",
 	["PR_CO_NEW_PROFILE"] = "Профиль нового спутника",
 	["PR_CO_PET"] = "Питомец",
 	["PR_CO_PROFILE_DETAIL"] = "Данный профиль связан с",
@@ -8669,10 +9259,21 @@ Link it anyway ?]=],
 	["PR_CREATE_PROFILE"] = "Создать профиль",
 	["PR_DELETE_PROFILE"] = "Удалить профиль",
 	["PR_DUPLICATE_PROFILE"] = "Копировать профиль",
+	["PR_EXPORT_IMPORT_TITLE"] = "Экспортировать/импортировать профиль",
+	["PR_EXPORT_NAME"] = "Серийный номер для профиля %s (размер %0.2f кб)",
+	["PR_EXPORT_PROFILE"] = "Экспортировать профиль",
+	["PR_EXPORT_TOO_LARGE"] = [=[Данный профиль слишком большой и не может быть экспортирован.
+
+Размер профиля:%0.2f кб
+Максимальный размер: 20 кб]=],
+	["PR_EXPORT_WARNING_TITLE"] = "Предупреждение:",
+	["PR_IMPORT"] = "Импортировать",
 	["PR_IMPORT_CHAR_TAB"] = "Импорт персонажей",
 	["PR_IMPORT_EMPTY"] = "Нет импортируемых профилей",
 	["PR_IMPORT_IMPORT_ALL"] = "Импортировать все",
 	["PR_IMPORT_PETS_TAB"] = "Импортирование спутников",
+	["PR_IMPORT_PROFILE"] = "Импортировать профиль",
+	["PR_IMPORT_PROFILE_TT"] = "Вставьте серийный номер профиля сюда",
 	["PR_IMPORT_WILL_BE_IMPORTED"] = "Будет импортировано",
 	["PR_PROFILE"] = "Профиль",
 	["PR_PROFILE_CREATED"] = "Профиль \"%s\" создан.",
@@ -8684,6 +9285,7 @@ Link it anyway ?]=],
 
 Так же можно связать нескольких |cffffff00"персонажей WoW"|r к одному |cff00ff00профилю|r!]=],
 	["PR_PROFILE_LOADED"] = "Загружен профиль %s.",
+	["PR_PROFILE_MANAGEMENT_TITLE"] = "Управление профилем",
 	["PR_PROFILEMANAGER_ACTIONS"] = "Действия",
 	["PR_PROFILEMANAGER_ALREADY_IN_USE"] = "Профиль %s недоступен.",
 	["PR_PROFILEMANAGER_COUNT"] = "%s персонаж(ей) WoW связаны с профилем.",
@@ -8700,6 +9302,7 @@ Link it anyway ?]=],
 Название не может быть пустым.
 
 Переименование профиля не изменит связей между профилем и персонажами.]=],
+	["PR_PROFILEMANAGER_IMPORT_WARNING"] = "Заменить всё содержание профиля %s этими импортированными данными?",
 	["PR_PROFILEMANAGER_IMPORT_WARNING_2"] = [=[Предупреждение: этот профиль создан в старой версии TRP3.
 Это может привести к несовместимости.
 
@@ -8708,9 +9311,23 @@ Link it anyway ?]=],
 	["PR_PROFILEMANAGER_SWITCH"] = "Выбрать профиль",
 	["PR_PROFILEMANAGER_TITLE"] = "Профили персонажей",
 	["PR_PROFILES"] = "Профили",
+	["PR_SLASH_EXAMPLE"] = "|cffffff00Использование команды:|r |cffcccccc/trp3 profile Миллидан Ясность Хмури|r |cffffff00Чтобы переключиться на профиль Миллидана Ясности Хмури.|r",
+	["PR_SLASH_NOT_FOUND"] = "|cffff0000Не удалось найти профиль с именем|r |cffffff00%s|r|cffff0000.|r",
+	["PR_SLASH_OPEN_ABORTING"] = "|cffffff00Запрос профиля отклонён.|r",
+	["PR_SLASH_OPEN_EXAMPLE"] = "|cffffff00Использование команды:|r |cffcccccc/trp3 open|r |cffffff00чтобы открыть профиль цели или|cffcccccc/trp3 open ИмяПерсонажа-ИгровойМир|r |cffffff00to открывает профиль этого персонажа.|r",
+	["PR_SLASH_OPEN_HELP"] = "Открыть профиль персонажа используя его внутреигровое имя, или же профиль вашей цели если имя не предоставленно.",
+	["PR_SLASH_OPEN_WAITING"] = "|cffffff00Запрашиваем профиль, пожалуйста подождите...|r",
+	["PR_SLASH_SWITCH_HELP"] = "Сменить на другой профиль используя его имя.",
 	["PR_UNUSED_PROFILE"] = "Этот профиль на данный момент не привязан к какому-либо персонажу WoW.",
 	["REG_COMPANION"] = "Спутник",
+	["REG_COMPANION_BOUND_TO"] = "Привязать к ...",
+	["REG_COMPANION_BOUND_TO_TARGET"] = "Цель",
+	["REG_COMPANION_BOUNDS"] = "Привязки",
+	["REG_COMPANION_BROWSER_BATTLE"] = "Коллекция боевых питомцев",
+	["REG_COMPANION_BROWSER_MOUNT"] = "Коллекция средств передвижения",
 	["REG_COMPANION_INFO"] = "Информация",
+	["REG_COMPANION_LINKED"] = "Спутник %s теперь привязан к профилю %s.",
+	["REG_COMPANION_LINKED_NO"] = "Спутник %s более не привязан к никакому профилю.",
 	["REG_COMPANION_NAME"] = "Имя",
 	["REG_COMPANION_NAME_COLOR"] = "Цвет имени",
 	["REG_COMPANION_PAGE_TUTO_C_1"] = "Совет",
@@ -8725,6 +9342,7 @@ Link it anyway ?]=],
 Вы можете выбрать |cffffff00текстуру фона|r для описания. Доступны инструменты форматирования, такие как |cffffff00размер шрифта, цвет и выравнивание|r.
 Эти инструменты позволяют так же вставить |cffffff00изображения, иконки или ссылки на сайты|r.]=],
 	["REG_COMPANION_PROFILES"] = "Профили спутников",
+	["REG_COMPANION_TARGET_NO"] = "Ваша цель не является приемлемым питомцем, прислужником, элементалем мага или переименованным боевым питомцем.",
 	["REG_COMPANION_TF_BOUND_TO"] = "Выбрать профиль",
 	["REG_COMPANION_TF_CREATE"] = "Создать новый профиль",
 	["REG_COMPANION_TF_NO"] = "Нет профиля",
@@ -8734,6 +9352,7 @@ Link it anyway ?]=],
 	["REG_COMPANION_TF_PROFILE_MOUNT"] = "Профиль ездового животного",
 	["REG_COMPANION_TF_UNBOUND"] = "Отвязать от профиля",
 	["REG_COMPANION_TITLE"] = "Название",
+	["REG_COMPANION_UNBOUND"] = "Отвязать от ...",
 	["REG_COMPANIONS"] = "Спутники",
 	["REG_DELETE_WARNING"] = [=[Вы уверены, что хотите удалить профиль "%s"?
 ]=],
@@ -8809,6 +9428,7 @@ Link it anyway ?]=],
 
 |cffffff00Удалить из черного списка]=],
 	["REG_LIST_NAME"] = "Имя персонажа",
+	["REG_LIST_NOTESONLY"] = "Только с заметками",
 	["REG_LIST_NOTIF_ADD"] = "Обнаружен новый профиль для |cff00ff00%s",
 	["REG_LIST_NOTIF_ADD_CONFIG"] = "Обнаружен новый профиль",
 	["REG_LIST_NOTIF_ADD_NOT"] = "Данный профиль не существует.",
@@ -8822,6 +9442,7 @@ Link it anyway ?]=],
 	["REG_LIST_PETS_TOOLTIP"] = "Последнее появление",
 	["REG_LIST_PETS_TOOLTIP2"] = "Был вместе с",
 	["REG_LIST_REALMONLY"] = "Только текущий игровой мир",
+	["REG_LOCATION_DIFFERENT_WAR_MODE"] = "Другой Режим Войны",
 	["REG_MSP_ALERT"] = [=[|cffff0000ВНИМАНИЕ
 
 Настоятельно не рекомендуется пользоваться несколькими аддонами, использующими протокол Mary Sue, так как это вызывает ошибки.|r
@@ -8831,20 +9452,23 @@ Link it anyway ?]=],
 |cffff9900Поддержка протокола для Total RP3 будет отключена.|r
 
 Если вы не хотите использовать TRP3 по этому протоколу и не хотите снова видеть это сообщение, можно его отключить в настойках.]=],
+	["REG_NOTES_PROFILE"] = "Заметки",
+	["REG_NOTES_PROFILE_TT"] = "Открыть окно заметок для выбранного в цель персонажа.",
 	["REG_PLAYER"] = "Персонаж",
 	["REG_PLAYER_ABOUT"] = "О персонаже",
 	["REG_PLAYER_ABOUT_ADD_FRAME"] = "Добавить окно",
 	["REG_PLAYER_ABOUT_EMPTY"] = "Нет описания",
-	["REG_PLAYER_ABOUT_HEADER"] = "Метка титула",
+	["REG_PLAYER_ABOUT_HEADER"] = "Метка заголовка",
 	["REG_PLAYER_ABOUT_MUSIC"] = "Тема персонажа",
 	["REG_PLAYER_ABOUT_MUSIC_LISTEN"] = "Играть тему",
 	["REG_PLAYER_ABOUT_MUSIC_REMOVE"] = "Отключить тему",
-	["REG_PLAYER_ABOUT_MUSIC_SELECT"] = "Выбрать тему персонажа",
+	["REG_PLAYER_ABOUT_MUSIC_SELECT"] = "Выбрать музыкальную тему персонажа",
 	["REG_PLAYER_ABOUT_MUSIC_SELECT2"] = "Выбрать тему",
 	["REG_PLAYER_ABOUT_MUSIC_STOP"] = "Остановить тему",
+	["REG_PLAYER_ABOUT_MUSIC_THEME"] = "Музыкальная тема персонажа",
 	["REG_PLAYER_ABOUT_NOMUSIC"] = "|cffff9900Тема не выбрана",
 	["REG_PLAYER_ABOUT_P"] = "Метка абзаца",
-	["REG_PLAYER_ABOUT_REMOVE_FRAME"] = "Удалить рамку",
+	["REG_PLAYER_ABOUT_REMOVE_FRAME"] = "Удалить окно",
 	["REG_PLAYER_ABOUT_SOME"] = "Текст ...",
 	["REG_PLAYER_ABOUT_T1_YOURTEXT"] = "Вставьте Ваш текст",
 	["REG_PLAYER_ABOUT_TAGS"] = "Инструменты форматирования",
@@ -8875,6 +9499,7 @@ Link it anyway ?]=],
 
 |c00ffff00Используйте кнопку справа, чтобы установить Ваше текущее положение как место рождения.]=],
 	["REG_PLAYER_BKG"] = "Стиль фона",
+	["REG_PLAYER_BKG_TT"] = "Это графический фон используемый в вашем окне характеристик.",
 	["REG_PLAYER_CARACT"] = "Характеристики",
 	["REG_PLAYER_CHANGE_CONFIRM"] = [=[Возможно, Вы не сохранили изменения.
 Вы действительно хотите изменить страницу?
@@ -8885,14 +9510,19 @@ Link it anyway ?]=],
 
 |cff00ff00Например:|r
 Рыцарь, Пиротехник, Некромант, Элитный стрелок, Чародей, ...]=],
-	["REG_PLAYER_COLOR_ALWAYS_DEFAULT_TT"] = [=[|cffffff00Левая кнопка мыши:|r Выбрать цвет
-|cffffff00Правая кнопка мыши:|r Сбросить цвет]=],
-	["REG_PLAYER_COLOR_CLASS"] = "Цвет класса",
-	["REG_PLAYER_COLOR_TT"] = [=[|cffffff00ЛКМ:|r Выбрать цвет
+	["REG_PLAYER_COLOR_ALWAYS_DEFAULT_TT"] = [=[|cffffff00ЛКМ:|r Выбрать цвет
 |cffffff00ПКМ:|r Сбросить цвет]=],
+	["REG_PLAYER_COLOR_CLASS"] = "Цвет класса",
+	["REG_PLAYER_COLOR_CLASS_TT"] = "Он так же определит цвет имени.",
+	["REG_PLAYER_COLOR_TT"] = [=[
+|cffffff00ЛКМ:|r Выбрать цвет
+|cffffff00ПКМ:|r Сбросить цвет
+|cffffff00Shift+ПКМ:|r Использовать стандартный выбор цвета
+]=],
 	["REG_PLAYER_CURRENT"] = "На данный момент",
 	["REG_PLAYER_CURRENT_OOC"] = "Это информация вне отыгрыша",
 	["REG_PLAYER_CURRENTOOC"] = "На данный момент (Вне отыгрыша)",
+	["REG_PLAYER_EDIT_MUSIC_THEME"] = "Музыкальная тема",
 	["REG_PLAYER_EYE"] = "Цвет глаз",
 	["REG_PLAYER_EYE_TT"] = [=[Здесь Вы можете указать цвет глаз персонажа.
 
@@ -8902,16 +9532,40 @@ Link it anyway ?]=],
 
 Так же можно использовать |c0000ff00прозвище|r!]=],
 	["REG_PLAYER_FULLTITLE"] = "Полный титул",
+	["REG_PLAYER_FULLTITLE_TT"] = [=[Здесь вы можете написать полный титул вашего персонажа. Оно может быть как более длинной версией титула или совершенно другим титулом.
+
+Впрочем, вы можете захотеть избежать повторений, в случае если нет дополнительной информации которую вы хотели бы добавить.]=],
 	["REG_PLAYER_GLANCE"] = "На первый взгляд",
+	["REG_PLAYER_GLANCE_BAR_DELETED"] = "Заготовка группы |cffff9900%s|r удалена.",
+	["REG_PLAYER_GLANCE_BAR_EMPTY"] = "Имя образца не может быть пустым.",
+	["REG_PLAYER_GLANCE_BAR_LOAD"] = "Групповая заготовка",
+	["REG_PLAYER_GLANCE_BAR_LOAD_SAVE"] = "Групповые заготовки",
+	["REG_PLAYER_GLANCE_BAR_NAME"] = [=[Пожалуйста введите название заготовки.
+
+|cff00ff00Заметка: Если название уже используется другой групповой заготовкой, эта группа будет заменена.]=],
+	["REG_PLAYER_GLANCE_BAR_SAVE"] = "Сохранить группу в качестве заготовки",
+	["REG_PLAYER_GLANCE_BAR_SAVED"] = "Заготовка группы |cff00ff00%s| была создана.",
+	["REG_PLAYER_GLANCE_BAR_TARGET"] = "Заготовки \"На первый взгляд\"",
+	["REG_PLAYER_GLANCE_CONFIG"] = [=[|cff00ff00"На первый взгляд"|r это набор слотов где вы можете обозначить важную информацию про этого персонажа. Вы можете применить следующие действия со слотами:
+|cffffff00ЛКМ:|r настроить слот |cffffff00Двойное нажатие:|r включить/выключить слот
+|cffffff00ПКМ:|r предустановки слотов |cffffff00Перетянуть:|r изменить порядок слотов.]=],
+	["REG_PLAYER_GLANCE_EDITOR"] = "На первый взгляд : Слот %s",
 	["REG_PLAYER_GLANCE_MENU_COPY"] = "Копировать слот",
+	["REG_PLAYER_GLANCE_MENU_PASTE"] = "Вставить слот: %s",
 	["REG_PLAYER_GLANCE_PRESET"] = "Загрузить заготовку",
-	["REG_PLAYER_GLANCE_PRESET_ALERT1"] = "Пожалуйста, введите категорию и название",
+	["REG_PLAYER_GLANCE_PRESET_ADD"] = "Создана заготовка |cff00ff00%s|r.",
+	["REG_PLAYER_GLANCE_PRESET_ALERT1"] = "Вы должны ввести название для категории заготовок.",
 	["REG_PLAYER_GLANCE_PRESET_CATEGORY"] = "Категория заготовки",
+	["REG_PLAYER_GLANCE_PRESET_CREATE"] = "Создать заготовку",
+	["REG_PLAYER_GLANCE_PRESET_GET_CAT"] = [=[%s
+
+Пожалуйста, введите название категории для этой заготовки.]=],
 	["REG_PLAYER_GLANCE_PRESET_NAME"] = "Название заготовки",
+	["REG_PLAYER_GLANCE_PRESET_REMOVE"] = "Удалена заготовка |cff00ff00%s|r.",
 	["REG_PLAYER_GLANCE_PRESET_SAVE"] = "Сохранить информацию как заготовку",
 	["REG_PLAYER_GLANCE_PRESET_SAVE_SMALL"] = "Сохранить как заготовку",
 	["REG_PLAYER_GLANCE_PRESET_SELECT"] = "Выбрать заготовку",
-	["REG_PLAYER_GLANCE_TITLE"] = "Название атрибута",
+	["REG_PLAYER_GLANCE_TITLE"] = "Название аттрибута",
 	["REG_PLAYER_GLANCE_UNUSED"] = "Неиспользуемый слот",
 	["REG_PLAYER_GLANCE_USE"] = "Активировать слот",
 	["REG_PLAYER_HEIGHT"] = "Рост",
@@ -8936,20 +9590,27 @@ Link it anyway ?]=],
 
 |rВы можете указать причину ниже. Другие игроки не смогут ее увидеть.]=],
 	["REG_PLAYER_LASTNAME"] = "Фамилия",
-	["REG_PLAYER_LASTNAME_TT"] = "Фамилия Вашего персонажа.",
+	["REG_PLAYER_LASTNAME_TT"] = "Это фамилия вашего персонажа.",
+	["REG_PLAYER_LEFTTRAIT"] = "Левая черта",
 	["REG_PLAYER_MISC_ADD"] = "Добавить поле",
 	["REG_PLAYER_MORE_INFO"] = "Дополнительная информация",
 	["REG_PLAYER_MSP_HOUSE"] = "Название дома",
 	["REG_PLAYER_MSP_MOTTO"] = "Девиз",
-	["REG_PLAYER_MSP_NICK"] = "Ник",
-	["REG_PLAYER_NAMESTITLES"] = "Имена и названия",
+	["REG_PLAYER_MSP_NICK"] = "Кличка",
+	["REG_PLAYER_NAMESTITLES"] = "Имена и звания",
 	["REG_PLAYER_NO_CHAR"] = "Нет характеристик",
+	["REG_PLAYER_NOTES"] = "Заметки",
+	["REG_PLAYER_NOTES_ACCOUNT"] = "Общие заметки",
+	["REG_PLAYER_NOTES_ACCOUNT_HELP"] = "Эти частные заметки привязаны к вашему аккаунту и являются общими для всех ваших профилей.",
+	["REG_PLAYER_NOTES_PROFILE"] = "Заметки от %s",
+	["REG_PLAYER_NOTES_PROFILE_HELP"] = "Эти частные заметки привязаны к текущему профилю и будут изменены в зависимости от активного профиля на данный момент.",
+	["REG_PLAYER_NOTES_PROFILE_NONAME"] = "Заметки профиля",
 	["REG_PLAYER_PEEK"] = "Разное",
-	["REG_PLAYER_PHYSICAL"] = "Физические характеристики",
+	["REG_PLAYER_PHYSICAL"] = "Физическое описание",
 	["REG_PLAYER_PSYCHO"] = "Черты характера",
 	["REG_PLAYER_PSYCHO_Acete"] = "Аскет",
 	["REG_PLAYER_PSYCHO_ADD"] = "Добавить черту характера",
-	["REG_PLAYER_PSYCHO_ATTIBUTENAME_TT"] = "Название атрибута",
+	["REG_PLAYER_PSYCHO_ATTIBUTENAME_TT"] = "Название черты",
 	["REG_PLAYER_PSYCHO_Bonvivant"] = "Душа компании",
 	["REG_PLAYER_PSYCHO_CHAOTIC"] = "Хаотичный",
 	["REG_PLAYER_PSYCHO_Chaste"] = "Строгий",
@@ -8958,10 +9619,22 @@ Link it anyway ?]=],
 	["REG_PLAYER_PSYCHO_CREATENEW"] = "Создать черту",
 	["REG_PLAYER_PSYCHO_Cruel"] = "Жестокий",
 	["REG_PLAYER_PSYCHO_CUSTOM"] = "Своя черта",
+	["REG_PLAYER_PSYCHO_CUSTOMCOLOR"] = "Выберите цвет черты",
+	["REG_PLAYER_PSYCHO_CUSTOMCOLOR_LEFT_TT"] = [=[Выберите цвет полосы для левой черты.
+
+|cffffff00ЛКМ:|r Выбрать цвет
+|cffffff00ПКМ:|r Сбросить цвет
+|cffffff00Shift+ЛКМ|r Использовать стандартный интерфейс выбора цвета]=],
+	["REG_PLAYER_PSYCHO_CUSTOMCOLOR_RIGHT_TT"] = [=[Выберите цвет полосы для правой черты.
+
+|cffffff00ЛКМ:|r Выбрать цвет
+|cffffff00ПКМ:|r Сбросить цвет
+|cffffff00Shift+ЛКМ|r Использовать стандартный интерфейс выбора цвета]=],
 	["REG_PLAYER_PSYCHO_Egoiste"] = "Эгоист",
 	["REG_PLAYER_PSYCHO_Genereux"] = "Альтруист",
 	["REG_PLAYER_PSYCHO_Impulsif"] = "Импульсивный",
 	["REG_PLAYER_PSYCHO_Indulgent"] = "Великодушный",
+	["REG_PLAYER_PSYCHO_LEFTICON_TT"] = "Выберите значок для левой черты.",
 	["REG_PLAYER_PSYCHO_Loyal"] = "Законопослушный",
 	["REG_PLAYER_PSYCHO_Luxurieux"] = "Похотливый",
 	["REG_PLAYER_PSYCHO_Misericordieux"] = "Вежливый",
@@ -8973,6 +9646,7 @@ Link it anyway ?]=],
 	["REG_PLAYER_PSYCHO_Rationnel"] = "Рациональный",
 	["REG_PLAYER_PSYCHO_Reflechi"] = "Осторожный",
 	["REG_PLAYER_PSYCHO_Rencunier"] = "Мстительный",
+	["REG_PLAYER_PSYCHO_RIGHTICON_TT"] = "Выберите значок для правой черты.",
 	["REG_PLAYER_PSYCHO_Sincere"] = "Правдивый",
 	["REG_PLAYER_PSYCHO_SOCIAL"] = "Социальные черты",
 	["REG_PLAYER_PSYCHO_Trompeur"] = "Лживый",
@@ -8980,6 +9654,14 @@ Link it anyway ?]=],
 	["REG_PLAYER_RACE"] = "Раса",
 	["REG_PLAYER_RACE_TT"] = "Здесь указывается раса персонажа. Не обязательно ограничиваться играбельными расами. В мире Warcraft есть много рас, обладающих схожими чертами.",
 	["REG_PLAYER_REGISTER"] = "Общая информация",
+	["REG_PLAYER_RELATIONSHIP_STATUS"] = "Статус отношений",
+	["REG_PLAYER_RELATIONSHIP_STATUS_DIVORCED"] = "В разводе",
+	["REG_PLAYER_RELATIONSHIP_STATUS_MARRIED"] = "В браке",
+	["REG_PLAYER_RELATIONSHIP_STATUS_SINGLE"] = "Одиночка",
+	["REG_PLAYER_RELATIONSHIP_STATUS_TAKEN"] = "В отношениях",
+	["REG_PLAYER_RELATIONSHIP_STATUS_TT"] = "Отметьте статус отношений вашего персонажа. Если вы желаете оставить эту информацию скрытой, выберите опцию \"Не показывать\".",
+	["REG_PLAYER_RELATIONSHIP_STATUS_UNKNOWN"] = "Не показывать",
+	["REG_PLAYER_RELATIONSHIP_STATUS_WIDOWED"] = "Вдовствует",
 	["REG_PLAYER_RESIDENCE"] = "Место жительства",
 	["REG_PLAYER_RESIDENCE_SHOW"] = "Координаты места жительства",
 	["REG_PLAYER_RESIDENCE_SHOW_TT"] = [=[|cff00ff00%s
@@ -8989,22 +9671,36 @@ Link it anyway ?]=],
 Обратите внимание, что если ваш персонаж является странником или даже бездомным, вам нужно будет указать информацию соответствующим образом.
 
 | C00ffff00Правым кликом мыши, вы можете легко установить текущее местоположение на карте в качестве резиденции.]=],
+	["REG_PLAYER_RIGHTTRAIT"] = "Правая черта",
+	["REG_PLAYER_SHOWMISC"] = "Показывать рамку разного",
+	["REG_PLAYER_SHOWMISC_TT"] = "Пометьте если вы хотите отображать пользовательские поля для вашего персонажа. Если вы не хотите отображать пользовательские поля, оставьте коробочку непомеченой и рамка разного останется абсолютно скрытой.",
 	["REG_PLAYER_SHOWPSYCHO"] = "Отображать рамку характера",
+	["REG_PLAYER_SHOWPSYCHO_TT"] = [=[Выберите если вы хотите использовать описание характера.
+
+Если вы не хотите показывать характер вашего персонажа данным образом, оставьте флажок непомеченным и окно характера будет автоматически скрыто.]=],
 	["REG_PLAYER_STYLE_ASSIST"] = "Помощь в отыгрыше",
 	["REG_PLAYER_STYLE_BATTLE"] = "Предпочитаемый вид боя",
 	["REG_PLAYER_STYLE_BATTLE_1"] = "World of warcraft PVP",
 	["REG_PLAYER_STYLE_BATTLE_2"] = "TRP roll battle",
 	["REG_PLAYER_STYLE_BATTLE_3"] = "/roll бой",
 	["REG_PLAYER_STYLE_BATTLE_4"] = "Логик бой",
+	["REG_PLAYER_STYLE_DEATH"] = "Принимать смерть персонажа",
+	["REG_PLAYER_STYLE_FREQ"] = "Частота нахождения в роли",
 	["REG_PLAYER_STYLE_FREQ_1"] = "Всегда в роли",
 	["REG_PLAYER_STYLE_FREQ_2"] = "Время от времени",
 	["REG_PLAYER_STYLE_FREQ_3"] = "Среднее время",
 	["REG_PLAYER_STYLE_FREQ_4"] = "Начинающий",
 	["REG_PLAYER_STYLE_FREQ_5"] = "Всегда вне роли, этот персонаж не для отыгрыша",
 	["REG_PLAYER_STYLE_GUILD"] = "Членство в гильдии",
+	["REG_PLAYER_STYLE_GUILD_IC"] = "Членство в роли",
+	["REG_PLAYER_STYLE_GUILD_OOC"] = "Членство вне роли",
 	["REG_PLAYER_STYLE_HIDE"] = "Не показывать",
+	["REG_PLAYER_STYLE_INJURY"] = "Принимать травмирование персонажа",
 	["REG_PLAYER_STYLE_PERMI"] = "С согласия игрока",
+	["REG_PLAYER_STYLE_ROMANCE"] = "Принимать роман с персонажем",
 	["REG_PLAYER_STYLE_RPSTYLE"] = "Стиль отыгрыша",
+	["REG_PLAYER_STYLE_RPSTYLE_SHORT"] = "Стиль ролевой игры",
+	["REG_PLAYER_STYLE_WOWXP"] = "Опыт в World of Warcraft",
 	["REG_PLAYER_TITLE"] = "Звание",
 	["REG_PLAYER_TITLE_TT"] = [=[Звание вашего персонажа часто используется для именования вашего персонажа другими. Для длинных званий используете пожалуйста "Полное звание".
 
@@ -9038,7 +9734,15 @@ Link it anyway ?]=],
 
 |cff00ff00Совет: Вы можете drag & drop позиции для изменения сортировки.|r
 Так же работает в |cffffff00"На первый взгляд" блоке|r!]=],
-	["REG_PLAYER_TUTO_ABOUT_MISC_3"] = "Эта секция содержит |cffffff00список переключателей,|r чтобы ответить на|cffffff00частозадаваемые вопросы о вас, вашем персонаже иособенностях игры за него/нее|r.",
+	["REG_PLAYER_TUTO_ABOUT_MISC_3"] = "Эта секция содержит |cffffff00список переключателей,|r чтобы ответить на |cffffff00часто задаваемые вопросы о вас, вашем персонаже иособенностях игры за него/нее|r.",
+	["REG_PLAYER_TUTO_ABOUT_T1"] = "Данный шаблон позволяет вам |cff00ff00свободно обустраивать своё описание|r. Описание не обязано быть ограниченным |cffff9900физическим описанием|r вашего персонажа. Не стесняйтесь отмечать части его |cffff9900биографии|r или детали его |cffff9900характера|r. С этим шаблоном вы можете использовать инструменты форматирования для доступка к некоторым параметрам отображения вроде |cffffff00размеов текста, цветов и выравнивания|r. Эти инструменты так же позволяет вам вставлять |cffffff00изображения, иконки или ссылки на внешние веб сайты|r.",
+	["REG_PLAYER_TUTO_ABOUT_T2"] = "Этот шаблон более структурированный и состоит из |cff00ff00списка независимых окон|r. Каждое окно характеризуется |cffffff00иконкой, фоном и текстом|r. Заметьте что вы можете использовать некоторые текстовые ярлыки в этих окнах, вроде текстовых ярлыков цвета и иконок. Описание не должно быть ограниченным |cffff9900физическим описанием|r вашего персонажа. Не стесняйтесь отмечать части его |cffff9900биографии|r или детали про его |cffff9900характер|r.",
+	["REG_PLAYER_TUTO_ABOUT_T3"] = "Этот шаблон разделён на 3 секции:  |cff00ff00Физическое описание, характер и история|r. Вы не обязаны заполнять все окна, |cffff9900если вы оставите окно пустым оно не будет отображаться в вашем описании|r. Каждое окно характеризуется |cffffff00иконкой, фоном и текстом|r. Заметьте что вы можете использовать некоторые текстовые ярлыки в этих окнах, вроде текстовых ярлыков цвета и иконок.",
+	["REG_PLAYER_WEIGHT"] = "Телосложение",
+	["REG_PLAYER_WEIGHT_TT"] = [=[Это форма тела вашего персонажа.
+К примеру, она может быть |c0000ff00slim, толстый или мускулистый...|r Или она просто может быть обычной!]=],
+	["REG_PLAYERS"] = "Игроки",
+	["REG_REGISTER"] = "Архив",
 	["REG_REGISTER_CHAR_LIST"] = "Список персонажей",
 	["REG_RELATION"] = "Отношение",
 	["REG_RELATION_BUSINESS"] = "Деловые",
@@ -9057,8 +9761,11 @@ Link it anyway ?]=],
 	["REG_RELATION_NEUTRAL_TT"] = "%s абсолютно безразлично относится к %s.",
 	["REG_RELATION_NONE"] = "Нет",
 	["REG_RELATION_NONE_TT"] = "%s не знает %s",
+	["REG_RELATION_TARGET"] = "|cffffff00ПКМ: |rИзменить отношение",
 	["REG_RELATION_UNFRIENDLY"] = "Недружественный",
 	["REG_RELATION_UNFRIENDLY_TT"] = "%s определенно не нравится %s",
+	["REG_REPORT_PLAYER_PROFILE"] = "Пожаловаться на профиль |cff449fe0Blizzard|r",
+	["REG_REPORT_PLAYER_TEMPLATE_TRIAL_ACCOUNT"] = "Данный игрок был на пробном аккаунте.",
 	["REG_TIME"] = "Время последней встречи",
 	["REG_TRIAL_ACCOUNT"] = "Пробный аккаунт",
 	["REG_TT_GUILD"] = "%s из |cffff9900%s",
@@ -9072,13 +9779,18 @@ Link it anyway ?]=],
 	["REG_TT_TARGET"] = "Цель: |cffff9900%s",
 	["SCRIPT_ERROR"] = "Ошибка в скрипте.",
 	["SCRIPT_UNKNOWN_EFFECT"] = "Ошибка скрипта, неизвестный FX",
+	["SLASH_CMD_STATUS_HELP"] = "Использование:  |cff00ff00/trp3 status ic || ooc || toggle|r Меняет ваш статус персонажа на выбранную опцию:  |cffff9900/trp3 status ic|r установит ваш статус на |cff00ff00в роли|r.  |cffff9900/trp3 status ooc|r установит ваш статус на |cffff0000вне роли|r. |cffff9900/trp3 status toggle|r поменяет ваш статус на противоположное состояние.",
+	["SLASH_CMD_STATUS_USAGE"] = "ic || ooc || toggle",
 	["TB_AFK_MODE"] = "Отсутствует",
 	["TB_DND_MODE"] = "Не беспокоить",
 	["TB_GO_TO_MODE"] = "Переключить в статус %s ",
 	["TB_LANGUAGE"] = "Язык",
 	["TB_LANGUAGES_TT"] = "Сменить язык",
+	["TB_NORMAL_MODE"] = "Обычный",
 	["TB_RPSTATUS_OFF"] = "Персонаж: |cffff0000Вне роли",
 	["TB_RPSTATUS_ON"] = "Персонаж: |cff00ff00В роли",
+	["TB_RPSTATUS_TO_OFF"] = "Выйти |cffff0000out из роли",
+	["TB_RPSTATUS_TO_ON"] = "Войти |cff00ff00в роль",
 	["TB_STATUS"] = "Игрок",
 	["TB_SWITCH_CAPE_1"] = "Показать плащ",
 	["TB_SWITCH_CAPE_2"] = "Скрыть плащ",
@@ -9102,62 +9814,38 @@ Link it anyway ?]=],
 	["TF_OPEN_CHARACTER"] = "Показать лист персонажа",
 	["TF_OPEN_COMPANION"] = "Показать страницу спутника",
 	["TF_OPEN_MOUNT"] = "Показать каталог транспортных средств",
+	["TF_PLAY_THEME"] = "Проиграть тему персонажа",
 	["TF_PLAY_THEME_TT"] = [=[|cffffff00Click:|r Играть |cff00ff00%s
 |cffffff00Right-click:|r Остановить тему]=],
-	["THANK_YOU_1"] = [=[{h1:c}Total RP 3{/h1}
-{p:c}{col:6eff51}Version %s (build %s){/col}{/p}
-{p:c}{link*http://totalrp3.info*TotalRP3.info} — {twitter*TotalRP3*@TotalRP3} {/p}
-{p:c}{link*http://discord.totalrp3.info*Join us on Discord}{/p}
-
-{h2}{icon:INV_Eng_gizmo1:20} Created by{/h2}
-- Renaud "{twitter*EllypseCelwe*Ellypse}" Parize
-- Sylvain "{twitter*Telkostrasz*Telkostrasz}" Cossement
-
-
-{h2}{icon:THUMBUP:20} Acknowledgements{/h2}
-{col:ffffff}Ellypse's {/col}{link*https://www.patreon.com/ellypse*Patreon} {col:ffffff}supporters:{/col}
-%s
-
-{col:ffffff}Logo and minimap button icon:{/col}
-- {link*https://ebonfeathers.tumblr.com/*EbonFeather@Tumblr}
-
-{col:ffffff}Our pre-alpha QA team:{/col}
-- Saelora
-- Erzan
-- Calian
-- Kharess
-- Alnih
-- 611
-
-{col:ffffff}Thanks to all our friends for their support all these years:{/col}
-- For Telkos: Kharess, Kathryl, Marud, Solona, Stretcher, Lisma...
-- For Ellypse: The guilds Maison Celwë'Belore, Mercenaires Atal'ai, and more particularly Erzan, Elenna, Caleb, Siana and Adaeria
-
-{col:ffffff}For helping us creating the Total RP guild on Kirin Tor (EU):{/col}
-- Azane
-- Hellclaw
-- Leylou
-
-{col:ffffff}Thanks to Horionne for sending use the magazine Gamer Culte Online #14 with an article about Total RP.{/col}]=],
+	["THANK_YOU_ROLE_AUTHOR"] = "Автор",
+	["THANK_YOU_ROLE_GUILD_MEMBER"] = "Член Гильдии",
+	["TT_ELVUI_SKIN"] = "Скин ElvUI",
 	["UI_BKG"] = "Фон %s",
 	["UI_CLOSE_ALL"] = "Закрыть все",
 	["UI_COLOR_BROWSER"] = "Просмотр цветов",
+	["UI_COLOR_BROWSER_PRESETS"] = "Заготовки",
+	["UI_COLOR_BROWSER_PRESETS_BASIC"] = "Базовые",
+	["UI_COLOR_BROWSER_PRESETS_CLASSES"] = "Класс",
+	["UI_COLOR_BROWSER_PRESETS_CUSTOM"] = "Пользовательские",
+	["UI_COLOR_BROWSER_PRESETS_ITEMS"] = "Качество предмета",
+	["UI_COLOR_BROWSER_PRESETS_RESOURCES"] = "Ресурс",
 	["UI_COLOR_BROWSER_SELECT"] = "Выбрать цвет",
 	["UI_COMPANION_BROWSER_HELP"] = "Выберите боевого питомца",
 	["UI_COMPANION_BROWSER_HELP_TT"] = [=[|cffffff00Внимание: |rТолько переименованые боевые питомцы могут быть привязаны к профилю.
 
 |cff00ff00В этом разделе перечислены только боевые питомцы.]=],
 	["UI_FILTER"] = "Фильтер",
-	["UI_ICON_BROWSER"] = "Просмотр иконок",
-	["UI_ICON_BROWSER_HELP"] = "Скопировать иконку",
-	["UI_ICON_BROWSER_HELP_TT"] = [=[Пока это окно открыто вы можете |cffffff00ctrl + click|r на иконке, чтобы скопировать ее имя.
+	["UI_ICON_BROWSER"] = "Просмотр значков",
+	["UI_ICON_BROWSER_HELP"] = "Скопировать значок",
+	["UI_ICON_BROWSER_HELP_TT"] = [=[Пока это окно открыто вы можете нажать |cffffff00ctrl+ПКМ|r на значке, чтобы скопировать его название.
 
 Работает:|cff00ff00
 - С любой вещью в ваших сумках
 - С любым элементом в книге заклинаний|r]=],
-	["UI_ICON_SELECT"] = "Выбрать иконку",
-	["UI_IMAGE_BROWSER"] = "Обозреватель изображений",
+	["UI_ICON_SELECT"] = "Выбрать значок",
+	["UI_IMAGE_BROWSER"] = "Просмотр изображений",
 	["UI_IMAGE_SELECT"] = "Выбрать изображение",
+	["UI_LINK_SAFE"] = "Вот URL ссылки.",
 	["UI_LINK_TEXT"] = "Введите текст",
 	["UI_LINK_URL"] = "http://адрес_вашего_сайта",
 	["UI_LINK_WARNING"] = [=[А вот и ссылка.
@@ -9165,24 +9853,26 @@ Link it anyway ?]=],
 
 |cffff0000!! Внимание!!|r
 Total RP не несет ответственности, если ссылка окажется вредоносной.]=],
+	["UI_MUSIC_ALTTITLE"] = "Альтернативный заголовок",
 	["UI_MUSIC_BROWSER"] = "Обозреватель музыки",
+	["UI_MUSIC_DURATION"] = "Длительность",
 	["UI_MUSIC_SELECT"] = "Выбрать музыку",
 	["UI_TUTO_BUTTON"] = "Обучающий режим",
 	["UI_TUTO_BUTTON_TT"] = "Нажмите, чтобы включить/выключить режим обучения"
 }
 
-TRP3_API.loc:RegisterNewLocale("ruRU", "Russian", localeContent);
+TRP3_API.loc:RegisterNewLocale("ruRU", "Pусский", localeContent);
 
 localeContent = {
 	["ABOUT_TITLE"] = "关于",
-	["BINDING_NAME_TRP3_TOGGLE"] = "教学主界面",
-	["BINDING_NAME_TRP3_TOOLBAR_TOGGLE"] = "教学工具栏",
-	["BROADCAST_10"] = "|cffff9900 你已经拥有10个频道。TRP3 不会试图连接频道广播但是将无法使用一个功能入玩家位置信息",
+	["BINDING_NAME_TRP3_TOGGLE"] = "开关主界面",
+	["BINDING_NAME_TRP3_TOOLBAR_TOGGLE"] = "开关工具栏",
+	["BROADCAST_10"] = "|cffff9900你已经加入了游戏中的10个频道。TRP3无法连接到私有广播频道，你将丢失诸如地图显示玩家位置等特性。",
 	["BROADCAST_OFFLINE_DISABLED"] = "频道广播已经被禁用。",
-	["BROADCAST_PASSWORD"] = [=[|cffff0000 这是一个带密码的广播频道(%s). 
-|cffff9900 TRP3 不会试图连接频道广播但是将无法使用一个功能入玩家位置信息。
-|cff00ff00 您可以禁用或更改的广播频道在TRP3常规设置中。]=],
-	["BROADCAST_PASSWORDED"] = "|cffff0000用户|r%s|cffff0000 给频道加了密 (%s). |cffff9900 如果你不知道密码,您将无法使用功能,如玩家在地图上的位置。",
+	["BROADCAST_PASSWORD"] = [=[|cffff0000广播频道被设置了密码 (%s). 
+|cffff9900TRP3不会再次尝试连接，你将失去诸如地图玩家位置显示等特性。
+|cff00ff00你可以在TRP3常规设置中禁用或更改广播频道。]=],
+	["BROADCAST_PASSWORDED"] = "|cffff0000用户|r%s|cffff0000给广播频道设置了密码 (%s). |cffff9900你不知道密码，所以你将无法使用诸如地图显示玩家位置等特性。",
 	["BW_COLOR_CODE"] = "颜色代码",
 	["BW_COLOR_CODE_ALERT"] = "错误的十六进制代码！",
 	["BW_COLOR_CODE_TT"] = "你可以在这里粘贴6个十六进制颜色代码并按Enter键.",
@@ -9398,6 +10088,10 @@ localeContent = {
 	["CO_LOCATION_DISABLE_PVP_TT"] = [=[当您被标记为PvP时，您将不会响应来自其他玩家的位置请求。
 
 这个选项在PvP领域特别有用，其他阵营的玩家可以滥用位置系统来跟踪你。]=],
+	["CO_LOCATION_DISABLE_WAR_MODE"] = "在战争模式中禁用角色位置",
+	["CO_LOCATION_DISABLE_WAR_MODE_TT"] = "当您启用了战争模式并且不在 |cff69CCF0庇护所|r时，您将不会响应来自其他玩家的位置请求。此选项对于避免滥用位置系统跟踪您特别有用。",
+	["CO_LOCATION_SHOW_DIFFERENT_WAR_MODES"] = "显示处于不同战争模式的玩家",
+	["CO_LOCATION_SHOW_DIFFERENT_WAR_MODES_TT"] = "当前处于区域中但与您具有不同战争模式状态的玩家将显示在地图上，在工具提示中有一个特殊的透明度较低的图标。",
 	["CO_MAP_BUTTON"] = "地图搜索按钮",
 	["CO_MAP_BUTTON_POS"] = "搜索按钮在地图上位置",
 	["CO_MINIMAP_BUTTON"] = "小地图按钮",
@@ -9670,6 +10364,7 @@ The Kui |cff9966ffNameplates|r module adds several Total RP 3 customizations to 
 |cffffff00我们强烈建议您保持更新。|r
 
 此消息每次只出现一次，并且可以在设置中禁用(常规设置=>杂项)。]=],
+	["NEW_VERSION_BEHIND"] = "您当前落后于%s个版本，失去了多个新功能和修复的错误。其他玩家可能无法正确查看您的个人资料。请考虑更新附加组件。",
 	["NEW_VERSION_TITLE"] = "新的更新可用",
 	["NPC_TALK_BUTTON_TT"] = "打开 NPC 发言界面 允许你让 NPC 说话或做表情.",
 	["NPC_TALK_CHANNEL"] = "频道: ",
@@ -9918,6 +10613,7 @@ The Kui |cff9966ffNameplates|r module adds several Total RP 3 customizations to 
 
 |cffffff00单击从忽略列表中删除]=],
 	["REG_LIST_NAME"] = "角色名",
+	["REG_LIST_NOTESONLY"] = "只有注释",
 	["REG_LIST_NOTIF_ADD"] = "新档案被发现 |cff00ff00%s",
 	["REG_LIST_NOTIF_ADD_CONFIG"] = "新档案被发现",
 	["REG_LIST_NOTIF_ADD_NOT"] = "这个档案已经不存在了.",
@@ -9941,6 +10637,8 @@ Currently loaded: |cff00ff00%s
 |cffff9900Therefore the MSP support for Total RP3 will be disabled.|r
 
 If you don't want TRP3 to be your MSP addon and don't want to see this alert again, you can disable the Mary Sue Protocol module in the TRP3 Settings -> Module status.]=],
+	["REG_NOTES_PROFILE"] = "注释",
+	["REG_NOTES_PROFILE_TT"] = "打开目标角色的“注释”窗口。",
 	["REG_PLAYER"] = "角色",
 	["REG_PLAYER_ABOUT"] = "关于",
 	["REG_PLAYER_ABOUT_ADD_FRAME"] = "添加一个框架",
@@ -10084,6 +10782,12 @@ You can use a |c0000ff00nickname |r!]=],
 	["REG_PLAYER_MSP_NICK"] = "昵称",
 	["REG_PLAYER_NAMESTITLES"] = "名字与称呼",
 	["REG_PLAYER_NO_CHAR"] = "没有特征",
+	["REG_PLAYER_NOTES"] = "注释",
+	["REG_PLAYER_NOTES_ACCOUNT"] = "常用注释",
+	["REG_PLAYER_NOTES_ACCOUNT_HELP"] = "这些私人笔记与您的帐户绑定，并将与您的所有配置文件共享。",
+	["REG_PLAYER_NOTES_PROFILE"] = "来自%s的注释",
+	["REG_PLAYER_NOTES_PROFILE_HELP"] = "这些私人注释与您当前的配置文件关联，并将根据您当前的活动配置文件进行更改。",
+	["REG_PLAYER_NOTES_PROFILE_NONAME"] = "配置文件注释",
 	["REG_PLAYER_PEEK"] = "其他",
 	["REG_PLAYER_PHYSICAL"] = "物理描述",
 	["REG_PLAYER_PSYCHO"] = "个性",
@@ -10133,6 +10837,14 @@ You can use a |c0000ff00nickname |r!]=],
 	["REG_PLAYER_RACE"] = "种族",
 	["REG_PLAYER_RACE_TT"] = "这是你的角色的种族。它不需要被限制在可玩的种族中。魔兽争霸和魔兽世界有很多种族可以使用。",
 	["REG_PLAYER_REGISTER"] = "目录信息",
+	["REG_PLAYER_RELATIONSHIP_STATUS"] = "关系状态",
+	["REG_PLAYER_RELATIONSHIP_STATUS_DIVORCED"] = "离异",
+	["REG_PLAYER_RELATIONSHIP_STATUS_MARRIED"] = "已婚",
+	["REG_PLAYER_RELATIONSHIP_STATUS_SINGLE"] = "单身",
+	["REG_PLAYER_RELATIONSHIP_STATUS_TAKEN"] = "被吸引",
+	["REG_PLAYER_RELATIONSHIP_STATUS_TT"] = "指示角色的关系状态。如果要隐藏信息，请选择“不显示”。",
+	["REG_PLAYER_RELATIONSHIP_STATUS_UNKNOWN"] = "不显示",
+	["REG_PLAYER_RELATIONSHIP_STATUS_WIDOWED"] = "丧偶",
 	["REG_PLAYER_RESIDENCE"] = "居住",
 	["REG_PLAYER_RESIDENCE_SHOW"] = "住宅坐标",
 	["REG_PLAYER_RESIDENCE_SHOW_TT"] = [=[|cff00ff00%s
@@ -10340,13 +11052,15 @@ Once a template is selected, you can open this tutorial again to have more help 
 
 | cffff0000 ! !免责声明! ! | r
 Total RP不对导致有害内容的链接负责。]=],
+	["UI_MUSIC_ALTTITLE"] = "替代标题",
 	["UI_MUSIC_BROWSER"] = "音乐的浏览",
+	["UI_MUSIC_DURATION"] = "持续时间",
 	["UI_MUSIC_SELECT"] = "选择音乐",
 	["UI_TUTO_BUTTON"] = "教学模式",
 	["UI_TUTO_BUTTON_TT"] = "点击打开/关闭教程模式"
 }
 
-TRP3_API.loc:RegisterNewLocale("zhCN", "Simplified Chinese", localeContent);
+TRP3_API.loc:RegisterNewLocale("zhCN", "简体中文", localeContent);
 
 localeContent = {
 	["ABOUT_TITLE"] = "關於",
@@ -10365,9 +11079,25 @@ localeContent = {
 	["BW_COLOR_PRESET_SAVE"] = "儲存目前顏色",
 	["BW_COLOR_PRESET_TITLE"] = "顏色預覽",
 	["BW_CUSTOM_NAME"] = "設計名稱的顏色",
+	["CL_DOWNLOADING"] = "下載中： %0.1f %%",
+	["CL_GLANCE"] = "第一印象",
+	["CL_IMPORT_COMPANION"] = "匯入夥伴檔案",
+	["CL_IMPORT_GLANCE"] = "匯入第一印象",
+	["CL_IMPORT_PROFILE"] = "匯入角色檔案",
+	["CL_MAKE_IMPORTABLE"] = "可傳輸的連結",
+	["CL_MAKE_IMPORTABLE_BUTTON_TEXT"] = "可傳輸的連結",
+	["CL_MAKE_IMPORTABLE_SIMPLER"] = [=[您確定要傳輸 %s 的檔案？
+其他玩家將可以複製並使用此連結的內容。]=],
+	["CL_MAKE_NON_IMPORTABLE"] = "僅可觀看",
+	["CL_OPEN_COMPANION"] = "開啟夥伴檔案",
+	["CL_OPEN_PROFILE"] = "開啟檔案",
+	["CL_PLAYER_PROFILE"] = "玩家檔案",
+	["CL_TOOLTIP"] = "於對話欄產生連結",
 	["CM_ACTIONS"] = "動作",
 	["CM_ALT"] = "Alt",
 	["CM_APPLY"] = "套用",
+	["CM_BLACK"] = "黑色",
+	["CM_BLUE"] = "藍色",
 	["CM_CANCEL"] = "取消",
 	["CM_CENTER"] = "中心",
 	["CM_CLASS_DEATHKNIGHT"] = "死亡騎士",
@@ -10385,9 +11115,13 @@ localeContent = {
 	["CM_CLICK"] = "點擊",
 	["CM_COLOR"] = "顏色",
 	["CM_CTRL"] = "Ctrl",
+	["CM_CYAN"] = "青色",
+	["CM_DELETE"] = "刪除",
 	["CM_DOUBLECLICK"] = "雙擊",
 	["CM_DRAGDROP"] = "拖曳＆丟棄",
 	["CM_EDIT"] = "編輯",
+	["CM_GREEN"] = "綠色",
+	["CM_GREY"] = "灰色",
 	["CM_IC"] = "IC（進入角色）",
 	["CM_ICON"] = "圖標",
 	["CM_IMAGE"] = "圖像",
@@ -10401,9 +11135,14 @@ localeContent = {
 	["CM_NAME"] = "名稱",
 	["CM_OOC"] = "OOC（脫離角色）",
 	["CM_OPEN"] = "打開",
+	["CM_ORANGE"] = "橘色",
+	["CM_PINK"] = "粉紅色",
 	["CM_PLAY"] = "播放",
+	["CM_PURPLE"] = "紫色",
 	["CM_R_CLICK"] = "右鍵點擊",
+	["CM_RED"] = "紅色",
 	["CM_REMOVE"] = "清除",
+	["CM_RESET"] = "重置",
 	["CM_RESIZE"] = "調整尺寸",
 	["CM_RESIZE_TT"] = "拖曳以縮放視窗大小。",
 	["CM_RIGHT"] = "右",
@@ -10416,6 +11155,8 @@ localeContent = {
 	["CM_TWEET_PROFILE"] = "顯示推特資料網址",
 	["CM_UNKNOWN"] = "不明",
 	["CM_VALUE"] = "值",
+	["CM_WHITE"] = "白色",
+	["CM_YELLOW"] = "黃色",
 	["CO_ADVANCED_SETTINGS"] = "進階設定",
 	["CO_ADVANCED_SETTINGS_RESET"] = "重設進階設定",
 	["CO_ADVANCED_SETTINGS_RESET_TT"] = "當調整後出現問題時，使用重設，回到默認設定。",
@@ -10464,6 +11205,7 @@ localeContent = {
 	["CO_CHAT_USE_ICONS"] = "顯示玩家圖示",
 	["CO_CHAT_USE_SAY"] = "對話頻道",
 	["CO_CONFIGURATION"] = "設定",
+	["CO_CURSOR_RIGHT_CLICK"] = "右鍵點擊開啟",
 	["CO_GENERAL"] = "一般設定",
 	["CO_GENERAL_BROADCAST"] = "使用廣播頻道",
 	["CO_GENERAL_BROADCAST_C"] = "廣播頻道名稱",
@@ -10500,6 +11242,7 @@ localeContent = {
 	["CO_LOCATION_DISABLE_OOC_TT"] = "當你將角色狀態設定為脫離角色（ＯＯＣ）時，將不會響應您的角色位置搜索功能。",
 	["CO_LOCATION_DISABLE_PVP"] = "ＰＶＰ狀態時關閉地圖追蹤",
 	["CO_LOCATION_DISABLE_PVP_TT"] = "當你處於ＰＶＰ狀態時，其他玩家將無法使用小地圖位置來跟蹤你的位置。這個選項對於ＰＶＰ服來說特別有用，因為他們可能使用此功能來埋伏您。",
+	["CO_LOCATION_DISABLE_WAR_MODE"] = "戰爭模式中不顯示角色位置",
 	["CO_MAP_BUTTON"] = "地圖掃描鍵",
 	["CO_MAP_BUTTON_POS"] = "地圖掃描鍵錨點",
 	["CO_MINIMAP_BUTTON"] = "小地圖鍵",
@@ -10541,7 +11284,7 @@ localeContent = {
 	["CO_MSP_T3"] = "僅使用３號版面",
 	["CO_MSP_T3_TT"] = "即使您選擇了其他的「關於」版面，３號版面依然享有Mary Sue 協議的相容性。",
 	["CO_REGISTER"] = "資訊設定",
-	["CO_REGISTER_ABOUT_VOTE"] = "開啟民意調查系統",
+	["CO_REGISTER_ABOUT_VOTE"] = "開啟投票系統",
 	["CO_REGISTER_ABOUT_VOTE_TT"] = "允許使用民意調查系統，讓你能夠對其他人的角色敘述投下「喜歡」或「不喜歡」，當然其他人也可以對你這麼做哦！",
 	["CO_REGISTER_AUTO_ADD"] = "自動接收來自新玩家的資訊",
 	["CO_REGISTER_AUTO_ADD_TT"] = [=[當你遭遇到新玩家時自動接收對方的資訊。
@@ -10618,6 +11361,7 @@ localeContent = {
 	["CO_TOOLTIP_TITLE"] = "顯示頭銜",
 	["CO_TOOLTIP_USE"] = "使用角色／夥伴欄位",
 	["CO_WIM"] = "|cffff9900停用悄悄話頻道。",
+	["COM_LIST"] = "指令表",
 	["COM_RESET_RESET"] = "欄位的座標已經重置！",
 	["DB_ABOUT"] = "關於 Total RP 3",
 	["DB_HTML_GOTO"] = "點擊開啟",
@@ -10646,6 +11390,11 @@ localeContent = {
 |cffffff00扮演程度|r 顯示你是菜鳥、老鳥還是志願的教學者。
 
 |cff00ff00這些資訊都會在你的角色卡欄位中顯示。]=],
+	["DICE_HELP"] = "骰子可以藉由代數（xdy）來進行設定，例如：1d6／2d12／3d20…等等。代表擲x次有y面的骰子，像是1d20就是丟1次20面骰。",
+	["DICE_ROLL"] = "%s 擲出了 |cffff9900%sx d%s|r 並得到 |cff00ff00%s|r。",
+	["DICE_ROLL_T"] = "%s %s 擲出了 |cffff9900%sx d%s|r 並得到 |cff00ff00%s|r。",
+	["DICE_TOTAL"] = "%s 在這次擲骰中得到 |cff00ff00%s|r 的總數。",
+	["DICE_TOTAL_T"] = "%s %s 在這次擲骰中得到 |cff00ff00%s|r 的總數。",
 	["DTBK_AFK"] = "Total RP 3 - 離開／請勿打擾",
 	["DTBK_CLOAK"] = "Total RP 3 - 斗篷",
 	["DTBK_HELMET"] = "Total RP 3 - 頭盔",
@@ -10659,6 +11408,8 @@ localeContent = {
 	["MAP_BUTTON_TITLE"] = "角色扮演搜尋器",
 	["MAP_SCAN_CHAR"] = "搜尋本地角色",
 	["MAP_SCAN_CHAR_TITLE"] = "角色",
+	["MM_SHOW_HIDE_MAIN"] = "顯示／隱藏主視窗",
+	["MM_SHOW_HIDE_MOVE"] = "移動此圖示",
 	["MM_SHOW_HIDE_SHORTCUT"] = "顯示／隱藏插件工具列",
 	["NPC_TALK_BUTTON_TT"] = "開啟NPC speeches欄位來允許你使用NPC對話或表情的功能。",
 	["NPC_TALK_CHANNEL"] = "頻道:",
@@ -10712,12 +11463,31 @@ localeContent = {
 	["PR_PROFILEMANAGER_DELETE_WARNING"] = [=[你確定你要刪除檔案%s嗎？
 
 此動作無法被返回！而且所有跟此檔案有關聯的資訊都會被銷毀！（設定內容、道具等等任何與此檔案綁定的資訊。）]=],
+	["PR_PROFILEMANAGER_DUPP_POPUP"] = [=[請替您要複製的新檔案命名，
+此名稱不可為空白。
+
+此檔案不會影響已綁定原檔 %s 的角色。]=],
+	["PR_PROFILEMANAGER_EDIT_POPUP"] = [=[請替您要複製的新檔案命名，
+此名稱不可為空白。
+
+改變名稱並不會連動改變角色與檔案之間的綁定關係。]=],
+	["PR_PROFILEMANAGER_IMPORT_WARNING"] = "使用匯入的檔案來取代 %s 原有的內容嗎？",
+	["PR_PROFILEMANAGER_IMPORT_WARNING_2"] = [=[警告：此檔案來自較舊版的TRP3，可能會有不相容的情況。
+
+仍然要以匯入的檔案來取代 %s 的內容嗎？]=],
 	["PR_PROFILEMANAGER_RENAME"] = "重新命名",
 	["PR_PROFILEMANAGER_SWITCH"] = "選擇檔案",
+	["PR_PROFILEMANAGER_TITLE"] = "角色檔案",
 	["PR_PROFILES"] = "檔案",
 	["PR_UNUSED_PROFILE"] = "此檔案當前並未綁定至任何角色。",
+	["REG_COMPANION_BOUND_TO"] = "連結至…",
 	["REG_COMPANION_BOUND_TO_TARGET"] = "目標",
+	["REG_COMPANION_BOUNDS"] = "連結",
+	["REG_COMPANION_BROWSER_BATTLE"] = "戰寵瀏覽器",
+	["REG_COMPANION_BROWSER_MOUNT"] = "坐騎瀏覽器",
 	["REG_COMPANION_INFO"] = "資訊",
+	["REG_COMPANION_LINKED"] = "夥伴 %s 現在已經連結到檔案 %s。",
+	["REG_COMPANION_LINKED_NO"] = "夥伴 %s 目前沒有和任何檔案連結。",
 	["REG_COMPANION_NAME"] = "名稱",
 	["REG_COMPANION_NAME_COLOR"] = "名稱顏色",
 	["REG_COMPANION_TF_CREATE"] = "創建新角色擋",
@@ -10726,6 +11496,7 @@ localeContent = {
 	["REG_COMPANIONS"] = "夥伴",
 	["REG_DELETE_WARNING"] = [=[你確定你要刪除 %s 的角色檔？
 ]=],
+	["REG_IGNORE_TOAST"] = "角色已被屏蔽",
 	["REG_LIST_CHAR_EMPTY"] = "無角色",
 	["REG_LIST_CHAR_EMPTY2"] = "沒有角色符合搜尋結果",
 	["REG_LIST_CHAR_IGNORED"] = "忽略",
@@ -10747,13 +11518,31 @@ localeContent = {
 	["REG_LIST_REALMONLY"] = "僅顯示同伺服器",
 	["REG_PLAYER"] = "角色",
 	["REG_PLAYER_ABOUT"] = "關於",
+	["REG_PLAYER_ABOUT_ADD_FRAME"] = "新增欄位",
+	["REG_PLAYER_ABOUT_EMPTY"] = "無敘述",
 	["REG_PLAYER_ABOUT_MUSIC"] = "角色主題曲",
 	["REG_PLAYER_ABOUT_MUSIC_LISTEN"] = "播放主題曲",
 	["REG_PLAYER_ABOUT_MUSIC_REMOVE"] = "取消已選擇的主題曲",
 	["REG_PLAYER_ABOUT_MUSIC_SELECT"] = "選擇角色主題曲",
 	["REG_PLAYER_ABOUT_MUSIC_SELECT2"] = "選擇主題曲",
 	["REG_PLAYER_ABOUT_MUSIC_STOP"] = "停止播放主題曲",
+	["REG_PLAYER_ABOUT_MUSIC_THEME"] = "角色主題曲",
+	["REG_PLAYER_ABOUT_NOMUSIC"] = "|cffff9900沒有主題曲",
+	["REG_PLAYER_ABOUT_P"] = "文字錨點",
+	["REG_PLAYER_ABOUT_REMOVE_FRAME"] = "移除此欄位",
 	["REG_PLAYER_ABOUT_T1_YOURTEXT"] = "由此鍵入文字",
+	["REG_PLAYER_ABOUT_TAGS"] = "內容編輯工具",
+	["REG_PLAYER_ABOUT_UNMUSIC"] = "|cffff9900未知的主題曲",
+	["REG_PLAYER_ABOUT_VOTE_DOWN"] = "我不喜歡這個內容",
+	["REG_PLAYER_ABOUT_VOTE_NO"] = "目前沒有任何連結到此檔案的角色在線上。是否依然要讓系統送出您的看法？",
+	["REG_PLAYER_ABOUT_VOTE_SENDING"] = "正在將您的意見傳送給 %s ...",
+	["REG_PLAYER_ABOUT_VOTE_SENDING_OK"] = "您的意見已經讓 %s 知道了！",
+	["REG_PLAYER_ABOUT_VOTE_TT"] = "您的意見會以不具名且只有對方可觀察的方式讓對方知道。",
+	["REG_PLAYER_ABOUT_VOTE_TT2"] = "只有對方在線的時候您才可以提交進行投票。",
+	["REG_PLAYER_ABOUT_VOTE_UP"] = "我喜歡這個內容",
+	["REG_PLAYER_ABOUT_VOTES"] = "統計",
+	["REG_PLAYER_ABOUT_VOTES_R"] = [=[|cff00ff00%s 喜歡這個內容！
+|cffff0000%s 不是很喜歡這個內容。]=],
 	["REG_PLAYER_ABOUTS"] = "關於%s",
 	["REG_PLAYER_ADD_NEW"] = "新建",
 	["REG_PLAYER_AGE"] = "年齡",
@@ -10763,19 +11552,31 @@ localeContent = {
 - 撰寫確切年齡
 - 使用模糊的描述（幼年／少年／青年／中年…等等。）]=],
 	["REG_PLAYER_BIRTHPLACE"] = "出生地",
+	["REG_PLAYER_BIRTHPLACE_TT"] = [=[這裡指的是您的角色的出生地。可以是區里鄉鎮市、也可以是一塊大陸或一個國家的名字，看您想怎麼使用。
+
+|c00ffff00您也可以點擊按鈕，直接在地圖上選擇您的出生地。]=],
 	["REG_PLAYER_BKG"] = "背景設計",
 	["REG_PLAYER_CARACT"] = "特徵",
-	["REG_PLAYER_CHARACTERISTICS"] = "特徵",
+	["REG_PLAYER_CHANGE_CONFIRM"] = [=[您似乎還沒儲存此檔案的變更，
+確定要切換頁面嗎？
+|cffff9900所做的變更將會遺失]=],
+	["REG_PLAYER_CHARACTERISTICS"] = "角色資訊",
 	["REG_PLAYER_CLASS"] = "職業",
 	["REG_PLAYER_CLASS_TT"] = [=[這裡可以自行填寫你的職業。
 
 |cff00ff00範例 :|r
 騎士、乳酪商、礦工、軍人、奧術師…]=],
+	["REG_PLAYER_COLOR_ALWAYS_DEFAULT_TT"] = [=[|cffffff00Click:|r 選擇顏色
+|cffffff00Right-click:|r 放棄顏色]=],
 	["REG_PLAYER_COLOR_CLASS"] = "職業欄顏色",
 	["REG_PLAYER_COLOR_CLASS_TT"] = "此選項同時將會更改名字的顏色。",
+	["REG_PLAYER_COLOR_TT"] = [=[|cffffff00Click:|r 選擇顏色
+|cffffff00Right-click:|r 放棄顏色
+|cffffff00Shift-Click:|r 直接使用調色盤]=],
 	["REG_PLAYER_CURRENT"] = "目前狀況",
 	["REG_PLAYER_CURRENT_OOC"] = "這裡是ＯＯＣ資訊",
 	["REG_PLAYER_CURRENTOOC"] = "當前狀況（ＯＯＣ）",
+	["REG_PLAYER_EDIT_MUSIC_THEME"] = "主題音樂",
 	["REG_PLAYER_EYE"] = "眼睛顏色",
 	["REG_PLAYER_EYE_TT"] = [=[這裡可以描述你的腳色眼睛的顏色。
 
@@ -10789,12 +11590,54 @@ localeContent = {
 
 然而，重複的頭銜就可以不用再提了，以防空間有限。]=],
 	["REG_PLAYER_GLANCE"] = "第一印象",
+	["REG_PLAYER_GLANCE_BAR_TARGET"] = "「第一印象欄」預設欄位",
+	["REG_PLAYER_GLANCE_CONFIG"] = [=[|cff00ff00「第一印象欄」|r 可以快速地將五個關於此角色重要且明顯的資訊傳達給其他玩家知道，目的是讓其他玩家只要短暫地看一眼就能對角色有「快速」、「精準」且「合理」的認識。因此建議不要有過於冗長、上帝視角的不合理資訊。
+
+您可以這樣使用欄位：
+|cffffff00左鍵點擊：|r 設定欄位內容
+|cffffff00左鍵雙擊：|r 開啟／關閉欄位
+|cffffff00右鍵點擊：|r 預設欄位選項
+|cffffff00拖曳／放置：|r 變更位置]=],
+	["REG_PLAYER_GLANCE_EDITOR"] = "編輯器 : 欄位 %s",
+	["REG_PLAYER_GLANCE_MENU_COPY"] = "複製此欄位",
+	["REG_PLAYER_GLANCE_MENU_PASTE"] = "貼上欄位： %s",
+	["REG_PLAYER_GLANCE_PRESET"] = "載入預設欄位",
+	["REG_PLAYER_GLANCE_PRESET_ADD"] = "預設欄位 |cff00ff00%s|r 已建立。",
+	["REG_PLAYER_GLANCE_PRESET_ALERT1"] = "您必須輸入一個類別名稱",
+	["REG_PLAYER_GLANCE_PRESET_CATEGORY"] = "預設欄位類別",
+	["REG_PLAYER_GLANCE_PRESET_CREATE"] = "建立預設欄位",
+	["REG_PLAYER_GLANCE_PRESET_GET_CAT"] = [=[%s
+
+請輸入此預設欄位的類別。]=],
+	["REG_PLAYER_GLANCE_PRESET_NAME"] = "預設欄位名稱",
+	["REG_PLAYER_GLANCE_PRESET_REMOVE"] = "已刪除了預設欄位 |cff00ff00%s|r 與其內容。",
+	["REG_PLAYER_GLANCE_PRESET_SAVE_SMALL"] = "以預設欄位的方式儲存",
+	["REG_PLAYER_GLANCE_PRESET_SELECT"] = "選擇預設欄位",
+	["REG_PLAYER_GLANCE_TITLE"] = "欄位名稱",
+	["REG_PLAYER_GLANCE_UNUSED"] = "未使用的欄位",
+	["REG_PLAYER_GLANCE_USE"] = "開啟此欄位",
 	["REG_PLAYER_HEIGHT"] = "身高",
+	["REG_PLAYER_HERE"] = "選擇位置",
+	["REG_PLAYER_HERE_HOME_PRE_TT"] = [=[目前居住地設定為：
+|cff00ff00%s|r.]=],
+	["REG_PLAYER_HERE_HOME_TT"] = [=[|cffffff00Click|r：使用角色當前的位置來作為居住地
+|cffffff00Right-click|r：清除欄位內容]=],
+	["REG_PLAYER_HERE_TT"] = "|cffffff00Click|r：以角色當前的位置設定",
+	["REG_PLAYER_ICON"] = "角色圖案",
+	["REG_PLAYER_ICON_TT"] = "選擇一個合適的圖案來代表您的角色。",
 	["REG_PLAYER_LASTNAME"] = "姓氏",
 	["REG_PLAYER_LASTNAME_TT"] = "你的家族姓氏。",
+	["REG_PLAYER_LEFTTRAIT"] = "左側屬性",
+	["REG_PLAYER_MISC_ADD"] = "新增一個資訊欄位",
+	["REG_PLAYER_MORE_INFO"] = "額外資訊",
+	["REG_PLAYER_MSP_HOUSE"] = "家族名稱",
 	["REG_PLAYER_MSP_MOTTO"] = "座右銘",
 	["REG_PLAYER_MSP_NICK"] = "綽號",
 	["REG_PLAYER_NAMESTITLES"] = "稱號及姓名",
+	["REG_PLAYER_NOTES"] = "記事本",
+	["REG_PLAYER_NOTES_ACCOUNT_HELP"] = "記事本是僅供私人使用的，只有你的帳號才能瀏覽其中的資訊。",
+	["REG_PLAYER_NOTES_PROFILE"] = "關於 %s 的紀錄",
+	["REG_PLAYER_NOTES_PROFILE_HELP"] = "這些私人的筆記和您當前的角色綁定，當您切換角色的時候筆記內容也會跟著切換。",
 	["REG_PLAYER_PEEK"] = "雜項",
 	["REG_PLAYER_PHYSICAL"] = "生理外觀描述",
 	["REG_PLAYER_PSYCHO"] = "人格特質",
@@ -10808,6 +11651,16 @@ localeContent = {
 	["REG_PLAYER_PSYCHO_CREATENEW"] = "創建新的特徵",
 	["REG_PLAYER_PSYCHO_Cruel"] = "粗暴",
 	["REG_PLAYER_PSYCHO_CUSTOM"] = "自訂特徵",
+	["REG_PLAYER_PSYCHO_CUSTOMCOLOR_LEFT_TT"] = [=[選擇一個顏色來代表左側屬性欄。
+
+|cffffff00Click:|r 選擇顏色
+|cffffff00Right-click:|r 放棄顏色
+|cffffff00Shift-Click:|r 使用調色盤]=],
+	["REG_PLAYER_PSYCHO_CUSTOMCOLOR_RIGHT_TT"] = [=[選擇一個顏色來代表右側屬性條。
+
+|cffffff00Click:|r 選擇顏色
+|cffffff00Right-click:|r 放棄顏色
+|cffffff00Shift-Click:|r 開起調色盤]=],
 	["REG_PLAYER_PSYCHO_Egoiste"] = "自私",
 	["REG_PLAYER_PSYCHO_Genereux"] = "無私",
 	["REG_PLAYER_PSYCHO_Impulsif"] = "衝動",
@@ -10828,11 +11681,23 @@ localeContent = {
 	["REG_PLAYER_PSYCHO_Trompeur"] = "虛偽",
 	["REG_PLAYER_PSYCHO_Valeureux"] = "勇敢",
 	["REG_PLAYER_RACE"] = "種族",
+	["REG_PLAYER_RACE_TT"] = "意即角色所屬的種族。不限於遊戲中可玩的種族，魔獸世界裡還有許多外型相仿但並未釋出給一般玩家使用的種族。",
+	["REG_PLAYER_REGISTER"] = "基本資料",
+	["REG_PLAYER_RELATIONSHIP_STATUS"] = "感情狀態",
+	["REG_PLAYER_RELATIONSHIP_STATUS_DIVORCED"] = "離異",
+	["REG_PLAYER_RELATIONSHIP_STATUS_MARRIED"] = "已婚",
+	["REG_PLAYER_RELATIONSHIP_STATUS_SINGLE"] = "單身",
+	["REG_PLAYER_RELATIONSHIP_STATUS_TAKEN"] = "已有對象",
+	["REG_PLAYER_RELATIONSHIP_STATUS_TT"] = "標示角色現在的感情狀態，如果不想顯示，選擇「不顯示」就可以將此資訊欄隱藏。",
+	["REG_PLAYER_RELATIONSHIP_STATUS_UNKNOWN"] = "不顯示",
+	["REG_PLAYER_RELATIONSHIP_STATUS_WIDOWED"] = "喪偶",
 	["REG_PLAYER_RESIDENCE"] = "居住地",
 	["REG_PLAYER_RESIDENCE_SHOW"] = "居住地地圖座標",
 	["REG_PLAYER_RESIDENCE_SHOW_TT"] = [=[|cff00ff00%s 
 
 |r點擊以在地圖上顯示]=],
+	["REG_PLAYER_RIGHTTRAIT"] = "右側屬性",
+	["REG_PLAYER_SHOWMISC"] = "顯示雜項欄",
 	["REG_PLAYER_SHOWPSYCHO"] = "顯示個性資料欄",
 	["REG_PLAYER_SHOWPSYCHO_TT"] = [=[如果你想使用角色個性描述，請勾選。
 
@@ -10856,6 +11721,8 @@ localeContent = {
 	["REG_PLAYER_STYLE_INJURY"] = "允許角色受到傷害的狀況",
 	["REG_PLAYER_STYLE_PERMI"] = "需要經過玩家許可",
 	["REG_PLAYER_STYLE_ROMANCE"] = "允許角色之間發展戀愛關係",
+	["REG_PLAYER_STYLE_RPSTYLE"] = "喜好遊戲方式",
+	["REG_PLAYER_STYLE_RPSTYLE_SHORT"] = "RP style",
 	["REG_PLAYER_TITLE"] = "稱號",
 	["REG_PLAYER_TITLE_TT"] = [=[你的角色稱號代表他經常被稱呼的頭銜，避免使用過長的稱號，過長的稱號應該輸入在長稱號區而非此處。
 
@@ -10873,12 +11740,12 @@ localeContent = {
 	["REG_PLAYER_TRP2_PIERCING"] = "穿環打孔",
 	["REG_PLAYER_TRP2_TATTOO"] = "刺青",
 	["REG_PLAYER_TRP2_TRAITS"] = "面相",
-	["REG_PLAYER_TUTO_ABOUT_T1"] = [=[這個版面可以讓你| cff00ff00自由發揮| r你的創意。
+	["REG_PLAYER_TUTO_ABOUT_T1"] = [=[這個版面可以讓你 |cff00ff00自由發揮|r你的創意。
 
-描述不必局限於角色的| cffff9900生理狀態| r。自由地揮灑他的| cffff9900背景故事 | r或| cffff9900個性上| r的細節。
+描述不必局限於角色的|cffff9900生理狀態|r。自由地揮灑他的|cffff9900背景故事 |r或|cffff9900個性上|r的細節。
 
-使用此版面，您可以使用工具列來插入許多裝飾和變化，如| cffffff00texts尺寸，顏色和粗體字| r。
-甚至還有| cffffff00圖片，圖標或超連結| r。]=],
+使用此版面，您可以使用工具列來插入許多裝飾和變化，如|cffffff00texts尺寸，顏色和粗體字|r。
+甚至還有|cffffff00圖片，圖標或超連結|r。]=],
 	["REG_PLAYER_TUTO_ABOUT_T2"] = [=[這個版面更加結構化，由| cff00ff00a各自獨立的框架列表| r所組成。
 
 每個框架又由| cffffff00icon背景和文本| r組成。注意，您可以在這些框架中使用一些文字標籤：如顏色和圖標等。
@@ -10892,6 +11759,7 @@ localeContent = {
 	["REG_PLAYER_WEIGHT"] = "體態",
 	["REG_PLAYER_WEIGHT_TT"] = [=[此處代表你的角色身形。
 例如 |c0000ff00瘦、胖或強壯…|r 或只是一般的身形。]=],
+	["REG_PLAYERS"] = "玩家",
 	["REG_REGISTER"] = "目錄",
 	["REG_REGISTER_CHAR_LIST"] = "角色名單",
 	["REG_RELATION"] = "人際關係",
@@ -10914,6 +11782,8 @@ localeContent = {
 	["REG_RELATION_TARGET"] = "|cffffff00Click: |r變更關係",
 	["REG_RELATION_UNFRIENDLY"] = "不友善",
 	["REG_RELATION_UNFRIENDLY_TT"] = "看來 %s 不太喜歡 %s。",
+	["REG_REPORT_PLAYER_TEMPLATE_TRIAL_ACCOUNT"] = "此玩家為試玩帳號。",
+	["REG_TRIAL_ACCOUNT"] = "試玩帳號",
 	["REG_TT_GUILD_IC"] = "ＩＣ成員",
 	["REG_TT_GUILD_OOC"] = "ＯＯＣ成員",
 	["REG_TT_IGNORED"] = "＜角色已忽略＞",
@@ -10972,11 +11842,8 @@ localeContent = {
 %CONTRIBUTORS$s
 
 {h2}{icon:THUMBUP:20} 感謝{/h2}
-{col:ffffff}Ellypse {/col}{link*https://www.patreon.com/ellypse*Patreon}{col:ffffff} 的幫助：{/col}
-%s
-
 {col:ffffff}Logo 與小地圖按鈕:{/col}
-- {link*https://ebonfeathers.tumblr.com/*EbonFeather@Tumblr}
+- {link*https://twitter.com/Kelandiir*@Kelandiir}
 
 {col:ffffff}準預覽版本測試團隊：{/col}
 %TESTERS$s
@@ -11029,7 +11896,7 @@ localeContent = {
 	["UI_TUTO_BUTTON_TT"] = "點擊以開啟／關閉教學模式"
 }
 
-TRP3_API.loc:RegisterNewLocale("zhTW", "Traditional Chinese", localeContent);
+TRP3_API.loc:RegisterNewLocale("zhTW", "繁體中文", localeContent);
 
 local Locale = {};
 TRP3_API.Locale = Locale;
