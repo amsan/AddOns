@@ -4,6 +4,8 @@ local ColorCountValues = {1,2,3,4,5,6,7,8,9}
 local ColorizeByValues1= { L["Number of stacks"] , L["Remaining time"], L["Elapsed time"] }
 local ColorizeByValues2= { L["Number of stacks"] , L["Remaining time"], L["Elapsed time"], L["Value"] }
 local MonitorizeValues = { [0]= L["NONE"], [1] = L["Value1"], [2] = L["Value2"], [3] = L["Value3"] }
+local TextValues1 = { [1] = L['Value Tracked'], [2] = L['Aura Name'], [3] = L['Custom Text'] }
+local TextValues2 = { [2] = L['Aura Name'], [3] = L['Custom Text'] }
 
 local function StatusAuraGenerateColors(status, newCount)
 	local oldCount = status.dbx.colorCount or 1
@@ -34,6 +36,26 @@ local function StatusAuraGenerateColorThreshold(status)
 	end
 end
 
+function Grid2Options:MakeStatusAuraEnableStacksOptions(status, options, optionParams)
+	if not status.dbx.missing then
+		options.enableStacks = {
+			type = "range",
+			order = 5,
+			name = L["Activation Stacks"],
+			desc = L["Select the minimum number of aura stacks to activate the status."],
+			min = 1, softMax = 30, step = 1,
+			get = function ()
+				return status.dbx.enableStacks or 1
+			end,
+			set = function (_, v)
+				status.dbx.enableStacks = v~=1 and v or nil
+				status:UpdateDB()
+				status:Refresh()
+			end,
+		}
+	end
+end
+
 function Grid2Options:MakeStatusAuraMissingOptions(status, options, optionParams)
 	options.threshold = {
 		type = "toggle",
@@ -47,9 +69,10 @@ function Grid2Options:MakeStatusAuraMissingOptions(status, options, optionParams
 				StatusAuraGenerateColors(status,1)
 				status.dbx.colorThreshold = nil
 				status.dbx.valueIndex = nil
+				status.dbx.enableStacks = nil
 			end
 			status:UpdateDB()
-			Grid2:RefreshAuras()
+			status:Refresh()
 			self:MakeStatusOptions(status)
 		end,
 	}
@@ -81,27 +104,46 @@ function Grid2Options:MakeStatusBlinkThresholdOptions(status, options, optionPar
 end
 
 function Grid2Options:MakeStatusAuraUseSpellIdOptions(status, options, optionParams)
-	if not tonumber(status.dbx.spellName) then return end
 	self:MakeHeaderOptions(options, "Misc")
 	options.useSpellId = {
 		type = "toggle",
 		name = L["Track by SpellId"],
-		width = "double",
+		width = "normal",
 		desc = string.format( "%s (%d) ", L["Track by spellId instead of aura name"], status.dbx.spellName ),
-		order = 110,
+		order = 115,
 		get = function () return status.dbx.useSpellId end,
 		set = function (_, v)
 			status.dbx.useSpellId = v or nil
 			status:UpdateDB()
 		end,
+		hidden = function() return not tonumber(status.dbx.spellName) end,
+	}
+	options.changeSpell = {
+		type = "input",
+		order = 110,
+		name = L["Aura Name or Spell ID"],
+		desc = L["Change Buff/Debuff Name or Spell ID."],
+		width = "normal",
+		get = function() return tostring(status.dbx.spellName) end,
+		set = function(info,text)
+			text = tonumber(text) or text
+			if strlen(text)>0 and text~=status.dbx.spellName then
+				status.dbx.spellName = text
+				status.dbx.useSpellId = (type(text)=="number") or nil
+				status:UpdateDB()
+				Grid2Options:MakeStatusOptions(status)
+				LibStub("AceConfigRegistry-3.0"):NotifyChange("Grid2")
+			end
+		end,
 	}
 end
 
 function Grid2Options:MakeStatusAuraCommonOptions(status, options, optionParams)
+	self:MakeHeaderOptions(options, "Colors")
 	if not status.dbx.missing then
 		options.colorCount = {
 			type = "select",
-			order = 5,
+			order = 10.1,
 			width ="half",
 			name = L["Color count"],
 			desc = L["Select how many colors the status must provide."],
@@ -120,7 +162,7 @@ function Grid2Options:MakeStatusAuraCommonOptions(status, options, optionParams)
 		if status.dbx.colorCount then
 			options.colorizeBy = {
 				type = "select",
-				order = 6,
+				order = 10.2,
 				width ="normal",
 				name = L["Coloring based on"],
 				desc = L["Coloring based on"],
@@ -142,22 +184,22 @@ function Grid2Options:MakeStatusAuraCommonOptions(status, options, optionParams)
 				end,
 				values = status.dbx.valueIndex and ColorizeByValues2 or ColorizeByValues1,
 			}
+			options.colorsSep = {  type = "description", order = 10.3, name = '' }
 		elseif status.dbx.type == "debuffs" then
 			options.debuffTypeColor = {
 				type = "toggle",
 				name = L["Use debuff Type color"],
 				desc = L["Use the debuff Type color first. The specified color will be applied only if the debuff has no type."],
-				order = 6,
+				order = 10.1,
 				get = function () return status.dbx.debuffTypeColorize end,
 				set = function (_, v)
 					status.dbx.debuffTypeColorize = v or nil
 					status:UpdateDB()
-					status:UpdateAllIndicators()
+					status:UpdateAllUnits()
 				end,
 			}
 		end
 	end
-	self:MakeHeaderOptions(options, "Colors")
 end
 
 function Grid2Options:MakeStatusAuraColorThresholdOptions(status, options, optionParams)
@@ -197,6 +239,45 @@ function Grid2Options:MakeStatusAuraColorThresholdOptions(status, options, optio
 			}
 		end
 	end
+end
+
+function Grid2Options:MakeStatusClassFilterOptions(status, options, optionParams)
+	options = options or {}
+	if Grid2.isClassic then
+		self:MakeHeaderOptions( options, "ClassFilter" )
+		options.classFilter = {	type = "group", order = 205, inline= true, name = '', args = {}	}
+		for classType, className in pairs(LOCALIZED_CLASS_NAMES_MALE) do
+			options.classFilter.args[classType] = {
+				type = "toggle",
+				name = className,
+				width = "half",
+				desc = (L["Show on %s."]):format(className),
+				tristate = false,
+				get = function ()
+					return not (status.dbx.classFilter and status.dbx.classFilter[classType])
+				end,
+				set = function (_, value)
+					local dbx = status.dbx
+					if not value then
+						dbx.classFilter = dbx.classFilter or {}
+						dbx.classFilter[classType] = true
+					elseif dbx.classFilter then
+						dbx.classFilter[classType] = nil
+						if not next(dbx.classFilter) then
+							dbx.classFilter = nil
+						end
+					end
+					status:UpdateDB()
+					status:UpdateAllUnits()
+				end,
+			}
+		end
+	end
+	return options
+end
+
+function Grid2Options:MakeStatusDebuffTypeColorsOptions(status, options, optionParams)
+	self:MakeStatusColorOptions(status, options, optionParams)
 end
 
 function Grid2Options:MakeStatusDebuffTypeFilterOptions(status, options, optionParams)
@@ -252,7 +333,7 @@ function Grid2Options:MakeStatusDebuffTypeFilterOptions(status, options, optionP
 				status.dbx.debuffFilter = nil
 			end
 			status:UpdateDB()
-			status:UpdateAllIndicators()
+			status:UpdateAllUnits()
 		end,
 	}
 end
@@ -288,6 +369,7 @@ function Grid2Options:MakeStatusAuraValueOptions(status, options, optionParams)
 				if v==0 then
 					status.dbx.valueIndex = nil
 					status.dbx.colorThresholdValue = nil
+					status.dbx.text = (status.dbx.text~=1) and status.dbx.text or nil
 				else
 					status.dbx.valueIndex = v
 				end
@@ -309,9 +391,42 @@ function Grid2Options:MakeStatusAuraValueOptions(status, options, optionParams)
 		set = function (_, v)
 			status.dbx.valueMax = v>0 and v or nil
 			status:UpdateDB()
-			status:UpdateAllIndicators()
+			status:UpdateAllUnits()
 		end,
-		disabled = function() return not status.dbx.valueIndex end
+		hidden = function() return not status.dbx.valueIndex end
+	}
+end
+
+function Grid2Options:MakeStatusAuraTextOptions(status, options, optionParams)
+	self:MakeHeaderOptions( options, "Text" )
+	options.textType = {
+		type = "select",
+		order = 96,
+		width ="normal",
+		name = L["Text to Display"],
+		desc = L['Text to display in Text Indicators.'],
+		get = function() -- nil => aura name(2) / 1 => value(1) /  any text => custom text(3)
+			local text = status.dbx.text or 2
+			return type(text)=='number' and text or 3
+		end,
+		set = function( _, v)
+			status.dbx.text = (v==3 and '') or (v~=2 and v) or nil
+			status:UpdateDB()
+		end,
+		values = function() return status.dbx.valueIndex and TextValues1 or TextValues2 end,
+	}
+	options.textCustom = {
+		type = "input",
+		order = 97,
+		name = L["Type Custom Text"],
+		desc = L["Text to display in Text Indicators."],
+		width = "normal",
+		get = function() return status.dbx.text end,
+		set = function(info,text)
+			status.dbx.text = text
+			status:UpdateDB()
+		end,
+		hidden = function() return type(status.dbx.text)~='string' end,
 	}
 end
 
@@ -340,7 +455,7 @@ function Grid2Options:MakeStatusAuraListOptions(status, options, optionParams)
 				end
 			end
 			status:UpdateDB()
-			Grid2:RefreshAuras()
+			status:Refresh()
 		end,
 		hidden = function() return status.dbx.auras==nil end
 	}
@@ -356,8 +471,12 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 		get = function () return status.dbx.filterDispelDebuffs end,
 		set = function (_, v)
 			status.dbx.filterDispelDebuffs = v or nil
+			if v and status.dbx.auras then
+				status.dbx.aurasBak = status.dbx.auras
+				status.dbx.auras = nil
+			end
 			status:UpdateDB()
-			Grid2:RefreshAuras()
+			status:Refresh()
 		end,
 		hidden = function() return status.dbx.useWhiteList end
 	}
@@ -370,7 +489,7 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 		set = function (_, v)
 			status.dbx.filterBossDebuffs = (not v) and true or nil
 			status:UpdateDB()
-			Grid2:RefreshAuras()
+			status:Refresh()
 		end,
 		hidden = function() return status.dbx.useWhiteList or status.dbx.filterDispelDebuffs end
 	}
@@ -387,7 +506,7 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 				status.dbx.filterBossDebuffs = false
 			end
 			status:UpdateDB()
-			Grid2:RefreshAuras()
+			status:Refresh()
 		end,
 		hidden = function() return status.dbx.useWhiteList or status.dbx.filterDispelDebuffs end
 	}
@@ -401,7 +520,7 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 		set = function (_, v)
 			status.dbx.filterLongDebuffs = (not v) and true or nil
 			status:UpdateDB()
-			Grid2:RefreshAuras()
+			status:Refresh()
 		end,
 		hidden = function() return status.dbx.useWhiteList end
 	}
@@ -418,7 +537,7 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 				status.dbx.filterLongDebuffs = false
 			end
 			status:UpdateDB()
-			Grid2:RefreshAuras()
+			status:Refresh()
 		end,
 		hidden = function() return status.dbx.useWhiteList end
 	}
@@ -432,7 +551,7 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 		set = function (_, v)
 			status.dbx.filterCaster = (not v) and true or nil
 			status:UpdateDB()
-			Grid2:RefreshAuras()
+			status:Refresh()
 		end,
 		hidden = function() return status.dbx.useWhiteList end
 	}
@@ -449,7 +568,7 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 				status.dbx.filterCaster = false
 			end
 			status:UpdateDB()
-			Grid2:RefreshAuras()
+			status:Refresh()
 		end,
 		hidden = function() return status.dbx.useWhiteList end
 	}
@@ -471,8 +590,8 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 				status.dbx.useWhiteList = nil
 			end
 			status:UpdateDB()
-			Grid2:RefreshAuras()
-			status:UpdateAllIndicators()
+			status:Refresh()
+			status:UpdateAllUnits()
 		end,
 		hidden = function() return status.dbx.filterDispelDebuffs end,
 	}
@@ -492,10 +611,9 @@ function Grid2Options:MakeStatusDebuffsFilterOptions(status, options, optionPara
 			end
 			status.dbx.useWhiteList = nil
 			status:UpdateDB()
-			Grid2:RefreshAuras()
-			status:UpdateAllIndicators()
+			status:Refresh()
+			status:UpdateAllUnits()
 		end,
-		hidden = function() return status.dbx.filterDispelDebuffs end,
 	}
 	options.dispellableOnly = {			--added by Derangement
 		type = "toggle",
@@ -518,34 +636,46 @@ end
 
 -- {{ Register
 Grid2Options:RegisterStatusOptions("buff", "buff", function(self, status, options, optionParams)
+	self:MakeStatusEnabledOptions(status, options, optionParams)
 	self:MakeStatusAuraDescriptionOptions(status, options)
 	self:MakeStatusAuraCommonOptions(status, options, optionParams)
+	self:MakeStatusAuraEnableStacksOptions(status, options, optionParams)
 	self:MakeStatusAuraMissingOptions(status, options, optionParams)
 	self:MakeStatusAuraUseSpellIdOptions(status, options, optionParams)
 	self:MakeStatusColorOptions(status, options, optionParams)
 	self:MakeStatusAuraColorThresholdOptions(status, options, optionParams)
 	self:MakeStatusBlinkThresholdOptions(status, options, optionParams)
 	self:MakeStatusAuraValueOptions(status, options, optionParams)
+	self:MakeStatusAuraTextOptions(status, options, optionParams)
+	self:MakeStatusClassFilterOptions(status, options, optionParams)
 	self:MakeStatusDeleteOptions(status, options, optionParams)
 end,{
 	groupOrder = 10
 })
 
 Grid2Options:RegisterStatusOptions("buffs", "buff", function(self, status, options, optionParams)
-	self:MakeStatusAuraDescriptionOptions(status, options)
-	self:MakeStatusAuraListOptions(status, options, optionParams)
-	self:MakeStatusAuraCommonOptions(status, options, optionParams)
-	self:MakeStatusAuraMissingOptions(status, options, optionParams)
-	self:MakeStatusColorOptions(status, options, optionParams)
-	self:MakeStatusAuraColorThresholdOptions(status, options, optionParams)
-	self:MakeStatusBlinkThresholdOptions(status, options, optionParams)
-	self:MakeStatusDeleteOptions(status, options, optionParams)
+	self:MakeStatusEnabledOptions(status, options, optionParams)
+	if status.dbx.subType == 'blizzard' then
+		self:MakeStatusColorOptions(status, options, optionParams)
+		self:MakeStatusDeleteOptions(status, options, optionParams)
+	else
+		self:MakeStatusAuraDescriptionOptions(status, options)
+		self:MakeStatusAuraListOptions(status, options, optionParams)
+		self:MakeStatusAuraCommonOptions(status, options, optionParams)
+		self:MakeStatusAuraMissingOptions(status, options, optionParams)
+		self:MakeStatusColorOptions(status, options, optionParams)
+		self:MakeStatusAuraColorThresholdOptions(status, options, optionParams)
+		self:MakeStatusBlinkThresholdOptions(status, options, optionParams)
+		self:MakeStatusClassFilterOptions(status, options, optionParams)
+		self:MakeStatusDeleteOptions(status, options, optionParams)
+	end
 end,{
 	groupOrder = 20
 })
 
 Grid2Options:RegisterStatusOptions("debuffType", "debuff", function(self, status, options, optionParams)
-	self:MakeStatusColorOptions(status, options, optionParams)
+	self:MakeStatusEnabledOptions(status, options, optionParams)
+	self:MakeStatusDebuffTypeColorsOptions(status, options, optionParams)
 	self:MakeStatusDebuffTypeFilterOptions(status, options, optionParams)
 end,{
 	groupOrder = 10
@@ -558,6 +688,7 @@ end,{
 } )
 
 Grid2Options:RegisterStatusOptions("debuffs", "debuff", function(self, status, options, optionParams)
+	self:MakeStatusEnabledOptions(status, options, optionParams, false)
 	self:MakeStatusAuraDescriptionOptions(status, options, optionParams)
 	self:MakeStatusDebuffsFilterOptions(status, options, optionParams)
 	self:MakeStatusAuraListOptions(status, options, optionParams)
@@ -571,6 +702,8 @@ end,{
 })
 
 Grid2Options:RegisterStatusOptions("debuff", "debuff", function(self, status, options, optionParams)
+	self:MakeStatusEnabledOptions(status, options, optionParams)
+	self:MakeStatusAuraEnableStacksOptions(status, options, optionParams)
 	self:MakeStatusAuraDescriptionOptions(status, options, optionParams)
 	self:MakeStatusAuraCommonOptions(status, options, optionParams)
 	self:MakeStatusAuraUseSpellIdOptions(status, options, optionParams)
@@ -578,6 +711,7 @@ Grid2Options:RegisterStatusOptions("debuff", "debuff", function(self, status, op
 	self:MakeStatusAuraColorThresholdOptions(status, options, optionParams)
 	self:MakeStatusBlinkThresholdOptions(status, options, optionParams)
 	self:MakeStatusAuraValueOptions(status, options, optionParams)
+	self:MakeStatusAuraTextOptions(status, options, optionParams)
 	self:MakeStatusDeleteOptions(status, options, optionParams)
 end,{
 	groupOrder = 30

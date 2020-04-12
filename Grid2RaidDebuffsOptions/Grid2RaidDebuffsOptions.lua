@@ -21,7 +21,7 @@ end, {
 	hideTitle    = true,
 	childGroups  = "tab",
 	groupOrder   = 5,
-	titleIcon    = "Interface\\Icons\\Spell_Shadow_Skull",
+	titleIcon    = Grid2.isClassic and "Interface\\Icons\\Ability_Creature_Cursed_05" or "Interface\\Icons\\Spell_Shadow_Skull",
 	-- To avoid creating options for raid-debuffs(2), raid-debuffs(3), etc.
 	masterStatus = "raid-debuffs",
 })
@@ -54,14 +54,30 @@ end
 function RDO:Init()
 	self:FixWrongInstances()
 	self:LoadStatuses()
-	self:InitAutodetect()
 	self:InitAdvancedOptions()
 	self:InitGeneralOptions()
 end
 
--- Trying to fix or delete instances in old database formats, now the
--- instance keys must be integers, we don't allow strings.
+-- Enable/Disable Raid Debuffs Autodetect
+function RDO:SetAutodetect(v)
+	if v then
+		GSRD:EnableAutodetect( self.statuses[GSRD.db.profile.auto_status or 1] or statuses[1] )
+	else
+		GSRD:DisableAutodetect()
+	end
+	self.auto_enabled = v
+end
+
+function RDO:RefreshAutodetect()
+	if self.auto_enabled then
+		self:SetAutodetect(false)
+		self:SetAutodetect(true)
+	end
+end
+
+-- Fix several things in database
 function RDO:FixWrongInstances()
+	-- Trying to fix or delete instances in old database formats, now the instance keys must be integers, we don't allow strings.
 	local saved = {}
 	for mapid, data in pairs(RDO.db.profile.debuffs) do
 		if type(mapid)~="number" then
@@ -71,6 +87,12 @@ function RDO:FixWrongInstances()
 	end
 	for k,v in pairs(saved) do
 		RDO.db.profile.debuffs[k] = v
+	end
+	-- remove enabled but non existant modules
+	for key in pairs(RDO.db.profile.enabledModules) do
+		if not RDDB[key] then
+			RDO.db.profile.enabledModules[key] = nil
+		end
 	end
 end
 
@@ -120,7 +142,8 @@ function RDO:DisableInstanceAllDebuffs(curInstance)
 end
 
 function RDO:UpdateZoneSpells(instance)
-	if (not instance) or instance == GSRD:GetCurrentZone() then
+	local zone1, zone2 = GSRD:GetCurrentZone()
+	if (not instance) or instance == zone1 or instance == zone2 then
 		GSRD:UpdateZoneSpells()
 	end
 end

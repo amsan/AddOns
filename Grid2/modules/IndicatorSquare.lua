@@ -3,9 +3,7 @@
 local Grid2 = Grid2
 
 local function Square_Create(self, parent)
-	local Square = self:CreateFrame("Frame", parent)
-	Square:SetBackdropBorderColor(0,0,0,1)
-	Square:SetBackdropColor(1,1,1,1)
+	self:CreateFrame("Frame", parent)
 end
 
 local function Square_GetBlinkFrame(self, parent)
@@ -16,39 +14,57 @@ local function Square_OnUpdate(self, parent, unit, status)
 	local Square = parent[self.name]
 	if status then
 		Square:SetBackdropColor(status:GetColor(unit))
-		if self.borderSize then
-			local c = self.color
-			Square:SetBackdropBorderColor( c.r, c.g, c.b, c.a )
-		end
-		Square:Show()
+		Square:SetAlpha(1)
 	else
-		Square:Hide()
+		Square:SetAlpha(0)
+	end
+end
+
+local function Square_OnUpdateBorder(self, parent, unit, status)
+	local Square = parent[self.name]
+	if status then
+		Square:SetBackdropBorderColor(status:GetColor(unit))
+		Square:SetAlpha(1)
+	else
+		Square:SetAlpha(0)
 	end
 end
 
 local function Square_Layout(self, parent)
 	local Square, container = parent[self.name], parent.container
+	Square:SetParent(parent)
 	Square:ClearAllPoints()
 	Square:SetFrameLevel(parent:GetFrameLevel() + self.frameLevel)
 	Square:SetPoint(self.anchor, container, self.anchorRel, self.offsetx, self.offsety)
 	Square:SetWidth( self.width or container:GetWidth() )
 	Square:SetHeight( self.height or container:GetHeight() )
-	local r1,g1,b1,a1 = Square:GetBackdropColor()
-	local r2,g2,b2,a2 = Square:GetBackdropBorderColor()
-	Square:SetBackdrop(self.backdrop)
-	Square:SetBackdropColor(r1,g1,b1,a1)
-	Square:SetBackdropBorderColor(r2,g2,b2,a2)
+	if self.borderSwap then
+		local c = self.color
+		local r,g,b,a = Square:GetBackdropBorderColor()
+		Grid2:SetFrameBackdrop(Square, self.backdrop)
+		Square:SetBackdropColor( c.r, c.g, c.b, c.a )
+		Square:SetBackdropBorderColor( r,g,b,a )
+	else
+		local r,g,b,a = Square:GetBackdropColor()
+		Grid2:SetFrameBackdrop(Square, self.backdrop)
+		Square:SetBackdropColor( r,g,b,a )
+		if self.borderSize then
+			local c = self.color
+			Square:SetBackdropBorderColor( c.r, c.g, c.b, c.a )
+		end
+	end	
+	Square:Show()
 end
 
 local function Square_Disable(self, parent)
-	parent[self.name]:Hide()
-	self.GetBlinkFrame = nil
-	self.Layout = nil
-	self.OnUpdate = nil
+	local f = parent[self.name]
+	f:Hide()
+	f:SetParent(nil)
+	f:ClearAllPoints()	
 end
 
-local function Square_UpdateDB(self, dbx)
-	dbx = dbx or self.dbx
+local function Square_UpdateDB(self)
+	local dbx = self.dbx
 	-- variables
 	local l = dbx.location
 	self.anchor = l.point
@@ -58,41 +74,30 @@ local function Square_UpdateDB(self, dbx)
 	self.frameLevel = dbx.level
 	self.color = Grid2:MakeColor(dbx.color1)
 	self.borderSize = dbx.borderSize
+	self.borderSwap = dbx.borderSwap
 	self.width = dbx.size or dbx.width
 	if self.width==0 then self.width= nil end
 	self.height= dbx.size or dbx.height
 	if self.height==0 then self.height= nil end
 	-- backdrop
-	local backdrop    = self.backdrop   or {}
-	backdrop.insets   = backdrop.insets or {}
-	local borderSize  = self.borderSize or 0
-	backdrop.tile     = false
-	backdrop.tileSize = 0
-	backdrop.bgFile   = Grid2:MediaFetch("statusbar", dbx.texture, "Grid2 Flat")
-	backdrop.edgeFile = borderSize>0 and "Interface\\Addons\\Grid2\\media\\white16x16" or nil
-	backdrop.edgeSize = borderSize>0 and borderSize or nil
-	local insets      = backdrop.insets
-	insets.left       = borderSize
-	insets.right      = borderSize
-	insets.top        = borderSize
-	insets.bottom     = borderSize
-	self.backdrop     = backdrop
-	-- Methods
-	self.Create = Square_Create
-	self.GetBlinkFrame = Square_GetBlinkFrame
-	self.Layout = Square_Layout
-	self.OnUpdate = Square_OnUpdate
-	self.Disable = Square_Disable
-	self.UpdateDB = Square_UpdateDB
-	self.dbx = dbx
+	local borderSize = self.borderSize or 0
+	self.backdrop = Grid2:GetBackdropTable( borderSize>0 and "Interface\\Addons\\Grid2\\media\\white16x16" or nil, borderSize>0 and borderSize or nil, Grid2:MediaFetch("statusbar", dbx.texture, "Grid2 Flat"), false, 0, borderSize )
+	-- methods
+	self.OnUpdate = self.borderSwap and Square_OnUpdateBorder or Square_OnUpdate
 end
 
 
 local function Create(indicatorKey, dbx)
-	local existingIndicator = Grid2.indicators[indicatorKey]
-	local indicator = existingIndicator or Grid2.indicatorPrototype:new(indicatorKey)
-	Square_UpdateDB(indicator, dbx)
-	Grid2:RegisterIndicator(indicator, { "square" })
+	local indicator = Grid2.indicators[indicatorKey] or Grid2.indicatorPrototype:new(indicatorKey)
+	indicator.dbx = dbx
+	indicator.Create = Square_Create
+	indicator.GetBlinkFrame = Square_GetBlinkFrame
+	indicator.Layout = Square_Layout
+	indicator.OnUpdate = Square_OnUpdate
+	indicator.Disable = Square_Disable
+	indicator.UpdateDB = Square_UpdateDB
+	Square_UpdateDB(indicator)
+	Grid2:RegisterIndicator(indicator, { "color" })
 	return indicator
 end
 

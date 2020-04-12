@@ -2,7 +2,8 @@ local L = Grid2Options.L
 
 Grid2Options:RegisterStatusOptions("range", "target", function(self, status, options, optionParams)
 	local rangeList = {}
-	for range in pairs(status.GetRanges()) do
+	local ranges, rangeSpell = status.GetRanges()
+	for range in pairs(ranges) do
 		rangeList[range] = tonumber(range) and L["%d yards"]:format(tonumber(range)) or L['Heal Range']
 	end
 	options.default = {
@@ -14,7 +15,11 @@ Grid2Options:RegisterStatusOptions("range", "target", function(self, status, opt
 		max = 1,
 		step = 0.01,
 		get = function () return status.dbx.default	end,
-		set = function (_, v) status.dbx.default = v; status:UpdateDB()	end,
+		set = function (_, v) 
+			status.dbx.default = v
+			status:UpdateDB()
+			Grid2Frame:UpdateIndicators()
+		end,
 	}
 	options.update = {
 		type = "range",
@@ -33,7 +38,7 @@ Grid2Options:RegisterStatusOptions("range", "target", function(self, status, opt
 		order = 57,
 		name = L["Range"],
 		desc = L["Range in yards beyond which the status will be lost."],
-		get = function () return status.dbx.range and tostring(status.dbx.range) or "38" end,
+		get = function () return tonumber(status.dbx.range) and tostring(status.dbx.range) or rangeSpell or "38" end,
 		set = function (_, v) status.dbx.range = v; status:UpdateDB() end,
 		values = rangeList,
 	}

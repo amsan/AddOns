@@ -97,10 +97,10 @@ do
 			end,
 			set = function(_, v)
 				RDO:SetAutodetect(v)
-				if (not v) and RDO:RegisterAutodetectedDebuffs() then
+				if not v then
 					RDO:RefreshAdvancedOptions()
 				end
-				Grid2.tooltipFunc["Grid2RaidDebuffs"] = v and AddToTooltip or nil
+				Grid2.tooltipFunc["RaidDebuffsAuto"] = v and AddToTooltip or nil
 			end,
 		},
 		autostatus = {
@@ -109,12 +109,12 @@ do
 			name = L["Assigned to"],
 			desc = L["Assign autodetected raid debuffs to the specified status"],
 			get = function ()
-				return RDO.db.profile.autodetect.status or 1
+				return RDO.db.profile.auto_status or 1
 			end,
 			set = function (_, v)
 				local status = RDO.statuses[v]
 				if status then
-					RDO.db.profile.autodetect.status = v>1 and v or nil
+					RDO.db.profile.auto_status = v>1 and v or nil
 					RDO:RefreshAutodetect()
 				end
 			end,
@@ -160,23 +160,25 @@ do
 end
 
 -- encounter journal
-options.header3 = { type = "header", order = 52, name = "" }
+if not Grid2.isClassic then
+	options.header3 = { type = "header", order = 52, name = "" }
 
-options.difficulty = {
-	type = "select",
-	order = 200,
-	name = L["Encounter Journal difficulty"],
-	desc = L["Default difficulty for Encounter Journal links"],
-	get = function ()
-		return RDO.db.profile.defaultEJ_difficulty or 14
-	end,
-	set = function (_, v)
-		RDO.db.profile.defaultEJ_difficulty = v
-	end,
-	values = {
-		[14] = PLAYER_DIFFICULTY1, -- Normal
-		[15] = PLAYER_DIFFICULTY2, -- Heroic
-		[16] = PLAYER_DIFFICULTY6, -- Mythic
-		[17] = PLAYER_DIFFICULTY3  -- LFR
-	},
-}
+	options.difficulty = {
+		type = "select",
+		order = 200,
+		name = L["Encounter Journal difficulty"],
+		desc = L["Default difficulty for Encounter Journal links"],
+		get = function ()
+			return RDO.db.profile.defaultEJ_difficulty or 14
+		end,
+		set = function (_, v)
+			RDO.db.profile.defaultEJ_difficulty = v
+		end,
+		values = {
+			[14] = PLAYER_DIFFICULTY1, -- Normal
+			[15] = PLAYER_DIFFICULTY2, -- Heroic
+			[16] = PLAYER_DIFFICULTY6, -- Mythic
+			[17] = PLAYER_DIFFICULTY3  -- LFR
+		},
+	}
+end

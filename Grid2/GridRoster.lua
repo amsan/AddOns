@@ -1,17 +1,30 @@
 -- Roster management
+local Grid2 = Grid2
 
 -- Local variables to speedup things
+local ipairs, pairs, next = ipairs, pairs, next
+local UNKNOWNOBJECT = UNKNOWNOBJECT
 local UnitName = UnitName
 local UnitGUID = UnitGUID
+local UnitClass = UnitClass
 local UnitExists = UnitExists
 local IsInRaid = IsInRaid
 local GetNumGroupMembers = GetNumGroupMembers
-local pairs, next = pairs, next
+local GetPartyAssignment = GetPartyAssignment
+local GetRaidRosterInfo = GetRaidRosterInfo
+local UnitGroupRolesAssigned = UnitGroupRolesAssigned or (function() return 'NONE' end)
+local isClassic = Grid2.isClassic
 
 -- realm name
 local my_realm = GetRealmName()
 
--- indexed by unit ID
+-- myUnits, used by other modules
+local roster_my_units = { player = true, pet = true, vehicle = true }
+
+-- is raid roster ?
+local inRaid
+
+-- indexed by unit
 local roster_names = {}
 local roster_realms = {}
 local roster_guids = {}
@@ -19,38 +32,68 @@ local roster_guids = {}
 -- indexed by GUID
 local roster_units = {}
 
--- unit tables
+-- indexed by unit, returns game indexes (party1 => 1, raid3 => 3, player => 0, etc)
+local party_indexes = {}
+local raid_indexes  = {}
+
+-- indexed by index
 local party_units = {}
 local raid_units = {}
+
+-- indexed by unit
 local pet_of_unit = {}
 local owner_of_unit = {}
 
+-- indexed by index, only nonpet units
+local roster_count = 0
+local roster_indexed
+
+-- flag to track if roster contains unknown units, workaround to blizard bug (see ticket #628)
+local roster_unknowns
+
 -- populate unit tables
 do
-	local function register_unit(tbl, unit, pet)
+	local function register_unit(tbl, unit, pet, index, indexes)
 		table.insert(tbl, unit)
 		pet_of_unit[unit] = pet
 		owner_of_unit[pet] = unit
+		indexes[unit] = index
+		indexes[pet]  = index
 	end
-	register_unit(party_units, "player", "pet")
+	register_unit(party_units, "player", "pet", 0, party_indexes)
 	for i = 1, MAX_PARTY_MEMBERS do
-		register_unit(party_units, ("party%d"):format(i),("partypet%d"):format(i))
+		register_unit(party_units, ("party%d"):format(i), ("partypet%d"):format(i), i, party_indexes)
 	end
 	for i = 1, MAX_RAID_MEMBERS do
-		register_unit(raid_units, ("raid%d"):format(i),("raidpet%d"):format(i))
+		register_unit(raid_units, ("raid%d"):format(i), ("raidpet%d"):format(i), i, raid_indexes)
 	end
 end
 
+-- Used as workaround to blizard bug (see ticket #628)
+function Grid2:RosterHasUnknowns()
+	return roster_unknowns
+end
+
 -- roster query functions
-function Grid2:GetUnitByFullName(fullName)
-	local name, realm = fullName:match("^([^%-]+)%-(.*)$")
-	name = name or fullName
-	if realm == my_realm or realm == "" then realm = nil end
-	for unit, unit_name in pairs(roster_names) do
-		if name == unit_name and roster_realms[unit] == realm then
-			return unit
+function Grid2:GetRosterInfoByIndex(index)
+	local unit, name, group, class, role1, role2, _
+	if inRaid then
+		name, _, group, _, _, class, _, _, _, role1, _, role2 = GetRaidRosterInfo(index)
+		return roster_indexed[index], name, class, group, role1, role2
+	else
+		unit = party_units[index]
+		name = UnitName(unit)
+		if name then
+			_, class = UnitClass(unit)
+			role1 = (GetPartyAssignment("MAINTANK",unit) and "MAINTANK") or (GetPartyAssignment("MAINASSIST",unit) and "MAINASSIST")
+			role2 = UnitGroupRolesAssigned(unit)
+			return unit, name, class, 1, role1, role2
 		end
 	end
+end
+
+function Grid2:GetNonPetUnits()
+	return roster_indexed, roster_count
 end
 
 function Grid2:GetUnitidByGUID(guid)
@@ -86,15 +129,11 @@ function Grid2:UnitIsPet(unit)
 end
 
 function Grid2:UnitIsParty(unit)
-	for _, v in next, party_units do
-		if unit == v then return true end
-	end
+	return party_indexes[unit]
 end
 
 function Grid2:UnitIsRaid(unit)
-	for _, v in next, raid_units do
-		if unit == v then return true end
-	end
+	return raid_indexes[unit]
 end
 
 function Grid2:IterateRoster()
@@ -107,71 +146,97 @@ end
 
 -- Events to track raid type changes
 do
-	local groupType, instType, instMaxPlayers, instNumGroups		--instNumGroups added by Derangement
-	function Grid2:PLAYER_ENTERING_WORLD()
-		-- this is needed to trigger an update when switching from one BG directly to another
-		groupType = nil
-		self:GroupChanged("PLAYER_ENTERING_WORLD")
+	-- BGs instMapID>RaidSize lookup, fix for ticket #652 (Random BGs return an incorrect raidsize)
+	local pvp_instances = {
+		[2106] = 10, -- Warsong Gulch (patch 8.1.5)
+		[726]  = 10, -- Twin Peaks
+		[727]  = 10, -- Silvershard Mines
+		[761]  = 10, -- The Battle for Gilneas
+		[998]  = 10, -- Temple of Kotmogu
+		[1803] = 10, -- Seething Shore
+		[968]  = 10, -- Rated Eye of the Storm
+		[2107] = 15, -- Arathi Basin (patch 8.1.5)
+		[566]  = 15, -- Eye of the Storm
+		[2245] = 15, -- Deepwind Gorge
+		[1681] = 15, -- Arathi Blizzard
+		[30]   = 40, -- Alterac Valley
+		[628]  = 40, -- Isle of Conquest
+		[1280] = 40, -- Tarren Mill vs Southshore
+	}
+	-- Local variables
+	local updateCount, groupType, instType, instMaxPlayers = 0
+	-- Used by another modules
+	function Grid2:GetGroupType()
+		return groupType or "solo", instType or "other", instMaxPlayers or 1
 	end
-	-- partyTypes = solo party arena raid
-	-- instTypes  = none pvp lfr flex mythic other
+	-- Workaround to fix maxPlayers in pvp when UI is reloaded (retry every .5 seconds for 2-3 seconds), see ticket #641
+	function Grid2:FixGroupMaxPlayers(newInstType)
+		if updateCount<=5 and (newInstType == 'pvp' or newInstType == 'arena') then
+			updateCount = updateCount + 1001 -- +1000, trick to avoid launching the timer if already launched (updateCount<=5 will fail)
+			C_Timer.After( .5, function()
+				if instMaxPlayers==40 and (instType=='pvp' or instType=='arena') then
+					updateCount = updateCount - 1000
+					Grid2:GroupChanged('GRID2_TIMER')
+				end
+			end)
+		end
+	end
+	-- needed to trigger an update when switching from one BG directly to another
+	function Grid2:PLAYER_ENTERING_WORLD()
+		groupType, updateCount = nil, 0
+		self:GroupChanged('PLAYER_ENTERING_WORLD')
+	end
+	-- partyTypes = solo party arena raid / instTypes = none pvp lfr flex mythic other
 	function Grid2:GroupChanged(event)
 		local newGroupType
 		local InInstance, newInstType = IsInInstance()
-		local _, _, difficultyID, _, maxPlayers = GetInstanceInfo()
-		local numGroupMembers = GetNumGroupMembers()
-
-		local numGroups = math.ceil(numGroupMembers/5)		--added by Derangement
-
+		local instName, _, difficultyID, _, maxPlayers, _, _, instMapID = GetInstanceInfo()
+		inRaid = IsInRaid()
 		if newInstType == "arena" then
-			-- arena@arena instances
-			newGroupType = newInstType
-			maxPlayers = 5
-		else
-			if IsInRaid() then
-				newGroupType = "raid"
-				if InInstance then
-					if newInstType == "pvp" then
-						-- raid@pvp / PvP battleground instance
-					elseif newInstType == "none" then
-						-- raid@none / Not in Instance, in theory its not posible to reach this point
-						maxPlayers = 40
-					elseif difficultyID == 17 then
-						-- raid@lfr / Looking for Raid instances (but not LFR especial events instances)
-						newInstType = "lfr"
-					elseif difficultyID == 16 then
-						-- raid@mythic / Mythic instance
-						newInstType = "mythic"
-					elseif maxPlayers == 30 then
-						-- raid@flex / Flexible instances normal/heroic (but no LFR)
-						newInstType = "flex"
-					else
-						-- raid@other / Other instances: 5man/garrison/unknow instances
-						newInstType = "other"
-					end
-				else
-					-- raid@none / In World Map or Garrison
-					newInstType = "none"
+			newGroupType = newInstType	-- arena@arena instances
+		elseif inRaid then
+			newGroupType = "raid"
+			if InInstance then
+				if newInstType == "pvp" then
+					-- raid@pvp / PvP battleground instance
+					maxPlayers = pvp_instances[instMapID] or maxPlayers
+				elseif newInstType == "none" then
+					-- raid@none / Not in Instance, in theory its not posible to reach this point
 					maxPlayers = 40
+				elseif difficultyID == 17 then
+					-- raid@lfr / Looking for Raid instances (but not LFR especial events instances)
+					newInstType = "lfr"
+				elseif difficultyID == 16 then
+					-- raid@mythic / Mythic instance
+					newInstType = "mythic"
+				elseif maxPlayers == 30 then
+					-- raid@flex / Flexible instances normal/heroic (but no LFR)
+					newInstType = "flex"
+				else
+					-- raid@other / Other instances: 5man/garrison/unknow instances
+					newInstType = "other"
+					if isClassic and (maxPlayers or 0)<=5 then
+						maxPlayers = 10 -- classic, raid inside dungeons
+					end
 				end
-			elseif numGroupMembers > 0 then
-				newGroupType, newInstType, maxPlayers = "party", "other", 5
 			else
-				newGroupType, newInstType, maxPlayers = "solo", "other", 1
+				-- raid@none / In World Map or Garrison
+				newInstType = "none"
+				maxPlayers = 40
 			end
+		elseif GetNumGroupMembers()>0 then
+			newGroupType, newInstType, maxPlayers = "party", "other", 5
+		else
+			newGroupType, newInstType, maxPlayers = "solo", "other", 1
 		end
 		if maxPlayers == nil or maxPlayers == 0 then
 			maxPlayers = 40
-		end	
-		self:Debug("GroupChanged", groupType, instType, instMaxPlayers, "=>", newGroupType, newInstType, maxPlayers, numGroups)
-		if 
-			groupType ~= newGroupType or 
-			instType ~= newInstType or 
-			instMaxPlayers ~= maxPlayers or 
-			instNumGroups ~= numGroups 
-		then
-			groupType, instType, instMaxPlayers, instNumGroups = newGroupType, newInstType, maxPlayers, numGroups
-			self:SendMessage("Grid_GroupTypeChanged", groupType, instType, maxPlayers, numGroups)
+			self:FixGroupMaxPlayers(newInstType)
+		end
+		if groupType ~= newGroupType or instType ~= newInstType or instMaxPlayers ~= maxPlayers then
+			self:Debug("GroupChanged", event, instName, instMapID, groupType, instType, instMaxPlayers, "=>", newGroupType, newInstType, maxPlayers)
+			groupType, instType, instMaxPlayers = newGroupType, newInstType, maxPlayers
+			self:SendMessage("Grid_GroupTypeChanged", groupType, instType, maxPlayers)
 		end
 		self:UpdateRoster()
 	end
@@ -201,6 +266,7 @@ do
 			self:SendMessage("Grid_UnitUpdated", unit, guid)
 			self:SendMessage("Grid_UnitUpdate", unit, guid)
 			self:SendMessage("Grid_RosterUpdated")
+			self:SendMessage("Grid_RosterUpdate")
 		end
 	end
 
@@ -286,15 +352,20 @@ do
 				roster_units[oldGuid] = nil
 			end
 		end
+
+		if name == UNKNOWNOBJECT then
+			roster_unknowns = true
+		end
 	end
 
 	function Grid2:UpdateRoster()
 		roster_guids, units_to_remove = units_to_remove, roster_guids
 
-		local units = IsInRaid() and raid_units or party_units
-
-		for i= 1,#units do
-			local unit = units[i]
+		roster_unknowns = false
+		roster_count = 0
+		roster_indexed = IsInRaid() and raid_units or party_units
+		for i=1,#roster_indexed do
+			local unit = roster_indexed[i]
 			if not UnitExists(unit) then break end
 			UpdateUnit(unit)
 
@@ -302,6 +373,7 @@ do
 			if UnitExists(unitpet) then
 				UpdateUnit(unitpet)
 			end
+			roster_count = roster_count + 1
 		end
 
 		local updated = false
@@ -340,13 +412,19 @@ do
 		end
 
 		if updated then
-			self:SendMessage("Grid_RosterUpdated")
+			self:SendMessage("Grid_RosterUpdated", roster_unknowns)
 		end
+
+		self:SendMessage("Grid_RosterUpdate", roster_unknowns) -- Fired even when no changes in grid2 roster, but other atributes like roles or subgroups could be modified
 	end
 end
 
 --{{ Publish tables used by some statuses
-Grid2.party_units = party_units
-Grid2.raid_units  = raid_units
-Grid2.roster_units = roster_units
+Grid2.owner_of_unit   = owner_of_unit
+Grid2.roster_units    = roster_units
+Grid2.roster_my_units = roster_my_units
+Grid2.raid_indexes    = raid_indexes
+Grid2.party_indexes   = party_indexes
 --}}
+
+

@@ -1,4 +1,4 @@
--- Created by Michael
+﻿-- Created by Michael
 
 local Grid2 = Grid2
 local UnitExists = UnitExists
@@ -68,6 +68,10 @@ end
 function RaidIcon:GetColor(unit)
 	local c = self.dbx[ "color" .. self.cache[unit] ]
 	return c.r, c.g, c.b, c.a --self.dbx.opacity or 1
+end
+
+function RaidIcon:GetTexCoord()
+	return 0, 1, 0, 1
 end
 
 function RaidIcon:GetIcon(unit)

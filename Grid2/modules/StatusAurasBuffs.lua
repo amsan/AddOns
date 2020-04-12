@@ -1,119 +1,116 @@
--- buffs status
-
+-- Group of Buffs status
 local Grid2 = Grid2
-local UnitBuff = UnitBuff
-local statusTypes = { "color", "icon", "icons", "percent", "text" }
-local myUnits = { player = true, pet = true, vehicle = true }
+local UnitAura = UnitAura
+local SpellIsSelfBuff = SpellIsSelfBuff
+local UnitAffectingCombat = UnitAffectingCombat
+local SpellGetVisibilityInfo = SpellGetVisibilityInfo
+local myUnits = Grid2.roster_my_units
 
--- Called from StatusAuras.lua
-local function status_UpdateState(self, unit, texture, count, duration, expiration, auraIndex, tooltipFunc)						--auraIndex, tooltipFunc added by Derangement
-	self.seenCount = (self.seenCount or 0) + 1;			--added by Derangement
-	
-	if count==0 then count = 1 end
-	if(
-		self.states[unit]==nil or 
-		count ~= self.counts[unit] or 
-		expiration ~= self.expirations[unit] or
-		auraIndex ~= self.auraIndexes[unit]				--added by Derangement
-	) then 
-		self.states[unit] = true
-		self.textures[unit] = texture
-		self.auraIndexes[unit] = auraIndex				--added by Derangement
-		self.tooltipFuncs[unit] = tooltipFunc			--added by Derangement
-		self.durations[unit] = duration
-		self.expirations[unit] = expiration
-		self.counts[unit] = count
-		self.tracker[unit] = 1
-		self.seen = 1
-	else
-		self.seen = -1
-	end
-end
+local textures = {}
+local counts = {}
+local expirations = {}
+local durations = {}
+local colors = {}
+local color = {}
 
-local function status_UpdateStateMine(self, unit, texture, count, duration, expiration, _, isMine, auraIndex, tooltipFunc)			--auraIndex, tooltipFunc added by Derangement
-	if isMine then
-		status_UpdateState(self, unit, texture, count, duration, expiration, auraIndex, tooltipFunc)								--auraIndex, tooltipFunc added by Derangement
-	end
-end
-
-local function status_UpdateStateNotMine(self, unit, texture, count, duration, expiration, _, isMine, auraIndex, tooltipFunc)		--auraIndex, tooltipFunc added by Derangement
-	if not isMine then
-		status_UpdateState(self, unit, texture, count, duration, expiration, auraIndex, tooltipFunc)								--auraIndex, tooltipFunc added by Derangement
-	end
-end
-
-local function status_OnEnable(self)
-	for spell in pairs(self.auraNames) do
-		Grid2:RegisterStatusAura( self, "buff", spell )
-	end	
-	if self.thresholds then 
-		Grid2:RegisterTimeTrackerStatus(self, self.dbx.colorThresholdElapsed)
-	end
-end
-
-local function status_OnDisable(self)
-	Grid2:UnregisterStatusAura(self, "buff")
-	Grid2:UnregisterTimeTrackerStatus(self)
-end
-
-local status_GetIcons
-do
-	local textures = {}
-	local tooltipFuncs = {}		--added by Derangement
-	local counts = {}
-	local expirations = {}
-	local durations = {}
-	local colors = {}
-	local color = {}
-	status_GetIcons = function(self, unit)
-		color.r, color.g, color.b, color.a = self:GetColor(unit)
-		local i, j, spells, filter, name, caster = 1, 1, self.auraNames, self.filterMine
-		while true do
-			name, textures[j], counts[j], _, durations[j], expirations[j], caster = UnitBuff(unit, i)
-			if not name then return j-1, textures, counts, expirations, durations, colors, tooltipFuncs end			--tooltipFuncs added by Derangement
-			
-			if spells[name] and (filter==false or filter==myUnits[caster]) then 
-				tooltipFuncs[j] = Grid2Frame:MakeTooltipBuffFunc(unit, i);		--added by Derangement
-				
-				colors[j] = color
-				j = j + 1 
-			end	
-			i = i + 1
+-- buffs group status
+local function status_GetIcons(self, unit, max)
+	color.r, color.g, color.b, color.a = self:GetColor(unit)
+	local i, j, spells, filter, name, caster, _ = 1, 1, self.spells, self.isMine
+	repeat
+		name, textures[j], counts[j], _, durations[j], expirations[j], caster = UnitAura(unit, i)
+		if not name then break end
+		if spells[name] and (filter==false or filter==myUnits[caster]) then
+			colors[j] = color
+			j = j + 1
 		end
-	end
+		i = i + 1
+	until j>max
+	return j-1, textures, counts, expirations, durations, colors
 end
 
-local function status_UpdateDB(self)
-	if self.enabled then self:OnDisable() end
-	Grid2:SetupStatusAura(self)
-	wipe(self.auraNames)
-	for _,spell in ipairs(self.dbx.auras) do
-		self.auraNames[spell] = true
-	end
-	if self.dbx.mine == 2 then 
-		self.filterMine = nil -- not mine buffs
-		self.UpdateState = status_UpdateStateNotMine
-	elseif self.dbx.mine then 
-		self.filterMine = true -- mine buffs
-		self.UpdateState = status_UpdateStateMine
-	else 
-		self.filterMine = false -- mine and not mine buffs 
-		self.UpdateState = status_UpdateState
-	end
-	if self.enabled then self:OnEnable() end
-end
-
-local function CreateAura(baseKey, dbx)
+local statusTypes = { "color", "icon", "icons", "percent", "text" }
+local function status_Create(baseKey, dbx)
 	local status = Grid2.statusPrototype:new(baseKey, false)
-	status.auraNames = {}
-	status.OnEnable  = status_OnEnable
-	status.OnDisable = status_OnDisable
+	if dbx.spellName then dbx.spellName = nil end -- fix possible wrong data in old database
 	status.GetIcons = status_GetIcons
-	status.UpdateDB  = status_UpdateDB
-	Grid2:RegisterStatus(status, statusTypes, baseKey, dbx)	
-	status:UpdateDB()
+	return Grid2.CreateStatusAura( status, basekey, dbx, 'buff', statusTypes )
+end
+
+-- special buffs Blizzard status
+local blizzard = { GetColor = Grid2.statusLibrary.GetColor }
+
+function blizzard:GetIcons(unit, max)
+	local filter = UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT"
+	local color, i, j, name, caster, spellId, canApplyAura, isBossAura, valid, _ = self.dbx.color1, 1, 1
+	repeat
+		name, textures[j], counts[j], _, durations[j], expirations[j], caster, _, _, spellId, canApplyAura, isBossAura = UnitAura(unit, i)
+		if not name then break end
+		if not isBossAura then
+			local hasCustom, alwaysShowMine, showForMySpec = SpellGetVisibilityInfo(spellId, filter)
+			if hasCustom  then
+				valid = showForMySpec or (alwaysShowMine and myUnits[caster])
+			else
+				valid = canApplyAura and myUnits[caster] and not SpellIsSelfBuff(spellId)
+			end
+			if valid then
+				colors[j] = color
+				j = j + 1
+			end
+		end
+		i = i + 1
+	until j>max
+	return j-1, textures, counts, expirations, durations, colors
+end
+
+function blizzard:UNIT_AURA(_, unit)
+	self:UpdateIndicators(unit)
+end
+
+function blizzard:OnEnable()
+	self:RegisterEvent("UNIT_AURA")
+	if Grid2.classicDurations then
+		LibStub("LibClassicDurations"):Register(blizzard)
+		UnitAura = LibStub("LibClassicDurations").UnitAuraDirect
+	end
+end
+
+function blizzard:OnDisable()
+	self:UnregisterEvent("UNIT_AURA")
+	if Grid2.classicDurations then
+		LibStub("LibClassicDurations"):Unregister(blizzard)
+	end
+end
+
+function blizzard:IsActive(unit)
+	return true
+end
+
+local function blizzard_Create(baseKey,dbx)
+	local status = Grid2.statusPrototype:new(baseKey)
+	status:Inject(blizzard)
+	Grid2:RegisterStatus(status,  { "icons" }, baseKey, dbx)
 	return status
 end
 
 -- Registration
-Grid2.setupFunc["buffs"] = CreateAura
+Grid2.setupFunc["buffs"] = function(baseKey, dbx)
+	if dbx.subType == 'blizzard' then
+		return blizzard_Create(baseKey,dbx)
+	else
+		return status_Create(baseKey,dbx)
+	end
+end
+
+--[[ status database configuration
+	type = "buffs"
+	subType = 'blizzard' | nil
+	auras = { "Riptide", 12323, "Earth Shield", ... }
+	colorThresholdElapsed = true | nil 	-- true = color by elapsed time; nil= color by remaining time
+	colorThreshold = { 10, 4, 2 } 	    -- thresholds in seconds to change the color
+	colorCount = number
+	color1 = { r=1,g=1,b=1,a=1 }
+	color2 = { r=1,g=1,b=0,a=1 }
+--]]
+
+

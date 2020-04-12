@@ -3,18 +3,29 @@ local L = Grid2Options.L
 
 Grid2Options:RegisterIndicatorOptions("icon", true, function(self, indicator)
 	local statuses, options =  {}, {}
-	self:MakeIndicatorTypeOptions(indicator, options)
+	self:MakeIndicatorTypeLevelOptions(indicator, options)
 	self:MakeIndicatorLocationOptions(indicator, options)
-	self:MakeIndicatorSizeOptions(indicator, options)
+	self:MakeIndicatorIconSizeOptions(indicator, options)
 	self:MakeIndicatorBorderOptions(indicator, options)
 	self:MakeIndicatorIconCustomOptions(indicator, options)
-	self:MakeIndicatorDeleteOptions(indicator, options)
 	self:MakeIndicatorStatusOptions(indicator, statuses)
 	self:AddIndicatorOptions(indicator, statuses, options )
 end)
 
 function Grid2Options:MakeIndicatorIconCustomOptions(indicator, options)
-	self:MakeHeaderOptions( options, "Appearance"  )
+	self:MakeHeaderOptions( options, "Icon"  )
+	options.disableIcon = {
+		type = "toggle",
+		name = L["Display Square"],
+		desc = L["Display a flat square texture instead of the icon provided by the status."],
+		order = 15,
+		tristate = false,
+		get = function () return indicator.dbx.disableIcon end,
+		set = function (_, v)
+			indicator.dbx.disableIcon = v or nil
+			self:RefreshIndicator(indicator, "Update")
+		end,
+	}
 	options.useStatusColor = {
 		type = "toggle",
 		name = L["Use Status Color"],
@@ -28,9 +39,39 @@ function Grid2Options:MakeIndicatorIconCustomOptions(indicator, options)
 		end,
 	}
 	self:MakeHeaderOptions( options, "StackText" )
+	options.fontOffsetX = {
+		type = "range",
+		order = 104,
+		name = L["X Offset"],
+		desc = L["Adjust the horizontal offset of the text"],
+		softMin  = -50,
+		softMax = 50,
+		step = 1,
+		get = function () return indicator.dbx.fontOffsetX or 0	end,
+		set = function (_, v)
+			indicator.dbx.fontOffsetX = v
+			self:RefreshIndicator(indicator, "Layout")
+		end,
+		hidden= function() return indicator.dbx.disableStack end,
+	}
+	options.fontOffsetY = {
+		type = "range",
+		order = 105,
+		name = L["Y Offset"],
+		desc = L["Adjust the vertical offset of the text"],
+		softMin  = -50,
+		softMax = 50,
+		step = 1,
+		get = function () return indicator.dbx.fontOffsetY or 0	end,
+		set = function (_, v)
+			indicator.dbx.fontOffsetY = v
+			self:RefreshIndicator(indicator, "Layout")
+		end,
+		hidden= function() return indicator.dbx.disableStack end,
+	}
 	options.fontJustify = {
 		type = 'select',
-		order = 100,
+		order = 106,
 		name = L["Text Location"],
 		desc = L["Text Location"],
 		values = Grid2Options.pointValueListExtra,
@@ -58,20 +99,20 @@ function Grid2Options:MakeIndicatorIconCustomOptions(indicator, options)
 	}
 	options.font = {
 		type = "select", dialogControl = "LSM30_Font",
-		order = 105,
+		order = 107,
 		name = L["Font"],
 		desc = L["Adjust the font settings"],
-		get = function (info) return indicator.dbx.font end,
+		get = function (info) return indicator.dbx.font or Grid2Options.MEDIA_VALUE_DEFAULT end,
 		set = function (info, v)
-			indicator.dbx.font = v
+			indicator.dbx.font = Grid2Options.MEDIA_VALUE_DEFAULT~=v and v or nil
 			self:RefreshIndicator(indicator, "Create")
 		end,
-		values = AceGUIWidgetLSMlists.font,
+		values = Grid2Options.GetFontValues,
 		hidden= function() return indicator.dbx.disableStack end,
 	}
 	options.fontFlags = {
 		type = "select",
-		order = 106,
+		order = 108,
 		name = L["Font Border"],
 		desc = L["Set the font border type."],
 		get = function ()
@@ -177,6 +218,19 @@ function Grid2Options:MakeIndicatorIconCustomOptions(indicator, options)
 			end
 			indicator:UpdateDB()
 		end,
+	}
+	options.animOnEnabled = {
+		type = "toggle",
+		order = 157,
+		name = L["Only on Activation"],
+		desc = L["Start the animation only when the indicator is activated, not on updates."],
+		tristate = false,
+		get = function () return indicator.dbx.animOnEnabled end,
+		set = function (_, v)
+			indicator.dbx.animOnEnabled = v or nil
+			indicator:UpdateDB()
+		end,
+		hidden= function() return not indicator.dbx.animEnabled end,
 	}
 	options.animDuration = {
 		type = "range",

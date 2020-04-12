@@ -1,11 +1,15 @@
 -- Tidy Plates - SMILE! :-D
 
+
+
 ---------------------------------------------------------------------------------------------------------------------
 -- Variables and References
 ---------------------------------------------------------------------------------------------------------------------
 local addonName, TidyPlatesInternal = ...
 local TidyPlatesCore = CreateFrame("Frame", nil, WorldFrame)
+
 TidyPlates = {}
+TidyPlatesDebug = false
 
 -- Local References
 local _
@@ -44,6 +48,11 @@ local RaidIconCoordinate = {
 ---------------------------------------------------------------------------------------------------------------------
 -- Core Function Declaration
 ---------------------------------------------------------------------------------------------------------------------
+
+
+-- Debug Mode
+local function TidyPlatesDebugMessage(...) if TidyPlatesDebug then print(...) end end
+
 -- Helpers
 local function ClearIndices(t) if t then for i,v in pairs(t) do t[i] = nil end return t end end
 local function IsPlateShown(plate) return plate and plate:IsShown() end
@@ -522,6 +531,11 @@ do
 			unit.class = ""
 			unit.type = "NPC"
 		end
+
+		-- If name is unavailable, queue for update.  
+		--if unit.name == UNKNOWNOBJECT then
+		--	plate.UpdateMe = true
+		--end
 	end
 
 
@@ -557,6 +571,8 @@ do
 
 		unit.health = UnitHealth(unitid) or 0
 		unit.healthmax = UnitHealthMax(unitid) or 1
+		unit.absorb = UnitGetTotalAbsorbs(unitid)
+		unit.absorbmax = max(unit.absorb, unit.absorbmax or 0)
 
 		unit.hasThreatValue = UnitThreatSituation("player", unitid) and true or false	--added by Derangement
 		unit.threatValue = UnitThreatSituation("player", unitid) or 0
@@ -610,15 +626,21 @@ do
 
 	-- UpdateIndicator_HealthBar: Updates the value on the health bar
 	function UpdateIndicator_HealthBar()
-		visual.healthbar:SetMinMaxValues(0, unit.healthmax)
-		visual.healthbar:SetValue(unit.health)
+		local healthRange = unit.healthmax + unit.absorbmax
+		visual.healthbar:SetMinMaxValues(0, healthRange)
+		visual.healthbar:SetValue(unit.health, unit.absorb)
 	end
 
 
 	-- UpdateIndicator_Name:
 	function UpdateIndicator_Name()
-		visual.name:SetText(unit.name)
-		--unit.pvpname
+
+		-- Set Special-Case Regions
+		if activetheme.SetNameText then
+			local text, r, g, b, a = activetheme.SetNameText(unit)
+			visual.name:SetText( text or unit.name)
+			visual.name:SetTextColor(r or 1, g or 1, b or 1, a or 1)
+		else visual.name:SetText(unit.name) end
 
 		-- Name Color
 		if activetheme.SetNameColor then
@@ -684,7 +706,9 @@ do
 		if activetheme.SetHealthbarColor then
 			visual.healthbar:SetAllColors(activetheme.SetHealthbarColor(unit))
 
-		else visual.healthbar:SetStatusBarColor(unit.red, unit.green, unit.blue) end
+		else 
+			visual.healthbar:SetStatusBarColor(unit.red, unit.green, unit.blue) 
+		end
 
 		-- Name Color
 		if activetheme.SetNameColor then
@@ -791,10 +815,12 @@ do
 		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible
 
 		if channeled then
-			name, subText, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(unitid)
+			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(unitid)
+			--name, text, texture, startTimeMS, endTimeMS, isTradeSkill, notInterruptible = UnitChannelInfo("unit")
+
 			castBar:SetScript("OnUpdate", OnUpdateCastBarReverse)
 		else
-			name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unitid)
+			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unitid)
 			castBar:SetScript("OnUpdate", OnUpdateCastBarForward)
 		end
 
@@ -806,7 +832,8 @@ do
 
 		visual.spelltext:SetText(text)
 		visual.spellicon:SetTexture(texture)
-		castBar:SetMinMaxValues( startTime, endTime )
+
+		castBar:SetMinMaxValues( startTime, endTime ) 
 
 		local r, g, b, a = 1, 1, 0, 1
 
@@ -928,16 +955,17 @@ do
 		OnNewNameplate(plate)
 	 end
 
+
+
+
 	function CoreEvents:NAME_PLATE_UNIT_ADDED(...)
 		local unitid = ...
 		local plate = GetNamePlateForUnit(unitid);
 
-		-- Personal Display
-		if UnitIsUnit("player", unitid) then
-			-- plate:GetChildren():_Show()
-		-- Normal Plates
-		else
-			plate:GetChildren():Hide()
+		-- We're not going to theme the personal unit bar
+		if plate and not UnitIsUnit("player", unitid) then
+			local childFrame = plate:GetChildren()
+			if childFrame then childFrame:Hide() end
 			OnShowNameplate(plate, unitid)
 		end
 
@@ -950,6 +978,7 @@ do
 		OnHideNameplate(plate, unitid)
 	end
 
+
 	function CoreEvents:PLAYER_TARGET_CHANGED()
 		HasTarget = UnitExists("target") == true;
 		SetUpdateAll()
@@ -961,6 +990,15 @@ do
 
 		if plate then OnHealthUpdate(plate) end
 	end
+
+
+	function CoreEvents:UNIT_ABSORB_AMOUNT_CHANGED(...)
+		local unitid = ...
+		local plate = PlatesByUnit[unitid]
+
+		if plate then OnHealthUpdate(plate) end
+	end
+
 
 	function CoreEvents:PLAYER_REGEN_ENABLED()
 		InCombat = false
@@ -1001,6 +1039,9 @@ do
 			OnStopCasting(plate)
 		end
 	 end
+
+
+
 
 	function CoreEvents:UNIT_SPELLCAST_CHANNEL_START(...)
 		local unitid = ...

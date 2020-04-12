@@ -10,10 +10,10 @@ local defaultBackColor = { r=0, g=0, b=0, a=1 }
 
 local function Bar_CreateHH(self, parent)
 	local bar = self:CreateFrame("StatusBar", parent)
+	bar.indicator = self
 	bar:SetStatusBarColor(0,0,0,0)
 	bar:SetMinMaxValues(0, 1)
 	bar:SetValue(0)
-	bar:Show()
 	if self.backColor then
 		bar.bgTex = bar.bgTex or bar:CreateTexture()
 	end
@@ -22,16 +22,17 @@ end
 local function Bar_Layout(self, parent)
 	local Bar    = parent[self.name]
 	local bgTex  = Bar.bgTex
-	local orient = self.orientation or Grid2Frame.db.profile.orientation
+	local orient = self.orientation
 	local points = AlignPoints[orient][not self.reverseFill]
 	local level  = parent:GetFrameLevel() + self.frameLevel
+	Bar:SetParent(parent)
 	Bar:ClearAllPoints()
 	Bar:SetOrientation(orient)
 	Bar:SetStatusBarTexture(self.texture)
 	Bar:SetReverseFill(self.reverseFill)
-	local barParent = self.barParent
-	if barParent then
-		local PBar = parent[barParent.name]
+	local parentName = self.parentName
+	if parentName then
+		local PBar = parent[parentName]
 		Bar:SetFrameLevel( PBar:GetFrameLevel() )
 		Bar:SetSize( PBar:GetWidth(), PBar:GetHeight() )
 		Bar:SetPoint( points[1], PBar:GetStatusBarTexture(), points[2], 0, 0)
@@ -64,6 +65,7 @@ local function Bar_Layout(self, parent)
 			bgTex:Hide() 
 		end
 	end
+	Bar:Show()
 end
 
 local function Bar_GetBlinkFrame(self, parent)
@@ -76,34 +78,48 @@ end
 
 local function Bar_SetValueParent(self, parent, value)
 	parent[self.name]:SetValue(value)
-	local barChild = parent[self.barChild.name]
+	local barChild = parent[self.childName]
 	if value+barChild:GetValue()>1 then barChild:SetValue(1-value) end
 end
 
 local function Bar_SetValueChild(self, parent, value)
-	local v = parent[self.barParent.name]:GetValue()
+	local v = parent[self.parentName]:GetValue()
 	if value+v>1 then value = 1-v end
 	parent[self.name]:SetValue(value)	
 end
 
 --{{{ Bar OnUpdate
-local durationTimers = {}
-local expirations = {}
-local durations= {}
-local function tcancel(bar)
-	if durationTimers[bar] then
-		Grid2:CancelTimer(durationTimers[bar])
-		durationTimers[bar], expirations[bar], durations[bar] = nil, nil, nil
+local timers = {}
+local function tdestroy(bar)
+	local timer = timers[bar]
+	if timer then
+		timers[bar], timer._bar = nil, nil
+		Grid2:CancelTimer(timer)
 	end
 end
-local function tevent(self, parent, bar)
-	local timeLeft = expirations[bar] - GetTime()
+local function tevent(timer)
+	local bar = timer._bar
+	local timeLeft = bar._expiration - GetTime()
 	if timeLeft>0 then
-		timeLeft = timeLeft/durations[bar]
+		timeLeft = timeLeft / bar._duration
 	else
-		timeLeft = 0; tcancel(bar)
+		timeLeft = 0; tdestroy(bar)
 	end
-	self:SetValue( parent, timeLeft ) 
+	bar.indicator:SetValue( bar:GetParent(), timeLeft ) 
+end
+local function tcreate(bar, duration, expiration)
+	local delay = duration>3 and 0.2 or 0.1
+	local timer = timers[bar] 
+	if not timer then
+		timer = Grid2:CreateTimer(tevent, delay)
+		timer._bar = bar
+		timers[bar] = timer
+	elseif duration<=3 then	
+		timer:SetDuration(delay)
+	end
+	bar._duration   = duration
+	bar._expiration = expiration
+	return timer
 end
 
 local function Bar_OnUpdateD(self, parent, unit, status)
@@ -111,22 +127,17 @@ local function Bar_OnUpdateD(self, parent, unit, status)
 	if status and status:IsActive(unit) then
 		local expiration = status:GetExpirationTime(unit)
 		if expiration then
-			local now = GetTime()
-			local timeLeft = expiration - now
+			local timeLeft = expiration - GetTime()
 			if timeLeft>0 then
-				local duration= status:GetDuration(unit) or timeLeft
-				expirations[bar]= expiration
-				durations[bar]= duration
-				if not durationTimers[bar] then
-					durationTimers[bar] = Grid2:ScheduleRepeatingTimer(tevent, (duration>3 and 0.2 or 0.1), self, parent, bar)
-				end	
-				value= timeLeft / duration
+				local duration = status:GetDuration(unit) or timeLeft
+				value = timeLeft / duration
+				tcreate(bar, duration, expiration)
 			else
-				tcancel(bar)
+				tdestroy(bar)
 			end
 		end	
 	else
-		tcancel(bar)
+		tdestroy(bar)
 	end
 	self:SetValue(parent,value)
 end
@@ -144,7 +155,6 @@ local function Bar_OnUpdate(self, parent, unit, status)
 	self:SetValue(parent, value)
 	--self:SetValue(parent, status and status:GetPercent(unit) or 0)
 end
-
 --}}}
 
 local function Bar_SetOrientation(self, orientation)
@@ -155,42 +165,37 @@ end
 local function Bar_Disable(self, parent)
 	local bar = parent[self.name]
 	bar:Hide()
-	self.Layout   = nil
-	self.OnUpdate = nil
+	bar:SetParent(nil)
+	bar:ClearAllPoints()	
 end
 
-local function Bar_UpdateDB(self, dbx)
-	dbx = dbx or self.dbx
-	self.texture = Grid2:MediaFetch("statusbar", dbx.texture, "Gradient")
+local function Bar_UpdateDB(self)
+	local dbx = self.dbx
+	local theme = Grid2Frame.db.profile
 	local l = dbx.location
-	self.frameLevel     = dbx.level or 1
-	self.anchor         = l.point
-	self.anchorRel      = l.relPoint
-	self.offsetx        = l.x
-	self.offsety        = l.y
-	self.width          = dbx.width
-	self.height         = dbx.height
-	self.orientation    = dbx.orientation
-	self.reverseFill    = dbx.reverseFill	
-	self.backColor      = dbx.backColor or (dbx.invertColor and defaultBackColor) or nil
-	self.Create         = Bar_CreateHH
-	self.GetBlinkFrame  = Bar_GetBlinkFrame
-	self.OnUpdate       = Bar_OnUpdate
-	self.SetOrientation = Bar_SetOrientation
-	self.Disable        = Bar_Disable	
-	self.UpdateDB       = Bar_UpdateDB
-	self.Layout         = Bar_Layout
-	self.SetValue       = Bar_SetValue
-	self.OnUpdate       = (dbx.duration and Bar_OnUpdateD) or (dbx.stack and Bar_OnUpdateS) or Bar_OnUpdate
-	self.dbx            = dbx
-	self.barParent      = nil
+	self.texture     = Grid2:MediaFetch("statusbar", dbx.texture or theme.barTexture, "Gradient")
+	self.orientation = dbx.orientation or theme.orientation
+	self.frameLevel  = dbx.level or 1
+	self.anchor      = l.point
+	self.anchorRel   = l.relPoint
+	self.offsetx     = l.x
+	self.offsety     = l.y
+	self.width       = dbx.width
+	self.height      = dbx.height
+	self.reverseFill = dbx.reverseFill	
+	self.backColor   = dbx.backColor or (dbx.invertColor and defaultBackColor) or nil
+	self.OnUpdate    = (dbx.duration and Bar_OnUpdateD) or (dbx.stack and Bar_OnUpdateS) or Bar_OnUpdate
 	if dbx.anchorTo then
-		self.barParent = Grid2.indicators[dbx.anchorTo]
-		self.barParent.barChild = self
-		self.barParent.SetValue = Bar_SetValueParent
-		self.SetValue = Bar_SetValueChild		
-		self.reverseFill = self.barParent.reverseFill
-		self.orientation = self.barParent.orientation
+		local barParent = Grid2.indicators[dbx.anchorTo]
+		barParent.childName = self.name
+		barParent.SetValue  = Bar_SetValueParent
+		self.parentName     = dbx.anchorTo
+		self.SetValue       = Bar_SetValueChild		
+		self.reverseFill    = barParent.reverseFill
+		self.orientation    = barParent.orientation
+	else
+		self.SetValue = Bar_SetValue
+		self.parentName = nil
 	end
 end
 
@@ -203,11 +208,11 @@ local function BarColor_OnUpdate(self, parent, unit, status)
 end
 
 local function BarColor_SetBarColor(self, parent, r, g, b, a)
-	parent[self.BarName]:SetStatusBarColor(r, g, b, min(self.opacity,a or 1) )
+	parent[self.parentName]:SetStatusBarColor(r, g, b, min(self.opacity,a or 1) )
 end
 
 local function BarColor_SetBarColorInverted(self, parent, r, g, b, a)
-	local bar   = parent[self.BarName]
+	local bar   = parent[self.parentName]
 	local color = self.backColor
 	bar:SetStatusBarColor(color.r, color.g, color.b, min(self.opacity, 0.8))
  	if not self.dbx.anchorTo then
@@ -226,19 +231,26 @@ local function BarColor_UpdateDB(self)
 end
 
 local function Create(indicatorKey, dbx)
-
 	local Bar = Grid2.indicators[indicatorKey] or Grid2.indicatorPrototype:new(indicatorKey)
+	Bar.dbx            = dbx
+	Bar.Create         = Bar_CreateHH
+	Bar.GetBlinkFrame  = Bar_GetBlinkFrame
+	Bar.OnUpdate       = Bar_OnUpdate
+	Bar.SetOrientation = Bar_SetOrientation
+	Bar.Disable        = Bar_Disable	
+	Bar.Layout         = Bar_Layout	
+	Bar.UpdateDB       = Bar_UpdateDB
 	Bar_UpdateDB(Bar,dbx)
-	Grid2:RegisterIndicator(Bar, { "percent" }, true)
+	Grid2:RegisterIndicator(Bar, { "percent" } )
 
-	local colorKey    = indicatorKey .. "-color"
-	local BarColor    = Grid2.indicators[colorKey] or Grid2.indicatorPrototype:new(colorKey)
-	BarColor.dbx      = dbx
-	BarColor.BarName  = indicatorKey
-	BarColor.Create   = Grid2.Dummy
-	BarColor.Layout   = Grid2.Dummy
-	BarColor.OnUpdate = BarColor_OnUpdate
-	BarColor.UpdateDB = BarColor_UpdateDB
+	local colorKey      = indicatorKey .. "-color"
+	local BarColor      = Grid2.indicators[colorKey] or Grid2.indicatorPrototype:new(colorKey)
+	BarColor.dbx        = dbx
+	BarColor.parentName = indicatorKey
+	BarColor.Create     = Grid2.Dummy
+	BarColor.Layout     = Grid2.Dummy
+	BarColor.OnUpdate   = BarColor_OnUpdate
+	BarColor.UpdateDB   = BarColor_UpdateDB
 	BarColor_UpdateDB(BarColor)
 	Grid2:RegisterIndicator(BarColor, { "color" })
 

@@ -61,9 +61,9 @@ Credits:
 --[[
 	Curseforge auto-packaging replacements:
 
-	Project Date: 2019-09-26T20:41:00Z
-	Project Hash: 863338686dd035ba634ca4756e5414b0b7d9f724
-	Project Version: 1.6.7.1
+	Project Date: 2020-03-11T20:24:25Z
+	Project Hash: ee9bf17ebd21109b7acd0e62dcd430cb81768181
+	Project Version: 1.6.10
 --]]
 
 local LibDeflate

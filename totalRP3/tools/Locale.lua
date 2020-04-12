@@ -1294,12 +1294,6 @@ We are aware of a current issue on Retail causing **quest item usage from the ob
 - Fixed an issue when using the "Right-click to open profile" setting on Classic.
 
 ]],
-
-	------------------------------------------------------------------------------------------------
-	--- PLACE LOCALIZATION NOT ALREADY UPLOADED TO CURSEFORGE HERE
-	--- THEN MOVE IT UP ONCE IMPORTED
-	------------------------------------------------------------------------------------------------
-
 	CO_CHAT_MAIN_SPEECH = "Speech detection",
 	CO_CHAT_MAIN_SPEECH_USE = "Use speech detection",
 	CO_CHAT_MAIN_SPEECH_USE_TT = "Text surrounded by quotation marks will be colored as if written in /say.",
@@ -1318,6 +1312,71 @@ We are aware of a current issue on Retail causing **quest item usage from the ob
 - The companion profiles list accessed through the target frame is now alphabetically sorted, and "Create new profile" has been moved out of it.
 
 ]],
+	---@language Markdown
+	WHATS_NEW_23_8 = [[
+# Changelog version 1.6.8
+
+## Changed
+
+- **Classic:** Due to 1.13.3 API changes, the map scan has been modified to find characters in yell range only. It will only show on the map you're in. **Only characters using Total RP 3 version 1.6.8 will be visible on the scan.**
+
+*Reminder : You can disable your scan appearance by unchecking "Register settings > Location settings > Enable character location. Please don't hold on the update for visibility reasons.*
+
+- Speech detection will now only apply to emotes (including NPC emotes).
+
+## Fixed
+
+- Fixed a rare issue where the addon loading process would be interrupted by a setting key unable to be read.
+
+]],
+	---@language Markdown
+	WHATS_NEW_23_9 = [[
+# Changelog version 1.6.9
+
+## Added
+
+- Added 61 musics, 5 images and 223 icons on Retail from patch 8.3.
+- Added 177 images on Retail from previous patches.
+- Added 1 icon on Classic from patch 1.13.3.
+- Added default icons for Vulperas and Mechagnomes.
+
+## Changed
+
+- Changed default Kul Tiran female icon.
+
+## Fixed
+
+- Added workaround to Classic map scan to handle Blizzard's lack of tests.
+- Fixed an issue when trying to use icons with an apostrophe in their name.
+- Image browser filter now correctly handles some special characters.
+
+]],
+
+	------------------------------------------------------------------------------------------------
+	--- PLACE LOCALIZATION NOT ALREADY UPLOADED TO CURSEFORGE HERE
+	--- THEN MOVE IT UP ONCE IMPORTED
+	------------------------------------------------------------------------------------------------
+
+	CO_REGISTER_ABOUT_SETTINGS = "\"About\" settings",
+	CO_REGISTER_ABOUT_H1_SIZE = "Header 1 text size",
+	CO_REGISTER_ABOUT_H1_SIZE_TT = "Size of the text between {h1} tags. Default: %s",
+	CO_REGISTER_ABOUT_H2_SIZE = "Header 2 text size",
+	CO_REGISTER_ABOUT_H2_SIZE_TT = "Size of the text between {h2} tags. Default: %s",
+	CO_REGISTER_ABOUT_H3_SIZE = "Header 3 text size",
+	CO_REGISTER_ABOUT_H3_SIZE_TT = "Size of the text between {h3} tags. Default: %s",
+	CO_REGISTER_ABOUT_P_SIZE = "Paragraph text size",
+	CO_REGISTER_ABOUT_P_SIZE_TT = "Size of the text outside of header tags. Default: %s",
+	---@language Markdown
+	WHATS_NEW_23_10 = [[
+# Changelog version 1.6.10
+
+## Added
+
+- Added %xt and %xf chat tokens. These will automatically be replaced by the RP name of your target and focus respectively when sending a message.
+- Added settings to adjust About font sizes.
+
+]],
+
 };
 
 -- Use Ellyb to generate the Localization system
@@ -1619,6 +1678,15 @@ Possible status:
 	["CO_MSP_T3"] = "Use template 3 only",
 	["CO_MSP_T3_TT"] = "Even if you choose another \"about\" template, the template 3 will always be used for MSP compatibility.",
 	["CO_REGISTER"] = "Register settings",
+	["CO_REGISTER_ABOUT_H1_SIZE"] = "Header 1 text size",
+	["CO_REGISTER_ABOUT_H1_SIZE_TT"] = "Size of the text between {h1} tags. Default: %s",
+	["CO_REGISTER_ABOUT_H2_SIZE"] = "Header 2 text size",
+	["CO_REGISTER_ABOUT_H2_SIZE_TT"] = "Size of the text between {h2} tags. Default: %s",
+	["CO_REGISTER_ABOUT_H3_SIZE"] = "Header 3 text size",
+	["CO_REGISTER_ABOUT_H3_SIZE_TT"] = "Size of the text between {h3} tags. Default: %s",
+	["CO_REGISTER_ABOUT_P_SIZE"] = "Paragraph text size",
+	["CO_REGISTER_ABOUT_P_SIZE_TT"] = "Size of the text outside of header tags. Default: %s",
+	["CO_REGISTER_ABOUT_SETTINGS"] = "\"About\" settings",
 	["CO_REGISTER_ABOUT_VOTE"] = "Use voting system",
 	["CO_REGISTER_ABOUT_VOTE_TT"] = "Enables the voting system, allowing you to vote ('like' or 'unlike') for others' descriptions and allowing them to do the same for you.",
 	["CO_REGISTER_AUTO_ADD"] = "Auto add new players",
@@ -2661,6 +2729,15 @@ The register also received a checkbox to only display profiles on which you wrot
 - Fixed an error message that could be caused by other addons misusing official API functions.
 
 ]=],
+	["WHATS_NEW_23_10"] = [=[
+# Changelog version 1.6.10
+
+## Added
+
+- Added %xt and %xf chat tokens. These will automatically be replaced by the RP name of your target and focus respectively when sending a message.
+- Added settings to adjust About font sizes.
+
+]=],
 	["WHATS_NEW_23_2"] = [=[
 # Changelog version 1.6.2
 
@@ -2759,6 +2836,43 @@ We are aware of a current issue on Retail causing **quest item usage from the ob
 
 - The companion profiles list accessed through the target frame is now alphabetically sorted, and "Create new profile" has been moved out of it.
 
+]=],
+	["WHATS_NEW_23_8"] = [=[
+# Changelog version 1.6.8
+
+## Changed
+
+- **Classic:** Due to 1.13.3 API changes, the map scan has been modified to find characters in yell range only. It will only show on the map you're in. **Only characters using Total RP 3 version 1.6.8 will be visible on the scan.**
+
+*Reminder : You can disable your scan appearance by unchecking "Register settings > Location settings > Enable character location. Please don't hold on the update for visibility reasons.*
+
+- Speech detection will now only apply to emotes (including NPC emotes).
+
+## Fixed
+
+- Fixed a rare issue where the addon loading process would be interrupted by a setting key unable to be read.
+
+]=],
+	["WHATS_NEW_23_9"] = [=[
+# Changelog version 1.6.9
+
+## Added
+
+- Added 61 musics, 5 images and 223 icons on Retail from patch 8.3.
+- Added 177 images on Retail from previous patches.
+- Added 1 icon on Classic from patch 1.13.3.
+- Added default icons for Vulperas and Mechagnomes.
+
+## Changed
+
+- Changed default Kul Tiran female icon.
+
+## Fixed
+
+- Added workaround to Classic map scan to handle Blizzard's lack of tests.
+- Fixed an issue when trying to use icons with an apostrophe in their name.
+- Image browser filter now correctly handles some special characters.
+
 ]=]
 }
 
@@ -2778,13 +2892,17 @@ localeContent = {
 	["BW_COLOR_CODE"] = "Farbcode",
 	["BW_COLOR_CODE_ALERT"] = "Falscher hexadezimaler Farbcode!",
 	["BW_COLOR_CODE_TT"] = "Hier kannst du 6 Zeichen hexadezimalen Farbcode eintragen und mit ENTER bestätigen.",
-	["BW_COLOR_PRESET_DELETE"] = "Lösche Einstellung von %s",
+	["BW_COLOR_PRESET_DELETE"] = "Voreinstellungen %s löschen.",
+	["BW_COLOR_PRESET_RENAME"] = "Voreinstellungen %s umbenennen.",
 	["BW_COLOR_PRESET_SAVE"] = "Aktuelle Farbe speichern",
+	["BW_COLOR_PRESET_TITLE"] = "Farben Voreinstellungen",
 	["BW_CUSTOM_NAME"] = "Eigener Farbname",
 	["BW_CUSTOM_NAME_TITLE"] = "Name (Optional)",
 	["BW_CUSTOM_NAME_TT"] = "Du kannst der eigenen Farbe, die du speicherst, einen Namen geben. Wenn du sie nicht benennst wird der hexadezimale Farbcode verwendet.",
 	["CL_COMPANION_PROFILE"] = "Begleiterprofil",
 	["CL_CONTENT_SIZE"] = "Größe: %s",
+	["CL_DIRECTORY_COMPANION_PROFILE"] = "Begleiter Profil Verzeichnis",
+	["CL_DIRECTORY_PLAYER_PROFILE"] = "Spieler Profil Verzeichnis",
 	["CL_DOWNLOADING"] = "Lade Herunter: %0.1f %%",
 	["CL_EXPIRED"] = "Dieser Link ist abgelaufen.",
 	["CL_GLANCE"] = "Auf den ersten Blick",
@@ -2796,6 +2914,7 @@ localeContent = {
 Möchtest du diesen Link für andere Spieler importierbar machen? Dann wären sie in der Lage den Inhalt dieses Links zu kopieren und zu nutzen.
 
 Wenn du mit nein antwortest werden sie den Inhalt des Links nur anschauen können.]=],
+	["CL_MAKE_IMPORTABLE_BUTTON_TEXT"] = "Importierbar machen",
 	["CL_MAKE_IMPORTABLE_SIMPLER"] = [=[Diesen %s Link importierbar machen?
 
 Andere Leute können den Inhalt des Links kopieren und nutzen.]=],
@@ -2818,6 +2937,7 @@ Das Importieren des Inhaltes einer anderen Version könnte aufgrund von Inkompat
 	["CM_CANCEL"] = "Abbrechen",
 	["CM_CENTER"] = "Zentriert",
 	["CM_CLASS_DEATHKNIGHT"] = "Todesritter",
+	["CM_CLASS_DEMONHUNTER"] = "Dämonenjäger",
 	["CM_CLASS_DRUID"] = "Druide",
 	["CM_CLASS_HUNTER"] = "Jäger",
 	["CM_CLASS_MAGE"] = "Magier",
@@ -2875,9 +2995,13 @@ Das Importieren des Inhaltes einer anderen Version könnte aufgrund von Inkompat
 	["CM_WHITE"] = "Weiß",
 	["CM_YELLOW"] = "Gelb",
 	["CO_ADVANCED_BROADCAST"] = "Add-on Kommunikationen",
+	["CO_ADVANCED_BROADCAST_CHANNEL_ALWAYS_LAST"] = "Broadcast-Kanal as Ende setzen",
 	["CO_ADVANCED_BROADCAST_CHANNEL_ALWAYS_LAST_TT"] = "Durch diese Option bleibt dieser Kanal immer der letzte in Eurer Kanalliste.",
+	["CO_ADVANCED_LANGUAGE_WORKAROUND"] = "Provisorische Lösung für das Rücksetzen der Sprache",
 	["CO_ADVANCED_LANGUAGE_WORKAROUND_TT"] = "Seit Patch 8.0.1 setzt das Spiel die ausgewählte Sprache nach jedem Ladebildschirm zur Standardsprache Eurer Fraktion zurück. Diese Überbrückung sorgt dafür, dass Eure Sprache nach einem Ladebildschirm weiterhin ausgewählt bleibt.",
 	["CO_ADVANCED_LANGUAGES"] = "Sprachen",
+	["CO_ADVANCED_LANGUAGES_REMEMBER"] = "Letzte benutzte Sprache speichern",
+	["CO_ADVANCED_LANGUAGES_REMEMBER_TT"] = "Total RP 3 wird die letzte Sprache, die du vor dem ausloggen benutzt hast speichern und beim nächsten Login automatisch wieder aktivieren.",
 	["CO_ADVANCED_SETTINGS"] = "Erweiterte Einstellungen",
 	["CO_ADVANCED_SETTINGS_MENU_NAME"] = "Erweitert",
 	["CO_ADVANCED_SETTINGS_POPUP"] = "Ihr habt eine erweiterte Einstellung verändert. Bitte denkt daran, dass diese Einstellungen Eure Spielerfahrungen mit dem Add-on beeinflussen und diverse Funktionen daran hindern können korrekt zu funktionieren. Benutzung auf eigene Gefahr.",
@@ -2923,9 +3047,13 @@ Das Importieren des Inhaltes einer anderen Version könnte aufgrund von Inkompat
 	["CO_CHAT_MAIN_OOC_COLOR"] = "OOC-Farbe",
 	["CO_CHAT_MAIN_OOC_PATTERN"] = "Muster für OOC-Erkennung",
 	["CO_CHAT_MAIN_OOC_USE"] = "Nutze OOC-Erkennung",
+	["CO_CHAT_MAIN_SPEECH"] = "Spracherkennung",
+	["CO_CHAT_MAIN_SPEECH_USE"] = "Spracherkennung benutzen",
+	["CO_CHAT_MAIN_SPEECH_USE_TT"] = "Text in Anführungszeichen wird eingefärbt als wäre er im /say geschrieben.",
 	["CO_CHAT_NPCSPEECH_REPLACEMENT"] = "Begleitername in NSC Sprache anpassen",
 	["CO_CHAT_NPCSPEECH_REPLACEMENT_TT"] = "Wenn der Begleitername in der NSC Sprache in Klammern eingesetzt wird, wird er eingefärbt und es wird, je nach Einstellung, ein Icon angezeigt.",
 	["CO_CHAT_REMOVE_REALM"] = "Spielernamen ohne Servernamen zeigen",
+	["CO_CHAT_SHOW_OOC"] = "OOC Indikator anzeigen",
 	["CO_CHAT_USE"] = "Benutze Chatkanäle",
 	["CO_CHAT_USE_ICONS"] = "Spielersymbole anzeigen",
 	["CO_CHAT_USE_SAY"] = "Sagen-Kanal",
@@ -2974,15 +3102,21 @@ Wenn nicht, wird die Sprache beim nächsten Login geändert.]=],
 	["CO_GLANCE_PRESET_TRP3_HELP"] = "Verknüpfung um die Zeile im TRP3 Stil aufzusetzen - Am unteren Rand des TRP3 Zielfensters.",
 	["CO_GLANCE_RESET_TT"] = "Setze die Leiste auf die untere linke Position des Ankerfensters zurück.",
 	["CO_GLANCE_TT_ANCHOR"] = "Ankerpunkt des Tooltips",
+	["CO_HIDE_EMPTY_MAP_BUTTON"] = "Ausblenden wenn keine Scans verfügbar sind.",
 	["CO_LOCATION"] = "Standorteinstellungen",
 	["CO_LOCATION_ACTIVATE"] = "Charakterstandort aktivieren",
 	["CO_LOCATION_ACTIVATE_TT"] = "Aktivieren das Charakterstandortsystem, welches erlaubt auf der Weltkarte nach anderen Total RP-Nutzern zu suchen und ihnen erlaubt dich zu finden.",
+	["CO_LOCATION_DISABLE_CLASSIC_PVP"] = "Standort deaktivieren, wenn PvP an ist. ",
+	["CO_LOCATION_DISABLE_CLASSIC_PVP_TT"] = "Solange PvP aktiv ist, wirst du bei Scans nicht auf der Karte angezeigt. Nützlich, wenn du Missbrauch des Systems um dich zu verfolgen vermeiden willst.",
 	["CO_LOCATION_DISABLE_OOC"] = "Standort deaktivieren wenn OOC",
 	["CO_LOCATION_DISABLE_OOC_TT"] = "Du wirst keine Antworten auf Standortanfragen anderer Spieler senden wenn dein RP Status auf Out Of Charakter gesetzt ist.",
 	["CO_LOCATION_DISABLE_PVP"] = "Standort deaktivieren wenn für PVP geflaggt",
 	["CO_LOCATION_DISABLE_PVP_TT"] = [=[Du wirst keine Antworten auf Standortanfragen anderer Spieler senden, wenn du für PvP geflaggt bist.
 
 Diese Option is besonders auf PvP Realms nützlich, auf denen Spieler der anderen Fraktion das System ausnutzen können um dich zu verfolgen.]=],
+	["CO_LOCATION_DISABLE_WAR_MODE"] = "Standort deaktivieren, wenn der Kriegsmodus an ist. ",
+	["CO_LOCATION_DISABLE_WAR_MODE_TT"] = "Solange der Kriegsmodus aktiv ist und du dich nicht in einer Ruhe-Zone bist, wirst du bei Scans nicht auf der Karte angezeigt. Nützlich, wenn du Missbrauch des Systems um dich zu verfolgen vermeiden willst.",
+	["CO_LOCATION_SHOW_DIFFERENT_WAR_MODES"] = "Zeige Spieler mit anderem Kriegsmodus.",
 	["CO_LOCATION_SHOW_DIFFERENT_WAR_MODES_TT"] = "Spieler die zur Zeit in dem Gebiet sind, aber einen anderen Kriegsmodus-Status als Ihr haben, werden mit weniger Deckkraft auf der Karte angezeigt und bekommen ein spezielles Symbol im Tooltip.",
 	["CO_MAP_BUTTON"] = "Kartenscan-Button",
 	["CO_MAP_BUTTON_POS"] = "Position des Scan-Buttons auf der Karte",
@@ -3039,6 +3173,7 @@ Möglicher Status:
 
 ]=],
 	["CO_SANITIZER"] = "Zensiere eingehende Profile",
+	["CO_SANITIZER_TT"] = "Entfernt benutzerdefinierte Kommandos in Tooltips von neuen Profilen, wenn TRP diese nicht gestattet. ( Farben, Bilder ...)",
 	["CO_TARGETFRAME"] = "Zielfenstereinstellungen",
 	["CO_TARGETFRAME_ICON_SIZE"] = "Icongröße",
 	["CO_TARGETFRAME_USE"] = "Anzeigebedingungen",
@@ -3078,6 +3213,7 @@ Titel: 150 Zeichen
 Volk: 50 Zeichen
 Klasse: 50 Zeichen|r]=],
 	["CO_TOOLTIP_CURRENT"] = "Zeige \"aktuelle\" Informationen",
+	["CO_TOOLTIP_CURRENT_LINES"] = "Maximale Zeilen unter \"Aktuelles\"",
 	["CO_TOOLTIP_CURRENT_SIZE"] = "Maximale Länge von \"aktuellen\" Informationen",
 	["CO_TOOLTIP_FT"] = "Zeige vollen Titel",
 	["CO_TOOLTIP_GUILD"] = "Zeige Gildeninformationen",
@@ -3091,6 +3227,9 @@ Klasse: 50 Zeichen|r]=],
 	["CO_TOOLTIP_OWNER"] = "Zeige Besitzer",
 	["CO_TOOLTIP_PETS"] = "Begleitertooltip",
 	["CO_TOOLTIP_PETS_INFO"] = "Zeige Begleiterinformationen",
+	["CO_TOOLTIP_PREFERRED_OOC_INDICATOR"] = "Bevorzugter OOC Indikator.",
+	["CO_TOOLTIP_PREFERRED_OOC_INDICATOR_ICON"] = "Icon:",
+	["CO_TOOLTIP_PREFERRED_OOC_INDICATOR_TEXT"] = "Text:",
 	["CO_TOOLTIP_PROFILE_ONLY"] = "Nur benutzen, wenn das Ziel ein Profil hat",
 	["CO_TOOLTIP_RACE"] = "Zeige Rasse, Klasse und Level",
 	["CO_TOOLTIP_REALM"] = "Zeige Server",
@@ -3103,6 +3242,7 @@ Klasse: 50 Zeichen|r]=],
 	["CO_TOOLTIP_TERSIZE"] = "Tertiäre Schriftgröße",
 	["CO_TOOLTIP_TITLE"] = "Zeige Titel",
 	["CO_TOOLTIP_USE"] = "Benutze die Tooltips für Charaktere/Begleiter",
+	["CO_UI_RELOAD_WARNING"] = "Das Interface muss neu geladen werden, damit die Änderungen wirksam werden. Möchtest du das Interface jetzt neu laden?",
 	["CO_WIM"] = "|cffff9900Flüsterkanäle deaktiviert.",
 	["CO_WIM_TT"] = "Du nutzt |cff00ff00WIM|r, die Nutzung wurde aus Kompatibilitätsgründen deaktiviert",
 	["COM_LIST"] = "Liste aller Befehle:",
@@ -3123,6 +3263,8 @@ Deine Profile, Begleiterprofile und Einstellungen werden temporär ausgelagert u
 	["DB_STATUS_CURRENTLY_OOC"] = "Andere Informationen (OOC)",
 	["DB_STATUS_CURRENTLY_OOC_TT"] = "Hier kannst du Wichtiges über dich als Spieler oder andere OOC Informationen eintragen.",
 	["DB_STATUS_CURRENTLY_TT"] = "Hier kannst du Wichtiges über deinen Charakter angeben.",
+	["DB_STATUS_LC"] = "Rollenspiel Sprache",
+	["DB_STATUS_LC_TT"] = "Speichert deine bevorzugte Rollenspiel Sprache. Diese Einstellung wird mit anderen Benutzern mit kompatiblem RP Addon geteilt. |cffff9900Achtung:|r Diese Option ändert |cffff0000nicht|r die Menüsprache von Total RP 3. Diese Möglichkeit findest du unter |cfffff569Erweiterte Einstellungen|r.",
 	["DB_STATUS_RP"] = "Charakterstatus",
 	["DB_STATUS_RP_EXP"] = "Erfahrener Rollenspieler",
 	["DB_STATUS_RP_EXP_TT"] = [=[Zeigt an, dass du ein erfahrener Rollenspieler bist.
@@ -3145,6 +3287,7 @@ Dein Handeln wird nicht mit dem Charakter in Verbindung gebracht.]=],
 |cff00ff00Diese Informationen werden im Tooltip deines Charakters angezeigt.]=],
 	["DICE_HELP"] = "Ein Würfelwurf oder mehrere Würfe durch Leerzeichen getrennt, z.B: 1d6, 2d12 3d20 ...",
 	["DICE_ROLL"] = "%s rollt |cffff9900%sx d%s|r und erziehlt |cff00ff00%s|r.",
+	["DICE_ROLL_T"] = "%s %s würfelt |cffff9900%sx w%s|r und erhält |cff00ff00%s|r.",
 	["DICE_TOTAL"] = "%s Insgesamt |cff00ff00%s|r mit diesem Wurf.",
 	["DICE_TOTAL_T"] = "%s %s hat insgesamt |cff00ff00%s|r mit diesem Wurf erzielt.",
 	["DTBK_AFK"] = "Total RP 3 - AFK/DND",
@@ -3154,6 +3297,7 @@ Dein Handeln wird nicht mit dem Charakter in Verbindung gebracht.]=],
 	["DTBK_RP"] = "Total RP 3 - IC/OOC",
 	["GEN_VERSION"] = "Version: %s (Build %s)",
 	["GEN_WELCOME_MESSAGE"] = "Danke, dass du Total RP 3 (v %s) verwendest! Viel Spaß!",
+	["LANG_CHANGE_CAUSED_REVERT_TO_DEFAULT"] = "Deine aktuell gesprochene Sprache wurde auf %s zurückgesetzt, da du die vorherige Sprache %s nicht mehr verstehst. ",
 	["MAP_BUTTON_NO_SCAN"] = "Kein Scan verfügbar",
 	["MAP_BUTTON_SCANNING"] = "Scanne",
 	["MAP_BUTTON_SUBTITLE"] = "Klicken um verfügbare Scans anzuzeigen",
@@ -3178,6 +3322,7 @@ Der Inhalt des Profils wird nicht länger versteckt sein.]=],
 	["MATURE_FILTER_EDIT_DICTIONARY_EDIT_WORD"] = "Dieses wort editieren",
 	["MATURE_FILTER_EDIT_DICTIONARY_RESET_BUTTON"] = "Zurücksetzen",
 	["MATURE_FILTER_EDIT_DICTIONARY_RESET_TITLE"] = "Wörterbuch zurücksetzen",
+	["MATURE_FILTER_EDIT_DICTIONARY_RESET_WARNING"] = "Bist du sicher, dass du das Wörterbuch zurücksetzen möchtest? Alle Einträge werden entfernt und durch die Standard Wörter deiner Sprache ersetzt (falls vorhanden).",
 	["MATURE_FILTER_EDIT_DICTIONARY_TITLE"] = "Benutzerdefiniertes Wörterbuch-Editor",
 	["MATURE_FILTER_EDIT_DICTIONARY_TT"] = "Das benutzerdefinierte Wörterbuch editieren, welches zur Filterung von Profilen mit Erwachseneninhalten verwendet wird.",
 	["MATURE_FILTER_FLAG_PLAYER"] = "Als Inhalt für Erwachsene markieren",
@@ -3197,6 +3342,7 @@ Ein Profil mit Erwachseneninhalten wird einen stummgeschalteten Tooltip haben un
 Der Inhalt des Profils wird wieder versteckt werden.]=],
 	["MATURE_FILTER_REMOVE_FROM_WHITELIST_TT"] = "Dieses Profil aus der |cffffffffErwachseneninhalte Whitelist|r entfernen und den Erwachseneninhalt darin wieder verstecken.",
 	["MATURE_FILTER_STRENGTH"] = "Stärke des Schimpfwortfilters",
+	["MATURE_FILTER_STRENGTH_TT"] = "Setzt die Stärke des Schimpfwort Filters. cffcccccc1 ist schwach (Sätze werden ab 10 Schimpfwörtern erkannt), 10 ist stark (Es reicht ein einzelnes Schimpfwort zur Erkennung).|r",
 	["MATURE_FILTER_TITLE"] = "Filter für Profile mit Erwachseneninhalten",
 	["MATURE_FILTER_TOOLTIP_WARNING"] = "Erwachseneninhalt",
 	["MATURE_FILTER_TOOLTIP_WARNING_SUBTEXT"] = "Das Profil dieses Charakters enthält Inhalte für Erwachsene. Verwende die ",
@@ -3236,6 +3382,7 @@ The |cff9999ffTipTac Modul|r fügt die Kompatibilität mit dem AddOn TipTac zu T
 |cffffff00Wir empfehlen dringendst auf dem aktuellen Stand zu bleiben.|r
 
 Diese Nachricht wird nur einmal pro Sitzung angezeigt und kann in den Einstellungen (Allgemeine Einstellungen => Verschiedenes) abgeschaltet werden.]=],
+	["NEW_VERSION_BEHIND"] = "Du hinkst momentan %s Versionen hinterher und verpasst dadurch viele Bugfixes und neue Features. Anderen Spielern könnten zudem dein Profil nicht richtig angezeigt werden. Bitte ziehe in Erwägung dein Addon zu updaten.",
 	["NEW_VERSION_TITLE"] = "Neues Update verfügbar",
 	["NPC_TALK_BUTTON_TT"] = "Das NSC-Sprachfenster zu öffnen erlaubt dir NSC sprechen oder emoten zu lassen.",
 	["NPC_TALK_CHANNEL"] = "Kanal:",
@@ -3310,7 +3457,9 @@ Benutze die |cffffff00Profil importieren|r Option um Daten aus einem früheren E
 
 Profilgröße: %0.2f kB
 Max: 20 kB]=],
+	["PR_EXPORT_WARNING_MAC"] = "Bitte achte darauf, dass manche Textverarbeitungsprogramme  wie Text Edit oder Discord manche Zeichen (wie z.B. Anführungszeichen) besonders behandeln und damit den Inhalt verändern. Wenn du vor hast den unteren Text in ein Dokument zu kopieren, benutze bitte ein einfaches Textverarbeitungsprogramme, das keine automatische Zeichenerkennung benutzt. (In Text Edit gehe zu  Format > Nur Text erstellen, vor dem Einfügen.)",
 	["PR_EXPORT_WARNING_TITLE"] = "Warnung:",
+	["PR_EXPORT_WARNING_WINDOWS"] = "Bitte achte darauf, dass manche Textverarbeitungsprogramme  wie Microsoft Word oder Discord manche Zeichen (wie z.B. Anführungszeichen) besonders behandeln und damit den Inhalt verändern. Wenn du vor hast den unteren Text in ein Dokument zu kopieren, benutze bitte ein einfaches Textverarbeitungsprogramme, das keine automatische Zeichenerkennung benutzt, wie zum Beispiel den normalen Windows Editor.",
 	["PR_IMPORT"] = "Importieren",
 	["PR_IMPORT_CHAR_TAB"] = "Charakterimporteur",
 	["PR_IMPORT_EMPTY"] = "Kein importierbares Profil",
@@ -3504,6 +3653,8 @@ Aktuell geladen: |cff00ff00%s
 |cffff9900Deshalb wir der MSP Support für Total RP3 deaktiviert.|r
 
 Wenn du TRP3 nicht als dein MSP Addon nutzen und diese Meldung nicht noch einmal sehen willst, kannst du das Mary Sue Protocol Modul in den TRP3 Einstellungen unter Modul Status deaktivieren.]=],
+	["REG_NOTES_PROFILE"] = "Notizen",
+	["REG_NOTES_PROFILE_TT"] = "Öffnet das Notizen Fenster für den anvisierten Charakter.",
 	["REG_PLAYER"] = "Charakter",
 	["REG_PLAYER_ABOUT"] = "Über",
 	["REG_PLAYER_ABOUT_ADD_FRAME"] = "Fenster hinzufügen",
@@ -3600,6 +3751,8 @@ Wie dem auch sei, versuche bitte Wiederholungen zu vermeinden falls es keine wei
 |cffffff00Rechts-Klick:|r Slot aktivierung umschalten
 |cffffff00Drag & drop:|r Slots neu anordnen]=],
 	["REG_PLAYER_GLANCE_EDITOR"] = "Slot Editor",
+	["REG_PLAYER_GLANCE_MENU_COPY"] = "Slot kopieren",
+	["REG_PLAYER_GLANCE_MENU_PASTE"] = "Slot: %s einfügen",
 	["REG_PLAYER_GLANCE_PRESET"] = "Voreinstellung laden",
 	["REG_PLAYER_GLANCE_PRESET_ADD"] = "Die Vorlage |cff00ff00%s|r wurde erstellt.",
 	["REG_PLAYER_GLANCE_PRESET_ALERT1"] = "Bitte eine Kategorie und einen Namen angeben",
@@ -3646,6 +3799,12 @@ Hierfür gibt es mehrere Möglichkeiten:|c0000ff00
 	["REG_PLAYER_MSP_NICK"] = "Spitzname",
 	["REG_PLAYER_NAMESTITLES"] = "Namen und Titel",
 	["REG_PLAYER_NO_CHAR"] = "Keine Charakterstik",
+	["REG_PLAYER_NOTES"] = "Notizen",
+	["REG_PLAYER_NOTES_ACCOUNT"] = "Gemeinsame Notizen",
+	["REG_PLAYER_NOTES_ACCOUNT_HELP"] = "Diese privaten Notizen sind mit deinem Account verbunden und werden mit allen deinen Profile geteilt.",
+	["REG_PLAYER_NOTES_PROFILE"] = "Notizen von %s",
+	["REG_PLAYER_NOTES_PROFILE_HELP"] = "Diese privaten Notizen sind mit deinem aktuellen Profil verbunden und verändern sich, je nachdem welches Profil du benutzt. ",
+	["REG_PLAYER_NOTES_PROFILE_NONAME"] = "Profil Notizen",
 	["REG_PLAYER_PEEK"] = "Verschiedenes",
 	["REG_PLAYER_PHYSICAL"] = "Aussehen",
 	["REG_PLAYER_PSYCHO"] = "Persönliche Merkmale",
@@ -3661,6 +3820,8 @@ Hierfür gibt es mehrere Möglichkeiten:|c0000ff00
 	["REG_PLAYER_PSYCHO_Cruel"] = "Brutal",
 	["REG_PLAYER_PSYCHO_CUSTOM"] = "Benutzerdefinierter Wert",
 	["REG_PLAYER_PSYCHO_CUSTOMCOLOR"] = "Attributsfarbe auswählen",
+	["REG_PLAYER_PSYCHO_CUSTOMCOLOR_LEFT_TT"] = "Wähle eine Farbe, die das linke Merkmal benutzt. |cffffff00Klick:|r Farbe auswählen |cffffff00Rechts-Klick:|r Farbe zurücksetzen |cffffff00Shift-Klick:|r Die Standard Farbauswahl benutzen.",
+	["REG_PLAYER_PSYCHO_CUSTOMCOLOR_RIGHT_TT"] = "Wähle eine Farbe, die das rechte Merkmal benutzt. |cffffff00Klick:|r Farbe auswählen |cffffff00Rechts-Klick:|r Farbe zurücksetzen |cffffff00Shift-Klick:|r Die Standard Farbauswahl benutzen.",
 	["REG_PLAYER_PSYCHO_Egoiste"] = "Egoistisch",
 	["REG_PLAYER_PSYCHO_Genereux"] = "Altruistisch",
 	["REG_PLAYER_PSYCHO_Impulsif"] = "Impulsiv",
@@ -3690,6 +3851,7 @@ Hierfür gibt es mehrere Möglichkeiten:|c0000ff00
 	["REG_PLAYER_RELATIONSHIP_STATUS_MARRIED"] = "Verheiratet",
 	["REG_PLAYER_RELATIONSHIP_STATUS_SINGLE"] = "Ledig",
 	["REG_PLAYER_RELATIONSHIP_STATUS_TAKEN"] = "Vergeben",
+	["REG_PLAYER_RELATIONSHIP_STATUS_TT"] = "Zeigt den Beziehungsstatus deines Charakters. Benutze \"Nicht zeigen\" wenn diese Information geheim bleiben soll.",
 	["REG_PLAYER_RELATIONSHIP_STATUS_UNKNOWN"] = "Nicht zeigen",
 	["REG_PLAYER_RELATIONSHIP_STATUS_WIDOWED"] = "Verwitwet",
 	["REG_PLAYER_RESIDENCE"] = "Heimat",
@@ -3810,6 +3972,13 @@ Zum Beispiel kann du folgendes angeben: |c0000ff00schlank, dick or muskulös...|
 	["REG_RELATION_TARGET"] = "|cffffff00Klick: |rBeziehung ändern",
 	["REG_RELATION_UNFRIENDLY"] = "Unfreundlich",
 	["REG_RELATION_UNFRIENDLY_TT"] = "%s mag %s offensichtlich nicht.",
+	["REG_REPORT_PLAYER_OPEN_URL"] = "Du kannst Spieler nur direkt im Spiel melden, wenn du sie anvisieren kannst (benutze dafür den Button im TRP3 Ankerfenster) Wenn du %s's Profil melden möchtest, aber nicht anvisieren kannst, musst du ein normales Kundendienstticket bei Blizzard über den folgenden Link öffnen.",
+	["REG_REPORT_PLAYER_OPEN_URL_160"] = "Wenn du %s's Profil melden möchtest, musst du ein normales Kundendienstticket bei Blizzard über den folgenden Link öffnen.",
+	["REG_REPORT_PLAYER_PROFILE"] = "Profil an |cff449fe0Blizzard|r melden.",
+	["REG_REPORT_PLAYER_PROFILE_TT"] = "Du kannst ein Profil melden, welches die Nutzungsbedingungen von Blizzard verletzt. Dies können Belästigungen, Hasssprache, anstößige Inhalte, der Missbrauch persönlicher Daten oder andere Formen von störenden Inhalten sein.  |cffff0000Bitte beachte, dass diese Option NICHT dafür gedacht ist Profile von subjektiv schlechter Qualität oder Griefing zu melden.",
+	["REG_REPORT_PLAYER_TEMPLATE"] = "Dieser Spieler benutzt das RP Profil Addon %s um Inhalte zu verbreiten, die die Nutzungsbedingungen verletzen.. ",
+	["REG_REPORT_PLAYER_TEMPLATE_DATE"] = "Die Addon Daten wurden am %s über aufgezeichnete Addon Nachrichten übermittelt. ",
+	["REG_REPORT_PLAYER_TEMPLATE_TRIAL_ACCOUNT"] = "Dieser Spieler benutze einen Starter Edition Account.",
 	["REG_TIME"] = "Zuletzt gesehen",
 	["REG_TRIAL_ACCOUNT"] = "Probeaccount",
 	["REG_TT_GUILD"] = "%s von |cffff9900%s",
@@ -3823,6 +3992,8 @@ Zum Beispiel kann du folgendes angeben: |c0000ff00schlank, dick or muskulös...|
 	["REG_TT_TARGET"] = "Ziel: |cffff9900%s",
 	["SCRIPT_ERROR"] = "Fehler im Script.",
 	["SCRIPT_UNKNOWN_EFFECT"] = "Scriptfehler, unbekannte FX",
+	["SLASH_CMD_STATUS_HELP"] = "Benutzung: |cff00ff00/trp3 status ic || ooc || toggle|r Wechselt deinen Charakter Status zu der entsprechenden Option: |cffff9900/trp3 status ic|r setzt deinen Status auf |cff00ff00in character|r. |cffff9900/trp3 status ooc|r setzt deinen Status auf  |cffff0000out of character|r. |cffff9900/trp3 status toggle|r wechselt deinen Status von ic zu ooc und vice versa.",
+	["SLASH_CMD_STATUS_USAGE"] = "ic || ooc || toggle",
 	["TB_AFK_MODE"] = "AFK",
 	["TB_DND_MODE"] = "Nicht stören (DnD)",
 	["TB_GO_TO_MODE"] = "Zu %s Modus wechseln",
@@ -3891,7 +4062,13 @@ Zum Beispiel kann du folgendes angeben: |c0000ff00schlank, dick or muskulös...|
 
 {col:ffffff}Danke an Horionne für das zusend einer Ausgabe von dem Magazin "Gamer Culte Online #14" mit einem Artikel über Total RP.{/col}]=],
 	["THANK_YOU_ROLE_AUTHOR"] = "Autor",
+	["THANK_YOU_ROLE_COMMUNITY_MANAGER"] = "Community Manager",
+	["THANK_YOU_ROLE_CONTRIBUTOR"] = "Mitwirkende(r)",
 	["THANK_YOU_ROLE_GUILD_MEMBER"] = "Gildenmitglied",
+	["THANK_YOU_ROLE_TESTER"] = "Qualitätssicherung",
+	["TT_ELVUI_SKIN"] = "ElvUI Skin",
+	["TT_ELVUI_SKIN_ENABLE_TARGET_FRAME"] = "Skin Zielfenster",
+	["TT_ELVUI_SKIN_ENABLE_TOOLTIPS"] = "Skin Tooltips",
 	["UI_BKG"] = "Hintergrund %s",
 	["UI_CLOSE_ALL"] = "Alle schließen",
 	["UI_COLOR_BROWSER"] = "Farbwähler",
@@ -3925,7 +4102,9 @@ Du kannst sie per Copy/Paste in deinen Browser kopieren.
 
 |cffff0000!! Disclaimer !!|r
 Total RP ist NICHT für Links verantwortlich, die auf schädlichen oder illegalen Inhalt verweisen!]=],
+	["UI_MUSIC_ALTTITLE"] = "Alternativer Titel",
 	["UI_MUSIC_BROWSER"] = "Musikbrowser",
+	["UI_MUSIC_DURATION"] = "Dauer",
 	["UI_MUSIC_SELECT"] = "Musik auswählen",
 	["UI_TUTO_BUTTON"] = "Tutorialmodus",
 	["UI_TUTO_BUTTON_TT"] = "Klicke, um den Tutorialmodus ein/aus zu schalten"
@@ -4222,6 +4401,15 @@ Statuts possibles:
 	["CO_MSP_T3"] = "Utiliser uniquement le modèle 3",
 	["CO_MSP_T3_TT"] = "Même si vous choisissez un autre modèle \"À propos\", le modèle 3 sera toujours utilisé pour la compatibilité avec MSP.",
 	["CO_REGISTER"] = "Registre",
+	["CO_REGISTER_ABOUT_H1_SIZE"] = "Taille de texte d'en-tête 1",
+	["CO_REGISTER_ABOUT_H1_SIZE_TT"] = "Taille du texte entre les balises {h1}. Valeur par défaut: %s",
+	["CO_REGISTER_ABOUT_H2_SIZE"] = "Taille de texte d'en-tête 2",
+	["CO_REGISTER_ABOUT_H2_SIZE_TT"] = "Taille du texte entre les balises {h2}. Valeur par défaut: %s",
+	["CO_REGISTER_ABOUT_H3_SIZE"] = "Taille de texte d'en-tête 3",
+	["CO_REGISTER_ABOUT_H3_SIZE_TT"] = "Taille du texte entre les balises {h3}. Valeur par défaut: %s",
+	["CO_REGISTER_ABOUT_P_SIZE"] = "Taille de texte de paragraphe",
+	["CO_REGISTER_ABOUT_P_SIZE_TT"] = "Taille du texte en dehors des balises. Valeur par défaut: %s",
+	["CO_REGISTER_ABOUT_SETTINGS"] = "Paramètres d'à propos",
 	["CO_REGISTER_ABOUT_VOTE"] = "Utiliser le système de vote",
 	["CO_REGISTER_ABOUT_VOTE_TT"] = "Active le système de vote, vous permettant de voter (\"j'aime\" ou \"je n'aime pas\") pour les descriptions des autres et leur permettant de faire de même pour vous.",
 	["CO_REGISTER_AUTO_ADD"] = "Ajouter automatiquement les nouveaux joueurs",
@@ -5255,6 +5443,14 @@ Le registre a aussi reçu une option pour n'afficher que les profils pour lesque
 - L'ancrage pour le bouton de scan de la carte peut désormais être réglé correctement.
 - Correction d'un échange de titres de menu déroulants pour les titres/paragraphes.
 - Correction d'un message d'erreur pouvant être causé par d'autres addons utilisant mal certains fonctions de l'API de WoW.]=],
+	["WHATS_NEW_23_10"] = [=[# Liste des changements de la version 1.6.10
+
+## Ajouté
+
+- Ajout de balises de discussion %xt and %xf. Ceux-ci seront automatiquement remplacés par le nom RP de votre cible et focalisation respectivement lorsque vous envoyez un message.
+- Ajout de paramètres pour ajuster la taille des textes dans l'onglet A propos.
+
+]=],
 	["WHATS_NEW_23_2"] = [=[# Liste des changements de la version 1.6.2
 
 ## Ajouté
@@ -5317,7 +5513,25 @@ Nous sommes au courant d'un bug depuis le patch 8.2 bloquant parfois **l'utilisa
 
 ## Modifié
 
-- La liste de profils de compagnons accessible via la fenêtre de cible est désormais triée par ordre alphabétique, et "Créer nouveau profil" a été déplacé hors de cette liste.]=]
+- La liste de profils de compagnons accessible via la fenêtre de cible est désormais triée par ordre alphabétique, et "Créer nouveau profil" a été déplacé hors de cette liste.]=],
+	["WHATS_NEW_23_9"] = [=[# Liste des changements de la version 1.6.9
+
+## Ajouté
+
+- Ajout de 61 musiques, 5 images et 223 icones sur Retail du patch 8.3.
+- Ajout de 177 images sur Retail de patchs précédents.
+- Ajout d'une icone sur Classic du patch 1.13.3.
+- Ajout des icones par défaut pour Vulpérins et Mécagnomes.
+
+## Modifié
+
+- L'icone par défaut pour les Kul Tirans femelles a été modifiée.
+
+## Corrigé
+
+- Le scan de personnages sur Classic a été modifié pour pallier au manque de tests de Blizzard.
+- Correction d'un souci lors de l'utilisation d'une icone avec une apostrophe dans le nom.
+- Le filtre du navigateur d'images gère désormais correctement certains caractères spéciaux.]=]
 }
 
 TRP3_API.loc:RegisterNewLocale("frFR", "Français", localeContent);

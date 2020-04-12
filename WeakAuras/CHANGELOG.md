@@ -1,23 +1,26 @@
-# [2.15.5](https://github.com/WeakAuras/WeakAuras2/tree/2.15.5) (2019-10-22)
+# [2.16.6](https://github.com/WeakAuras/WeakAuras2/tree/2.16.6) (2020-02-14)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/2.15.4...2.15.5)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/2.16.5...2.16.6)
 
 ## Highlights
 
- - A few more bug fixes 
+ - Actually enable templates for classic
+- Bug fixes 
 
 ## Commits
 
-Stanzilla (1):
+InfusOnWoW (4):
 
-- drop branch name from PR artifacts
+- BuffTrigger2: Fix ghost states
+- Fix Masque integration with clones and zoom/keep aspect ratio
+- Adjust conditions on moving/deleting/duplicating conditions
+- Fix multiple display of encounter ids
 
-Vardex (1):
+emptyrivers (1):
 
-- Fix weapon enchant shortened name
+- add 'reset entry' button to arrays in user mode
 
-mrbuds (2):
+mrbuds (1):
 
-- swing timer: fix nil error if no offhand equiped
-- update "Cooldown Progress (Equipment Slot)" for handling amno fixes #1762 refresh on UNIT_INVENTORY_CHANGED add a stacksFunc
+- classic: WeakAurasTemplates was not moved to correct folder
 

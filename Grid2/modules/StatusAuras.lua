@@ -1,180 +1,143 @@
 -- Auras management
-
 local Grid2 = Grid2
 local type = type
 local next = next
 local GetTime = GetTime
-local GameTooltip = GameTooltip
+local UnitAura = UnitAura
+local isClassic = Grid2.isClassic
 
 -- Local variables
-local StatusList = {}
-local BuffHandlers = {}
-local DebuffHandlers = {}
-local DebuffsHandlers = {}
-local DebuffTypeHandlers = {}
-local Handlers = { buff = BuffHandlers, debuff = DebuffHandlers }
+local Statuses = {}
+local Buffs = {}
+local Debuffs = {}
+local DebuffTypes = {}
+local DebuffGroups = {}
+local debuffTypeColors = {}
+local debuffDispelTypes = { Magic = true, Curse = true, Disease = true, Poison = true }
 
 -- UNIT_AURA event management
 local AuraFrame_OnEvent
 do
-	local next = next
 	local indicators = {}
-	local values = { 0, 0, 0 }
-	local myUnits = { player = true, pet = true, vehicle = true }
-	AuraFrame_OnEvent = function(_, _, unit)
-		local frames = Grid2:GetUnitFrames(unit)
-		if not next(frames) then return end
-		
+	local val = {0, 0, 0}
+	local myUnits  = Grid2.roster_my_units
+	local myFrames = Grid2.frames_of_unit
+	AuraFrame_OnEvent = function(_, event, u)
+		-- Usually if no frames exists for the unit this function returns and do nothing (we ignore units not displayed by Grid2 like nameplates or units filtered by the active layout)
+		-- except if "event" is nil, in this case we are in a "Grid_UnitUpdated" event and the frames maybe were not created yet, so we need to save the auras states for future use.
+		local frames = myFrames[u]
+		if event and not next(frames) then return end
 		-- Scan Debuffs, Debuff Types, Debuff Groups
-		local foundDispellableOnly = false;											--all mentions to foundDispellableOnly added by Derangement
 		local i = 1
 		while true do
-			local name, texture, count, debuffType, duration, expiration, caster, spellId, isBossDebuff, _
-			name, texture, count, debuffType, duration, expiration, caster, _, _, spellId, _, isBossDebuff, _, values[1], values[2], values[3] = UnitDebuff(unit, i)
-			if not name then break end
-			local statuses = DebuffHandlers[name] or DebuffHandlers[spellId]
+			local nam, tex, cnt, typ, dur, exp, cas, sid, bos, _
+			nam, tex, cnt, typ, dur, exp, cas, _, _, sid, _, bos, _, val[1], val[2], val[3] = UnitAura(u, i, 'HARMFUL')
+			if not nam then break end
+			if cnt==0 then cnt=1 end
+			local statuses = Debuffs[nam] or Debuffs[sid]
 			if statuses then
-				local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i);		--added by Derangement
-				
-				local isMine = myUnits[caster]
-				for status in next, statuses do
-					if( status.dispellableOnly ) then
-						foundDispellableOnly = true;
-					else
-						status:UpdateState(unit, texture, count, duration, expiration, values[status.valueIndex], isMine, i, tooltipFunc)	--i, tooltipFunc added by Derangement
+				for s in next, statuses do
+					local mine = s.isMine
+					if mine==false or mine==myUnits[cas] then
+						if exp~=s.exp[u] or cnt~=s.cnt[u] or val[s.vId]~=s.val[u] then
+							s.seen, s.idx[u], s.tex[u], s.cnt[u], s.dur[u], s.exp[u], s.typ[u], s.val[u], s.tkr[u] = 1, i, tex, cnt, dur, exp, typ, val[s.vId], 1
+						else
+							s.seen, s.idx[u] = -1, i
+						end
 					end
 				end
 			end
-			if debuffType then
-				local status = DebuffTypeHandlers[debuffType]
-				if status and (not status.seen) then
-					if( status.dispellableOnly ) then
-						foundDispellableOnly = true;
+			if typ then
+				local s = DebuffTypes[typ]
+				if s and not s.seen and not (s.debuffFilter and s.debuffFilter[nam]) then
+					if exp~=s.exp[u] or cnt~=s.cnt[u] then
+						s.seen, s.idx[u], s.tex[u], s.cnt[u], s.dur[u], s.exp[u] = 1, i, tex, cnt, dur, exp
 					else
-						local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i);		--added by Derangement
-						status:UpdateState(unit, texture, count, duration, expiration, name, i, tooltipFunc)	--i, tooltipFunc added by Derangement
+						s.seen, s.idx[u] = -1, i
 					end
 				end
 			end
-			for status in next, DebuffsHandlers do
-				--if not status.seen then	
-				if status.seen ~= 1 then					--modified by Derangement
-					if( status.dispellableOnly ) then
-						foundDispellableOnly = true;
-					else
-						local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i);		--added by Derangement
-						status:UpdateState(unit, name, texture, count, duration, expiration, caster, isBossDebuff, debuffType, i, tooltipFunc)	--i, tooltipFunc added by Derangement
-					end
-				end	
+			for s in next, DebuffGroups do
+				if (not s.seen) and s:UpdateState(u, nam, dur, cas, bos, typ) then
+					s.seen, s.idx[u], s.tex[u], s.cnt[u], s.dur[u], s.exp[u], s.typ[u], s.tkr[u] = 1, i, tex, cnt, dur, exp, typ, 1
+				end
 			end
 			i = i + 1
 		end
-		
-		-- Scan DISPELLABLE Debuffs, Debuff Types, Debuff Groups		(entire block added by Derangement)
-		if( foundDispellableOnly ) then
-			local filter = "RAID";
-			i = 1
-			while true do
-				local name, texture, count, debuffType, duration, expiration, caster, spellId, isBossDebuff, _
-				name, _, texture, count, debuffType, duration, expiration, caster, _, _, spellId, _, isBossDebuff, _, values[1], values[2], values[3] = UnitDebuff(unit, i, filter)
-				if not name then break end
-				local statuses = DebuffHandlers[name] or DebuffHandlers[spellId]
-				if statuses then
-					local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i, filter);		--added by Derangement
-					
-					local isMine = myUnits[caster]
-					for status in next, statuses do
-						if( status.dispellableOnly ) then
-							status:UpdateState(unit, texture, count, duration, expiration, values[status.valueIndex], isMine, i, tooltipFunc)	--i, tooltipFunc added by Derangement
-						end
-					end
-				end
-				if debuffType then
-					status = DebuffTypeHandlers[debuffType]
-					if status and (not status.seen) then
-						if( status.dispellableOnly ) then
-							local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i, filter);		--added by Derangement
-							status:UpdateState(unit, texture, count, duration, expiration, name, i, tooltipFunc)	--i, tooltipFunc added by Derangement
-						end
-					end
-				end
-				for status in next, DebuffsHandlers do
-					--if not status.seen then	
-					if status.seen ~= 1 then					--modified by Derangement
-						if( status.dispellableOnly ) then
-							local tooltipFunc = Grid2Frame:MakeTooltipDebuffFunc(unit, i, filter);		--added by Derangement
-							status:UpdateState(unit, name, texture, count, duration, expiration, caster, isBossDebuff, debuffType, i, tooltipFunc)	--i, tooltipFunc added by Derangement
-						end
-					end	
-				end
-				i = i + 1
-			end
-		end
-		
 		-- Scan Buffs
 		i = 1
 		while true do
-			local name, texture, count, debuffType, duration, expiration, caster, spellId, isBossBuff, _
-			name, texture, count, debuffType, duration, expiration, caster, _, _, spellId, _, isBossBuff, _, values[1], values[2], values[3] = UnitBuff(unit, i)
-			if not name then break end
-			
-			local statuses = BuffHandlers[name] or BuffHandlers[spellId]
+			local nam, tex, cnt, dur, exp, cas, sid, _
+			nam, tex, cnt, _, dur, exp, cas, _, _, sid, _, _, _, val[1], val[2], val[3] = UnitAura(u, i)
+			if not nam then break end
+			local statuses = Buffs[nam] or Buffs[sid]
 			if statuses then
-				local tooltipFunc = Grid2Frame:MakeTooltipBuffFunc(unit, i);		--added by Derangement
-				
-				local isMine = myUnits[caster]
-				for status in next, statuses do
-					status:UpdateState(unit, texture, count, duration, expiration, values[status.valueIndex], isMine, i, tooltipFunc)	--i, tooltipFunc added by Derangement
-				end
-			end
-			
-			if( isBossBuff ) then			--block added by Derangement
-				for status in next, DebuffsHandlers do
-					if status.seen ~= 1 then
-						if( status.filterBoss == false ) then
-							local tooltipFunc = Grid2Frame:MakeTooltipBuffFunc(unit, i);
-							status:UpdateState(unit, name, texture, count, duration, expiration, caster, isBossBuff, "BossBuff", i, tooltipFunc)
+				if cnt==0 then cnt = 1 end
+				for s in next, statuses do
+					local mine = s.isMine
+					if mine==false or mine==myUnits[cas] then
+						if exp~=s.exp[u] or s.cnt[u]~=cnt or val[s.vId]~=s.val[u] or s.spells then
+							s.seen, s.idx[u], s.tex[u], s.cnt[u], s.dur[u], s.exp[u], s.val[u], s.tkr[u] = 1, i, tex, cnt, dur, exp, val[s.vId], 1
+						else
+							s.seen, s.idx[u] = -1, i
 						end
-					end	
+					end
 				end
 			end
-			
 			i = i + 1
 		end
-		
 		-- Mark indicators that need updating
-		for status in next, StatusList do
-			local seen = status.seen;
-			local seenCount = status.seenCount;				--added by Derangement
-			
-			if(
-				(seen==1) or 
-				(seenCount ~= status.oldSeenCount) or		--added by Derangement
-				((not seen) and status.states[unit] and status:Reset(unit))
-			) then
-				for indicator in next, status.indicators do
+		for s in next, Statuses do
+			local seen = s.seen
+			if (seen==1) or ((not seen) and s.idx[u] and s:Reset(u)) then
+				for indicator in next, s.indicators do
 					indicators[indicator] = true
 				end
-			end	
-			
-			status.seen = false;
-			status.oldSeenCount = seenCount;			--added by Derangement
-			status.seenCount = nil;						--added by Derangement
+			end
+			s.seen = false
 		end
-		
 		-- Update indicators that needs updating only once.
-		for indicator in next, indicators do
-			for frame in next, frames do
-				indicator:Update(frame, unit)
+		if frames then
+			for indicator in next, indicators do
+				for frame in next, frames do
+					indicator:Update(frame, u)
+				end
 			end
 		end
 		wipe(indicators)
 	end
 end
 
--- Passing StatusList instead of nil, because i dont know if nil is valid for RegisterMessage
-Grid2.RegisterMessage( StatusList, "Grid_UnitUpdated", function(_, unit) 
-	AuraFrame_OnEvent(nil,nil,unit)
+-- Class filter, for classic only
+local MakeStatusFilter, ClearUnitFilters
+if isClassic then
+	local next = next
+	local UnitClass = UnitClass
+	local filter_mt = {	__index = function(t,u) local _,c = UnitClass(u); local r=t.source[c]; t[u]=r; return r; end }
+	MakeStatusFilter = function(status)
+		local source = status.dbx.classFilter
+		if source then
+			if status.filtered then
+				wipe(status.filtered); status.filtered.source = source
+			else
+				status.filtered = setmetatable({source = source}, filter_mt)
+			end
+		elseif status.filtered then
+			status.filtered = nil
+		end
+	end
+	ClearUnitFilters = function(unit)
+		for status in next, Statuses do
+			local filtered = status.filtered
+			if filtered then filtered[unit] = nil end
+		end
+	end
+end
+
+-- Passing Statuses instead of nil, because i dont know if nil is valid for RegisterMessage
+Grid2.RegisterMessage( Statuses, "Grid_UnitUpdated", function(_, u)
+	if isClassic then ClearUnitFilters(u) end
+	AuraFrame_OnEvent(nil,nil,u)
 end)
 
 -- EnableAuraEvents() DisableAuraEvents()
@@ -182,200 +145,225 @@ local EnableAuraEvents, DisableAuraEvents
 do
 	local frame
 	EnableAuraEvents = function()
-		if not next(StatusList) then
+		if not next(Statuses) then
 			if not frame then frame = CreateFrame("Frame", nil, Grid2LayoutFrame) end
 			frame:SetScript("OnEvent", AuraFrame_OnEvent)
 			frame:RegisterEvent("UNIT_AURA")
+			if Grid2.classicDurations then
+				LibStub("LibClassicDurations"):Register(Grid2)
+				UnitAura = LibStub("LibClassicDurations").UnitAuraDirect
+			end
 		end
-	end	
+	end
 	DisableAuraEvents = function()
-		if not next(StatusList) then
+		if not next(Statuses) then
 			frame:SetScript("OnEvent", nil)
 			frame:UnregisterEvent("UNIT_AURA")
+			if Grid2.classicDurations then
+				LibStub("LibClassicDurations"):Unregister(Grid2)
+			end
 		end
 	end
 end
 
--- Grid2:RegisterTimeTrackerStatus() Grid2:UnregisterTimeTrackerStatus()
+-- RegisterTimeTrackerStatus() UnregisterTimeTrackerStatus()
+local RegisterTimeTrackerStatus, UnregisterTimeTrackerStatus
 do
 	local timetracker
 	local tracked = {}
-	function Grid2:RegisterTimeTrackerStatus(status, elapsed)
-		timetracker = CreateFrame("Frame", nil, Grid2LayoutFrame):CreateAnimationGroup()
-		timetracker:SetScript("OnFinished", function (self)
+	RegisterTimeTrackerStatus = function(status, elapsed)
+		timetracker = Grid2:CreateTimer( function(self)
 			local time = GetTime()
 			for status,elapsed in next, tracked do
-				local tracker    = status.tracker
+				local tracker    = status.tkr
 				local thresholds = status.thresholds
-				for unit, expiration in next, status.expirations do
+				for unit, expiration in next, status.exp do
 					local threshold = thresholds[tracker[unit]]
-					if threshold and time >= expiration - (elapsed and status.durations[unit]-threshold or threshold) then
+					if threshold and time >= expiration - (elapsed and status.dur[unit]-threshold or threshold) then
 						tracker[unit] = tracker[unit] + 1
 						status:UpdateIndicators(unit)
 					end
 				end
 			end
-			self:Play()
-		end)
-		local timer = timetracker:CreateAnimation()
-		timer:SetOrder(1); timer:SetDuration(0.10) 
-		Grid2.AddTimeTracker = function (self, status, elapsed)
+		end, 0.1, false )
+		RegisterTimeTrackerStatus = function(status, elapsed)
 			if not next(tracked) then timetracker:Play() end
 			tracked[status] = elapsed or false
 		end
-		return Grid2:AddTimeTracker(status, elapsed)
+		RegisterTimeTrackerStatus(status, elapsed)
 	end
-	function Grid2:UnregisterTimeTrackerStatus(status)
+	UnregisterTimeTrackerStatus = function(status)
 		tracked[status] = nil
 		if (not next(tracked)) and timetracker then timetracker:Stop() end
 	end
 end
 
-function Grid2:RegisterStatusAura(status, auraType, spell)
+local function RegisterStatusAura(status, auraType, spell)
 	EnableAuraEvents()
-	if spell then
-		local handler = Handlers[auraType]
-		if handler then
-			local statuses = handler[spell]
-			if not statuses then
-				statuses = {}
-				handler[spell] = statuses
-			end
-			statuses[status] = true
-		elseif auraType=="debuffType" then
-			DebuffTypeHandlers[spell] = status
-		end	
+	if auraType=="debuffType" then
+		DebuffTypes[spell] = status
+	elseif not spell then
+		DebuffGroups[status] = true
 	else
-		DebuffsHandlers[status] = true
-	end	
-	StatusList[status] = true
+		local handler = auraType=="buff" and Buffs or Debuffs
+		local statuses = handler[spell]
+		if not statuses then
+			statuses = {}
+			handler[spell] = statuses
+		end
+		statuses[status] = true
+	end
+	Statuses[status] = true
 end
 
-function Grid2:UnregisterStatusAura(status, auraType, subType)
-	local handler = Handlers[auraType]
+local function UnregisterStatusAura(status, auraType, subType)
+	local handler = (auraType=="buff" and Buffs) or (auraType=="debuff" and Debuffs)
 	if handler then
 		for key,statuses in pairs(handler) do
-			if statuses[self] then
-				statuses[self] = nil
+			if statuses[status] then
+				statuses[status] = nil
 				if not next(statuses) then handler[key] = nil end
 			end
 		end
-		DebuffsHandlers[status] = nil
-	else	
-		DebuffTypeHandlers[subType] = nil
-	end	
-	StatusList[status] = nil
+		DebuffGroups[status] = nil
+	else
+		DebuffTypes[subType] = nil
+	end
+	Statuses[status] = nil
 	DisableAuraEvents()
 end
 
-function Grid2:RefreshAuras() 
-	for unit in Grid2:IterateRosterUnits() do
-		AuraFrame_OnEvent(nil,nil,unit) 
-	end
-end	
-
--- Grid2:MakeStatusColorHandler()
+-- MakeStatusColorHandler()
+local MakeStatusColorHandler
 do
 	local handlerArray = {}
-	function Grid2:MakeStatusColorHandler(status)
+	MakeStatusColorHandler = function(status)
 		local dbx = status.dbx
-		local colorCount = dbx.colorCount or 1
-		handlerArray[1] = "return function (self, unit)"
-		if colorCount > 1 then
-			handlerArray[#handlerArray+1] = " local count = self:GetCount(unit)"
-			for i = 1, colorCount - 1 do
-				local color = dbx["color" .. i]
-				handlerArray[#handlerArray+1] = (" if count == %d then return %s, %s, %s, %s end"):format(i, color.r, color.g, color.b, color.a)
+		if dbx.color1 then
+			local colorCount = dbx.colorCount or 1
+			handlerArray[1] = "return function (self, unit)"
+			if colorCount > 1 then
+				handlerArray[#handlerArray+1] = " local count = self:GetCount(unit)"
+				for i = 1, colorCount - 1 do
+					local color = dbx["color" .. i]
+					handlerArray[#handlerArray+1] = (" if count == %d then return %s, %s, %s, %s end"):format(i, color.r, color.g, color.b, color.a)
+				end
 			end
+			local color = dbx["color" .. colorCount]
+			handlerArray[#handlerArray+1] = (" return %s, %s, %s, %s end"):format(color.r, color.g, color.b, color.a)
+			status.GetColor = assert(loadstring(table.concat(handlerArray)))()
+			wipe(handlerArray)
 		end
-		local color = dbx["color" .. colorCount]
-		handlerArray[#handlerArray+1] = (" return %s, %s, %s, %s end"):format(color.r, color.g, color.b, color.a)
-		status.GetColor = assert(loadstring(table.concat(handlerArray)))()
-		wipe(handlerArray)
 	end
 end
 
--- Grid2:SetStatusAuraDebuffTypeColor( debuffType, color )
--- Grid2:GetStatusAuraDebuffTypeColors()
-do
-	local debuffTypeColor = {}
-	function Grid2:SetStatusAuraDebuffTypeColor( debuffType, color )
-		debuffTypeColor[ debuffType ] = color
-	end
-	function Grid2:GetStatusAuraDebuffTypeColors()
-		return debuffTypeColor
-	end
-end
-
--- Grid2:SetupStatusAura()
+-- Grid2.CreateStatusAura()
+local CreateStatusAura
 do
 	local fmt = string.format
 	local UnitHealthMax = UnitHealthMax
+	local unit_is_pet   = Grid2.owner_of_unit
+	local function Refresh()
+		for unit in Grid2:IterateRosterUnits() do
+			AuraFrame_OnEvent(nil,nil,unit)
+		end
+	end
 	local function Reset(self, unit)
-		self.states[unit] = nil
-		self.counts[unit] = nil
-		self.expirations[unit] = nil
-		self.values[unit] = nil
+		-- multibar indicator needs val[unit]=nil because due to a speed optimization it does not check if status is active before calling GetPercent()
+		self.idx[unit], self.exp[unit], self.val[unit] = nil, nil, nil
 		return true
 	end
-	local function IsActive(self, unit) 
-		return self.states[unit] 
+	-- with class filters, used in classic
+	local function IsActiveFilter(self, unit)
+		return not self.filtered[unit] and self.idx[unit]~=nil
 	end
-	local function IsActiveBlink(self, unit) 
-		if not self.states[unit] then return end
-		return self.tracker[unit]==1 or "blink" 
+	local function IsActiveStacksFilter(self, unit)
+		return not self.filtered[unit] and self.idx[unit] and self.cnt[unit]>=self.stacks
 	end
-	local function IsInactive(self, unit) 
-		return not (self.states[unit] or Grid2:UnitIsPet(unit)) 
+	local function IsActiveBlinkFilter(self, unit)
+		if self.filtered[unit] or not self.idx[unit] then return end
+		return self.tkr[unit]==1 or "blink"
 	end
-	local function IsInactiveBlink(self, unit) 
-		return not self.states[unit] and "blink" 
+	local function IsActiveStacksBlinkFilter(self, unit)
+		if self.filtered[unit] or not (self.idx[unit] and self.cnt[unit]>=self.stacks) then return end
+		return self.tkr[unit]==1 or "blink"
 	end
-	local function GetIcon(self, unit) return 
-		self.textures[unit] 
+	local function IsInactiveFilter(self, unit)
+		return not self.filtered[unit] and not (self.idx[unit] or unit_is_pet[unit])
 	end
-	local function GetTooltipFunc(self, unit) return 	--added by Derangement
-		self.tooltipFuncs[unit] 
+	local function IsInactiveBlinkFilter(self, unit)
+		return not self.filtered[unit] and not self.idx[unit] and "blink"
 	end
-	local function GetIconMissing(self) 
-		return self.missingTexture 
+	-- no class filters
+	local function IsActive(self, unit)
+		if self.idx[unit] then return true end
 	end
-	local function GetCount(self, unit) 
-		return self.counts[unit] 
+	local function IsActiveStacks(self, unit)
+		if self.idx[unit] and self.cnt[unit]>=self.stacks then return true end
 	end
-	local function GetCountMissing() 
-		return 1 
+	local function IsActiveBlink(self, unit)
+		if not self.idx[unit] then return end
+		return self.tkr[unit]==1 or "blink"
 	end
-	local function GetExpirationTime(self, unit) 
-		return self.expirations[unit] 
+	local function IsActiveStacksBlink(self, unit)
+		if not (self.idx[unit] and self.cnt[unit]>=self.stacks) then return end
+		return self.tkr[unit]==1 or "blink"
 	end
-	local function GetExpirationTimeMissing() 
-		return GetTime() + 9999 
+	local function IsInactive(self, unit)
+		return not (self.idx[unit] or unit_is_pet[unit])
 	end
-	local function GetCountMax(self) 
-		return self.dbx.colorCount or 1 
-	end	
-	local function GetDuration(self, unit) 
-		return self.durations[unit] 
+	local function IsInactiveBlink(self, unit)
+		return not self.idx[unit] and "blink"
+	end
+	--
+	local function GetIcon(self, unit) return
+		self.tex[unit]
+	end
+	local function GetIconMissing(self)
+		return self.missingTexture
+	end
+	local function GetCount(self, unit)
+		return self.cnt[unit]
+	end
+	local function GetCountMissing()
+		return 1
+	end
+	local function GetExpirationTime(self, unit)
+		return self.exp[unit]
+	end
+	local function GetExpirationTimeMissing()
+		return GetTime() + 9999
+	end
+	local function GetCountMax(self)
+		return self.dbx.colorCount or 1
+	end
+	local function GetDuration(self, unit)
+		return self.dur[unit]
 	end
 	local function GetPercentHealth(self, unit)
-		return (self.values[unit] or 0) / UnitHealthMax(unit)
+		return (self.val[unit] or 0) / UnitHealthMax(unit)
 	end
 	local function GetPercentMax(self, unit)
-		return (self.values[unit] or 0) / self.valueMax
+		return (self.val[unit] or 0) / self.valMax
 	end
-	local function GetText(self, unit)
-		return fmt( "%.1fk", (self.values[unit] or 0) / 1000 )
+	local function GetTextValue(self, unit)
+		return fmt( "%.1fk", (self.val[unit] or 0) / 1000 )
 	end
-	local function GetTimeColor(self, unit) -- Colorize by time remaining or time elapsed
+	local function GetTextSpell(self, unit)
+		return self.spellText
+	end
+	local function GetTextCustom(self, unit)
+		return self.customText
+	end
+	local function GetTimeColor(self, unit) -- Color by time remaining or time elapsed
 		local colors = self.colors
-		local i = self.tracker[unit]
+		local i = self.tkr[unit]
 		local c = colors[i] or colors[1]
 		return c.r, c.g, c.b, c.a
 	end
-	local function GetValueColor(self, unit) -- Colorize by value
+	local function GetValueColor(self, unit) -- Color by value
 		local i = 1
-		local value = self.values[unit] or 0
+		local value = self.val[unit] or 0
 		local thresholds = self.thresholds
 		while i<=#thresholds and value<thresholds[i] do
 			i = i + 1
@@ -383,67 +371,215 @@ do
 		local c = self.colors[i]
 		return c.r, c.g, c.b, c.a
 	end
-	function Grid2:SetupStatusAura(status)
-		local dbx = status.dbx
-		status.states      = status.states      or {}
-		status.textures    = status.textures    or {}
-		status.auraIndexes = status.auraIndexes or {}	--added by Derangement
-		status.tooltipFuncs = status.tooltipFuncs or {}	--added by Derangement
-		status.counts      = status.counts      or {}
-		status.expirations = status.expirations or {}
-		status.durations   = status.durations   or {}
-		status.tracker     = status.tracker     or {}
-		status.values      = status.values      or {}
-		status.valueIndex  = dbx.valueIndex or 0
-		status.valueMax    = dbx.valueMax
-		status.Reset       = Reset
-		status.GetDuration = GetDuration
-		status.GetCountMax = GetCountMax
-		status.GetText     = GetText		
-		status.GetPercent  = dbx.valueMax and GetPercentMax or GetPercentHealth
+	local function GetBorderMandatory()
+		return 1
+	end
+	local function GetBorderOptional()
+		return 0
+	end
+	local function GetDebuffTypeColor(self, unit)
+		local color = debuffTypeColors[ self.typ[unit] ]
+		if color then
+			return color.r, color.g, color.b, color.a
+		else
+			return 0,0,0,1
+		end
+	end
+	local function GetDebuffTooltip(self, unit, tip)
+		local index = self.idx[unit]
+		if index then
+			tip:SetUnitDebuff(unit, index)
+		end
+	end
+	local function OnEnable(self)
+		if self.spell then -- standalone buff or debuff
+			RegisterStatusAura(self, self.handlerType, self.spell)
+		elseif self.handlerType=='buff' then
+			for spell in pairs(self.spells) do
+				RegisterStatusAura( self, 'buff', spell )
+			end
+		else -- debuffType or group of filtered debuffs
+			RegisterStatusAura(self, self.handlerType, self.dbx.subType)
+		end
+		if self.thresholds and (not self.dbx.colorThresholdValue) then
+			RegisterTimeTrackerStatus(self, self.dbx.colorThresholdElapsed)
+		end
+	end
+	local function OnDisable(self)
+		UnregisterStatusAura(self, self.handlerType, self.dbx.subType)
+		UnregisterTimeTrackerStatus(self)
+		wipe(self.idx);	wipe(self.exp); wipe(self.val)
+	end
+	local function UpdateDB(self,dbx)
+		if self.enabled then self:OnDisable() end
+		local dbx = dbx or self.dbx
+		if isClassic then MakeStatusFilter(self) end
+		self.vId = dbx.valueIndex or 0
+		self.valMax = dbx.valueMax
+		self.GetPercent = dbx.valueIndex and (dbx.valueMax and GetPercentMax or GetPercentHealth) or Grid2.statusLibrary.GetPercent
+		if dbx.auras then -- multiple spells
+			self.spells = self.spells or {}
+			wipe(self.spells)
+			for _,spell in ipairs(dbx.auras) do -- We only allow spell names because DebuffsGroups do not support spellIDs
+				self.spells[ type(spell)=='number' and GetSpellInfo(spell) or spell ] = true
+			end
+		elseif dbx.spellName then -- single spell
+			local spell = dbx.spellName
+			self.spellText = type(spell)=='number' and GetSpellInfo(spell) or spell
+			self.spell = self.dbx.useSpellId and spell or self.spellText
+		end
+		if dbx.mine==2 then  -- 2>nil = not mine;  1|true>true = mine;  false|nil>false = mine&not-mine
+			self.isMine = nil
+		else
+			self.isMine = not not dbx.mine
+		end
 		if dbx.missing then
 			local spell = dbx.auras and dbx.auras[1] or dbx.spellName
-			status.missingTexture = spell and select(3,GetSpellInfo(spell)) or "Interface\\ICONS\\Achievement_General"
-			status.GetIcon  = GetIconMissing
-			status.GetTooltipFunc = nil						--added by Derangement
-			status.GetCount = GetCountMissing
-			status.GetExpirationTime = GetExpirationTimeMissing
-			status.thresholds = nil
-			status.IsActive = dbx.blinkThreshold and IsInactiveBlink or IsInactive
-		else
-			status.GetIcon  = GetIcon
-			status.GetTooltipFunc = GetTooltipFunc			--added by Derangement
-			status.GetCount = GetCount
-			status.GetExpirationTime = GetExpirationTime
-			if dbx.blinkThreshold then
-				status.thresholds = { dbx.blinkThreshold }
-				status.IsActive = IsActiveBlink
+			self.missingTexture = spell and select(3,GetSpellInfo(spell)) or "Interface\\ICONS\\Achievement_General"
+			self.GetIcon  = GetIconMissing
+			self.GetCount = GetCountMissing
+			self.GetExpirationTime = GetExpirationTimeMissing
+			if self.filtered then
+				self.IsActive = dbx.blinkThreshold and IsInactiveBlinkFilter or IsInactiveFilter
 			else
-				status.thresholds = dbx.colorThreshold
-				status.IsActive = IsActive
+				self.IsActive = dbx.blinkThreshold and IsInactiveBlink or IsInactive
+			end
+			self.thresholds = nil
+		else
+			self.stacks = dbx.enableStacks
+			self.GetIcon  = GetIcon
+			self.GetCount = GetCount
+			self.GetExpirationTime = GetExpirationTime
+			if dbx.blinkThreshold then
+				self.thresholds = { dbx.blinkThreshold }
+				if self.filtered then
+					self.IsActive = self.stacks and IsActiveStacksBlinkFilter or IsActiveBlinkFilter
+				else
+					self.IsActive = self.stacks and IsActiveStacksBlink or IsActiveBlink
+				end
+			else
+				self.thresholds = dbx.colorThreshold
+				if self.filtered then
+					self.IsActive = self.stacks and IsActiveStacksFilter or IsActiveFilter
+				else
+					self.IsActive = self.stacks and IsActiveStacks or IsActive
+				end
 			end
 		end
 		local colorCount = dbx.colorCount or 1
-		if status.thresholds and colorCount>1 then
-			status.colors = status.colors or {}
+		if self.thresholds and colorCount>1 then
+			self.colors = self.colors or {}
 			for i=1,colorCount do
-				status.colors[i] = dbx["color"..i]
+				self.colors[i] = dbx["color"..i]
 			end
-			status.GetColor = dbx.colorThresholdValue and GetValueColor or GetTimeColor
+			self.GetColor = dbx.colorThresholdValue and GetValueColor or GetTimeColor
+		elseif dbx.debuffTypeColorize then
+			self.GetColor = GetDebuffTypeColor
 		else
-			Grid2:MakeStatusColorHandler(status)
+			MakeStatusColorHandler(self)
 		end
+		if dbx.type == "debuffType" then
+			self.debuffFilter = dbx.debuffFilter
+			self.GetBorder = GetBorderMandatory
+			debuffTypeColors[dbx.subType] = dbx.color1
+		else
+			self.GetBorder = GetBorderOptional
+		end
+		if self.handlerType ~= "buff" then
+			self.GetTooltip = GetDebuffTooltip
+		end
+		self.customText = dbx.text
+		if dbx.text==1 then -- tracked value
+			self.GetText = GetTextValue
+		elseif dbx.text then -- custom text
+			self.GetText = GetTextCustom
+		else -- aura name
+			self.GetText = GetTextSpell
+		end
+		if self.OnUpdate then self:OnUpdate(dbx) end
+		if self.enabled then self:OnEnable() end
+	end
+	CreateStatusAura = function(status, baseKey, dbx, handlerType, statusTypes)
+		status.handlerType = handlerType
+		status.idx = {}
+		status.tex = {}
+		status.cnt = {}
+		status.exp = {}
+		status.dur = {}
+		status.typ = {}
+		status.val = {}
+		status.tkr = {}
+		status.Refresh     = Refresh
+		status.Reset       = Reset
+		status.GetDuration = GetDuration
+		status.GetCountMax = GetCountMax
+		status.UpdateDB    = UpdateDB
+		status.OnEnable    = OnEnable
+		status.OnDisable   = OnDisable
+		Grid2:RegisterStatus(status, statusTypes, baseKey, dbx)
+		status:UpdateDB()
+		return status
 	end
 end
 
---[[ Published methods
-Grid2:SetupStatusAura(status)
-Grid2:RegisterStatusAura(status, auraType, [spell|subType] )
-Grid2:UnregisterStatusAura(status, auraType, subType )
-Grid2:SetStatusAuraDebuffTypeColor( debuffType, color )
-Grid2:GetStatusAuraDebuffTypeColors()
-Grid2:RegisterTimeTrackerStatus(status, elapsed)
-Grid2:UnregisterTimeTrackerStatus(status)
-Grid2:MakeStatusColorHandler(status)
-Grid2:RefreshAuras() 
+--===============================================================================
+-- buff, debuff, debuffType statuses
+--===============================================================================
+
+local statusTypesBD = { "color", "icon", "icons", "percent", "text" }
+local statusTypesDT = { "color", "icon", "icons", "text", "tooltip" }
+
+local function CreateAura(baseKey, dbx)
+	local status = Grid2.statusPrototype:new(baseKey, false)
+	return CreateStatusAura( status, basekey, dbx, dbx.type, dbx.type=='debuffType' and statusTypesDT or statusTypesBD )
+end
+
+Grid2.setupFunc["buff"]       = CreateAura
+Grid2.setupFunc["debuff"]     = CreateAura
+Grid2.setupFunc["debuffType"] = CreateAura
+
+Grid2:DbSetStatusDefaultValue( "debuff-Magic",   {type = "debuffType", subType = "Magic",   color1 = {r=.2,g=.6,b=1,a=1}} )
+Grid2:DbSetStatusDefaultValue( "debuff-Poison",  {type = "debuffType", subType = "Poison",  color1 = {r=0,g=.6,b=0,a=1 }} )
+Grid2:DbSetStatusDefaultValue( "debuff-Curse",   {type = "debuffType", subType = "Curse",   color1 = {r=.6,g=0,b=1,a=1 }} )
+Grid2:DbSetStatusDefaultValue( "debuff-Disease", {type = "debuffType", subType = "Disease", color1 = {r=.6,g=.4,b=0,a=1}} )
+
+--===============================================================================
+-- Publish some functions & tables
+--===============================================================================
+
+Grid2.CreateStatusAura  = CreateStatusAura
+Grid2.debuffTypeColors  = debuffTypeColors
+Grid2.debuffDispelTypes = debuffDispelTypes
+
+--[[ statuses database configurations
+	type = "buff"
+	enableStacks = integer              -- minimum stacks to activate the status
+	spellName = string|integer
+	useSpellID = true|nil			    -- track by spellID instead of aura name
+	mine = 2 | 1 | true | false | nil   -- 2=not mine; 1|true=mine; false|nil=all spells
+	missing = true | nil
+	blinkThreshold = number	            -- seconds remaining to enable indicator blinking
+	colorThresholdValue = true | nil 	-- true = color by value; nil = color by time
+	colorThresholdElapsed = true | nil 	-- true = color by elapsed time; nil= color by remaining time
+	colorThreshold = { 10, 4, 2 } 	    -- thresholds in seconds to change the color
+	colorCount = number
+	color1 = { r=1,g=1,b=1,a=1 }
+	color2 = { r=1,g=1,b=0,a=1 }
+--
+	type = "debuff"
+	enableStacks = integer              -- minimum stacks to activate the status
+	spellName = string|integer
+	useSpellID = true|nil
+	blinkThreshold = number	            -- seconds remaining to enable indicator blinking
+	colorThresholdValue = true | nil 	-- true = color by value; nil = color by time
+	colorThresholdElapsed = true | nil 	-- true = color by elapsed time; nil= color by remaining time
+	colorThreshold = { 10, 4, 2 } 	    -- thresholds in seconds to change the color
+	colorCount = number
+	color1 = { r=1,g=1,b=1,a=1 }
+	color2 = { r=1,g=1,b=0,a=1 }
+--
+	type = "debuffType"
+	subType = "Magic"|"Curse"|"Poison"|"Disease"
+	debuffFilter = { "Chill" = true, "Fear" = true }
+	color1 = { r=1,g=1,b=1,a=1 }
 --]]

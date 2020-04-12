@@ -555,8 +555,23 @@ local barPrototype = {
 }
 
 local function AnchorSubRegion(self, subRegion, anchorType, selfPoint, anchorPoint, anchorXOffset, anchorYOffset)
-  if type == "area" then
-    WeakAuras.regionPrototype.AnchorSubRegion(self, subRegion, anchorType, selfPoint, anchorPoint, anchorXOffset, anchorYOffset)
+  if anchorType == "area" then
+    local anchor = self
+    if selfPoint == "bar" then
+      anchor = self
+    elseif selfPoint == "icon" then
+      anchor = self.icon
+    elseif selfPoint == "fg" then
+      anchor = self.bar.fg
+    elseif selfPoint == "bg" then
+      anchor = self.bar.bg
+    end
+
+    anchorXOffset = anchorXOffset or 0
+    anchorYOffset = anchorYOffset or 0
+    subRegion:ClearAllPoints()
+    subRegion:SetPoint("bottomleft", anchor, "bottomleft", -anchorXOffset, -anchorYOffset)
+    subRegion:SetPoint("topright", anchor, "topright", anchorXOffset,  anchorYOffset)
   else
     subRegion:ClearAllPoints()
     anchorPoint = anchorPoint or "CENTER"
@@ -689,7 +704,7 @@ local GetRealSize = {
   },
   ["VERTICAL"] = {
     [true] = function(self)
-      return self.totalWidth, self.totalHeight - self.iconWidth
+      return self.totalWidth, self.totalHeight - self.iconHeight
     end,
     [false] = function(self)
       return self.totalWidth, self.totalHeight
@@ -725,7 +740,7 @@ local function orientHorizontalInverse(region, data)
   end
 
   -- Save orientation
-  bar:SetOrientation(region.orientation);
+  bar:SetOrientation(region.effectiveOrientation);
 end
 
 local function orientHorizontal(region, data)
@@ -755,7 +770,7 @@ local function orientHorizontal(region, data)
   end
 
   -- Save orientation
-  bar:SetOrientation(region.orientation);
+  bar:SetOrientation(region.effectiveOrientation);
 end
 
 local function orientVerticalInverse(region, data)
@@ -821,15 +836,7 @@ end
 local function orient(region, data, orientation)
   -- Apply correct orientation
   region.orientation = orientation;
-  if orientation == "HORIZONTAL_INVERSE" then
-    orientHorizontalInverse(region, data);
-  elseif orientation == "HORIZONTAL" then
-    orientHorizontal(region, data);
-  elseif orientation == "VERTICAL_INVERSE" then
-    orientVerticalInverse(region, data);
-  elseif orientation == "VERTICAL" then
-    orientVertical(region, data);
-  end
+  region:UpdateEffectiveOrientation()
 end
 
 local function GetTexCoordZoom(texWidth)
@@ -840,9 +847,9 @@ end
 local function TimerTick(self)
   local state = self.state
   local duration = state.duration or 0
-  local adjustMin = self.adjustedMin or 0;
+  local adjustMin = self.adjustedMin or self.adjustedMinRel or 0;
   local expirationTime = state.expirationTime and state.expirationTime > 0 and state.expirationTime or math.huge;
-  self:SetTime((duration ~= 0 and self.adjustedMax or duration) - adjustMin, expirationTime - adjustMin, state.inverse);
+  self:SetTime((duration ~= 0 and (self.adjustedMax or self.adjustedMaxRel) or duration) - adjustMin, expirationTime - adjustMin, state.inverse);
 end
 
 -- Modify a given region/display
@@ -867,6 +874,10 @@ local function modify(parent, region, data)
   region.height = data.height;
   region.scalex = 1;
   region.scaley = 1;
+  region.flipX = false
+  region.flipY = false
+  region.orientation = data.orientation
+  region.effectiveOrientation = nil
 
   region.overlayclip = data.overlayclip;
 
@@ -942,8 +953,40 @@ local function modify(parent, region, data)
 
   region.inverseDirection = data.inverse;
 
+  region.UpdateEffectiveOrientation = function()
+    local orientation = region.orientation
+
+    if region.flipX then
+      if region.orientation == "HORIZONTAL" then
+        orientation = "HORIZONTAL_INVERSE"
+      elseif region.orientation == "HORIZONTAL_INVERSE" then
+        orientation = "HORIZONTAL"
+      end
+    end
+    if region.flipY then
+      if region.orientation == "VERTICAL" then
+        orientation = "VERTICAL_INVERSE"
+      elseif region.orientation == "VERTICAL_INVERSE" then
+        orientation = "VERTICAL"
+      end
+    end
+
+    if orientation ~= region.effectiveOrientation then
+      region.effectiveOrientation = orientation
+      if region.effectiveOrientation == "HORIZONTAL_INVERSE" then
+        orientHorizontalInverse(region, data);
+      elseif region.effectiveOrientation == "HORIZONTAL" then
+        orientHorizontal(region, data);
+      elseif region.effectiveOrientation == "VERTICAL_INVERSE" then
+        orientVerticalInverse(region, data);
+      elseif region.effectiveOrientation == "VERTICAL" then
+        orientVertical(region, data);
+      end
+    end
+  end
+
   -- Apply orientation alignment
-  orient(region, data, data.orientation);
+  region:UpdateEffectiveOrientation()
 
   -- Update tooltip availability
   local tooltipType = WeakAuras.CanHaveTooltip(data);
@@ -966,11 +1009,29 @@ local function modify(parent, region, data)
 
   function region:Update()
     local state = region.state
+    local max
     if state.progressType == "timed" then
       local expirationTime = state.expirationTime and state.expirationTime > 0 and state.expirationTime or math.huge;
       local duration = state.duration or 0
-      local adjustMin = region.adjustedMin or 0;
-      region:SetTime((duration ~= 0 and region.adjustedMax or duration) - adjustMin, expirationTime - adjustMin, state.inverse);
+
+      if region.adjustedMinRelPercent then
+        region.adjustedMinRel = region.adjustedMinRelPercent * duration
+      end
+
+      local adjustMin = region.adjustedMin or region.adjustedMinRel or 0;
+
+      if duration == 0 then
+        max = 0
+      elseif region.adjustedMax then
+        max = region.adjustedMax
+      elseif region.adjustedMaxRelPercent then
+        region.adjustedMaxRel = region.adjustedMaxRelPercent * duration
+        max = region.adjustedMaxRel
+      else
+        max = duration
+      end
+
+      region:SetTime(max - adjustMin, expirationTime - adjustMin, state.inverse);
       if not region.TimerTick then
         region.TimerTick = TimerTick
         region:UpdateRegionHasTimerTick()
@@ -978,8 +1039,19 @@ local function modify(parent, region, data)
     elseif state.progressType == "static" then
       local value = state.value or 0;
       local total = state.total or 0;
-      local adjustMin = region.adjustedMin or 0;
-      local max = region.adjustedMax or total;
+
+      if region.adjustedMinRelPercent then
+        region.adjustedMinRel = region.adjustedMinRelPercent * total
+      end
+      local adjustMin = region.adjustedMin or region.adjustedMinRel or 0;
+      if region.adjustedMax then
+        max = region.adjustedMax
+      elseif region.adjustedMaxRelPercent then
+        region.adjustedMaxRel = region.adjustedMaxRelPercent * total
+        max = region.adjustedMaxRel
+      else
+        max = total
+      end
       region:SetValue(value - adjustMin, max - adjustMin);
       if region.TimerTick then
         region.TimerTick = nil
@@ -993,6 +1065,8 @@ local function modify(parent, region, data)
       end
     end
 
+    max = max or 0
+
     local path = state.icon or "Interface\\Icons\\INV_Misc_QuestionMark"
     local iconPath = (
       region.useAuto
@@ -1004,7 +1078,7 @@ local function modify(parent, region, data)
     self.icon:SetTexture(iconPath);
 
     local duration = state.duration or 0
-    local min, max = region.adjustMin or 0, duration ~= 0 and region.adjustedMax or state.total or state.duration or 0
+    local min = region.adjustMin or 0
     local effectiveInverse = (state.inverse and not region.inverseDirection) or (not state.inverse and region.inverseDirection);
     region.bar:SetAdditionalBars(state.additionalProgress, region.overlays, min, max, effectiveInverse, region.overlayclip);
   end
@@ -1019,25 +1093,9 @@ local function modify(parent, region, data)
     -- Re-orientate region
     if scalex < 0 then
       scalex = -scalex;
-      if data.orientation == "HORIZONTAL" then
-        if self.orientation ~= "HORIZONTAL_INVERSE" then
-          orientHorizontalInverse(self, data);
-        end
-      elseif data.orientation == "HORIZONTAL_INVERSE" then
-        if self.orientation ~= "HORIZONTAL" then
-          orientHorizontal(self, data);
-        end
-      end
+      region.flipX = true
     else
-      if data.orientation == "HORIZONTAL" then
-        if self.orientation ~= "HORIZONTAL" then
-          orientHorizontal(self, data);
-        end
-      elseif data.orientation == "HORIZONTAL_INVERSE" then
-        if self.orientation ~= "HORIZONTAL_INVERSE" then
-          orientHorizontalInverse(self, data);
-        end
-      end
+      region.flipX = false
     end
 
     -- Update width
@@ -1045,37 +1103,23 @@ local function modify(parent, region, data)
     self.bar.iconWidth = iconsize * scalex
 
     self:SetWidth(self.bar.totalWidth);
-    icon:SetWidth(iconsize * scalex);
+    icon:SetWidth(self.bar.iconWidth);
 
     -- Re-orientate region
     if scaley < 0 then
       scaley = -scaley;
-      if data.orientation == "VERTICAL" then
-        if self.orientation ~= "VERTICAL_INVERSE" then
-          orientVerticalInverse(self, data);
-        end
-      elseif data.orientation == "VERTICAL_INVERSE" then
-        if self.orientation ~= "VERTICAL" then
-          orientVertical(self, data);
-        end
-      end
+      region.flipY = true
     else
-      if data.orientation == "VERTICAL" then
-        if self.orientation ~= "VERTICAL" then
-          orientVertical(self, data);
-        end
-      elseif data.orientation == "VERTICAL_INVERSE" then
-        if self.orientation ~= "VERTICAL_INVERSE" then
-          orientVerticalInverse(self, data);
-        end
-      end
+      region.flipY = false
     end
+
+    region:UpdateEffectiveOrientation()
 
     -- Update height
     self.bar.totalHeight = region.height * scaley
-    self.bar.iconWidth = iconsize * scaley
+    self.bar.iconHeight = iconsize * scaley
     self:SetHeight(self.bar.totalHeight);
-    icon:SetHeight(self.bar.iconWidth);
+    icon:SetHeight(self.bar.iconHeight);
   end
   --  region:Scale(1.0, 1.0);
   if data.smoothProgress then
@@ -1222,7 +1266,6 @@ end
 local function subCreate()
   local result = {}
   result.Update = noop
-  result.UpdateAnchor = noop
   result.SetFrameLevel = SetFrameLevel
   return result
 end

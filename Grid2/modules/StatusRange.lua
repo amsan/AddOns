@@ -5,12 +5,15 @@ Created by Grid2 original authors, modified by Michael
 local Range = Grid2.statusPrototype:new("range")
 
 local Grid2 = Grid2
+local tonumber = tonumber
+local tostring = tostring
 local UnitIsUnit = UnitIsUnit
 local UnitInRange = UnitInRange
 local IsSpellInRange = IsSpellInRange
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local CheckInteractDistance = CheckInteractDistance
-local tostring = tostring
+
+local timer
 
 local cache = {}
 
@@ -24,10 +27,18 @@ local UnitRangeCheck
 local UnitIsInRange
 
 local playerClass = select(2, UnitClass("player"))
- 
-local rangeSpell = ({PALADIN=19750,SHAMAN=77472,DRUID=774,PRIEST=73325,MONK=115450})[playerClass]
-if rangeSpell then
-	rangeSpell = GetSpellInfo(rangeSpell)
+
+local rangeSpell
+local rangeSpellID
+
+if Grid2.isClassic then
+	rangeSpellID = ({PALADIN=19750,SHAMAN=25357,DRUID=774,PRIEST=2050})[playerClass]
+else
+	rangeSpellID = ({PALADIN=19750,SHAMAN=77472,DRUID=774,PRIEST=73325,MONK=115450})[playerClass]
+end
+
+if rangeSpellID then
+	rangeSpell = GetSpellInfo(rangeSpellID)
 	Ranges[ rangeSpell ] = function(unit) return IsSpellInRange(rangeSpell, unit) == 1 end
 end
 
@@ -45,7 +56,7 @@ end
 
 -- Roster ranges update function
 
-local function Update(self)
+local function Update()
 	for unit in Grid2:IterateRosterUnits() do
 		local value = UnitIsInRange(unit) and 1 or false
 		if value ~= cache[unit] then
@@ -53,39 +64,46 @@ local function Update(self)
 			Range:UpdateIndicators(unit)
 		end
 	end
-	self:Play()
 end
 
--- Range status 
+-- Range status
 
 function Range:OnEnable()
-	self:CreateTimer()
 	self:UpdateDB()
 	self:RegisterMessage("Grid_UnitUpdated")
 	self:RegisterMessage("Grid_UnitLeft")
 	self:RegisterMessage("Grid_GroupTypeChanged")
-	self.timer:Play()
+	self:RegisterMessage("Grid_PlayerSpecChanged")
+	timer:Play()
 end
 
 function Range:OnDisable()
 	self:UnregisterMessage("Grid_UnitUpdated")
 	self:UnregisterMessage("Grid_UnitLeft")
 	self:UnregisterMessage("Grid_GroupTypeChanged")
-	self.timer:Stop() 
+	self:UnregisterMessage("Grid_PlayerSpecChanged")
+	timer:Stop()
 end
 
 -- {{ Workaround for WoW 5.0.4 UnitInRange() bug (returns false for player&pet while solo or in arena)
-local Ranges38 = { 
+local Ranges38 = {
 	solo  = function() return true end,
 	arena = function(unit) return UnitIsUnit(unit,"player") or UnitInRange(unit) end
 }
 function Range:Grid_GroupTypeChanged(_, groupType)
 	if self.range == "38" then
-		Ranges["38"] = Ranges38[groupType] or UnitInRange 
 		self:UpdateDB()
 	end
 end
 -- }}
+
+-- If the range configured is a Heal Spell, when changing spec the heal spell could not be available
+-- in this case we fall back to the standard 38 yards range.
+function Range:Grid_PlayerSpecChanged()
+	if not tonumber(self.dbx.range) then -- If is not a number -> Using RangeSpell for the player class if available
+		self:UpdateDB()
+	end
+end
 
 function Range:Grid_UnitUpdated(_, unit)
 	cache[unit] = UnitIsInRange(unit) and 1 or false
@@ -95,29 +113,24 @@ function Range:Grid_UnitLeft(_, unit)
 	cache[unit] = nil
 end
 
-function Range:CreateTimer()
-	local timer = CreateFrame("Frame", nil, Grid2LayoutFrame):CreateAnimationGroup()
-	timer.animation = timer:CreateAnimation()
-	timer.animation:SetOrder(1)
-	timer:SetScript("OnFinished", Update)
-	self.timer  = timer
-	self.CreateTimer = Grid2.Dummy
-end
-
+-- Due to ancient code, configuration can store a heal spell name in status.dbx.range (Rejuv, Healing wave, etc), but this prevents
+-- to use the same profile for different healer classes, because the heal spell is different for each class:
+-- So we check if status.dbx.range stores a heal spell name (the value is not a number), and in this case the code loads the correct
+-- heal spell for the class (precalculated in rangeSpell variable) instead of the heal spell stored in config.
 function Range:UpdateDB()
+	Ranges["38"] = Ranges38[ Grid2:GetGroupType() ] or UnitInRange
 	self.defaultAlpha = self.dbx.default or 0.25
-	self.range = tostring(self.dbx.range)
+	self.range = tonumber(self.dbx.range) and tostring(self.dbx.range) or (rangeSpellID and IsSpellKnown(rangeSpellID) and rangeSpell)
 	UnitRangeCheck = Ranges[self.range]
 	if not UnitRangeCheck then
 		self.range = "38"
 		UnitRangeCheck = Ranges["38"]
 	end
-	if not rezSpell then 
-		UnitIsInRange = UnitRangeCheck 
+	if not rezSpell then
+		UnitIsInRange = UnitRangeCheck
 	end
-	if self.timer then 
-		self.timer.animation:SetDuration(self.dbx.elapsed or 0.25) 
-	end
+	timer = timer or Grid2:CreateTimer( Update )
+	timer:SetDuration(self.dbx.elapsed or 0.25)
 end
 
 function Range:GetPercent(unit)
@@ -125,7 +138,7 @@ function Range:GetPercent(unit)
 end
 
 function Range:GetRanges()
-	return Ranges
+	return Ranges, rangeSpell
 end
 
 function Range:IsActive(unit)

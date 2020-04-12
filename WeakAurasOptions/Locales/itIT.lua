@@ -40,9 +40,9 @@ local L = WeakAuras.L
 	--[[Translation missing --]]
 	L["%s, offset: %0.2f;%0.2f"] = "%s, offset: %0.2f;%0.2f"
 	--[[Translation missing --]]
-	L["|c%02x%02x%02x%02xColor|r"] = "|c%02x%02x%02x%02xColor|r"
+	L["|c%02x%02x%02x%02xCustom Color|r"] = "|c%02x%02x%02x%02xCustom Color|r"
 	--[[Translation missing --]]
-	L["|cFFA9A9A9--Please Create an Entry--"] = "|cFFA9A9A9--Please Create an Entry--"
+	L["|cFFFF0000Note:|r The unit '%s' is not a trackable unit."] = "|cFFFF0000Note:|r The unit '%s' is not a trackable unit."
 	--[[Translation missing --]]
 	L["|cFFffcc00Anchors:|r Anchored |cFFFF0000%s|r to frame's |cFFFF0000%s|r"] = "|cFFffcc00Anchors:|r Anchored |cFFFF0000%s|r to frame's |cFFFF0000%s|r"
 	--[[Translation missing --]]
@@ -134,8 +134,6 @@ local L = WeakAuras.L
 	L["Backdrop Color"] = "Colore Fondale"
 	L["Backdrop in Front"] = "Fondale d'avanti"
 	L["Backdrop Style"] = "Stile Fondale"
-	--[[Translation missing --]]
-	L["Background"] = "Background"
 	L["Background Color"] = "Colore Sfondo"
 	L["Background Offset"] = "Offset Sfondo"
 	L["Background Texture"] = "Texture dello Sfondo"
@@ -274,6 +272,8 @@ local L = WeakAuras.L
 	--[[Translation missing --]]
 	L["Custom Code"] = "Custom Code"
 	--[[Translation missing --]]
+	L["Custom Color"] = "Custom Color"
+	--[[Translation missing --]]
 	L["Custom Configuration"] = "Custom Configuration"
 	--[[Translation missing --]]
 	L["Custom Frames"] = "Custom Frames"
@@ -320,9 +320,9 @@ local L = WeakAuras.L
 	--[[Translation missing --]]
 	L["Differences"] = "Differences"
 	--[[Translation missing --]]
-	L["Disable Import"] = "Disable Import"
-	--[[Translation missing --]]
 	L["Disabled"] = "Disabled"
+	--[[Translation missing --]]
+	L["Disallow Entry Reordering"] = "Disallow Entry Reordering"
 	--[[Translation missing --]]
 	L["Discrete Rotation"] = "Discrete Rotation"
 	--[[Translation missing --]]
@@ -396,6 +396,8 @@ local L = WeakAuras.L
 	--[[Translation missing --]]
 	L["Entry limit"] = "Entry limit"
 	--[[Translation missing --]]
+	L["Entry Name Source"] = "Entry Name Source"
+	--[[Translation missing --]]
 	L["Event"] = "Event"
 	--[[Translation missing --]]
 	L["Event Type"] = "Event Type"
@@ -460,11 +462,11 @@ local L = WeakAuras.L
 	--[[Translation missing --]]
 	L["Global Conditions"] = "Global Conditions"
 	--[[Translation missing --]]
+	L["Glow %s"] = "Glow %s"
+	--[[Translation missing --]]
 	L["Glow Action"] = "Glow Action"
 	--[[Translation missing --]]
 	L["Glow Color"] = "Glow Color"
-	--[[Translation missing --]]
-	L["Glow Settings"] = "Glow Settings"
 	--[[Translation missing --]]
 	L["Glow Type"] = "Glow Type"
 	--[[Translation missing --]]
@@ -501,6 +503,8 @@ local L = WeakAuras.L
 	L["Hawk"] = "Hawk"
 	--[[Translation missing --]]
 	L["Height"] = "Height"
+	--[[Translation missing --]]
+	L["Help"] = "Help"
 	--[[Translation missing --]]
 	L["Hide"] = "Hide"
 	--[[Translation missing --]]
@@ -545,8 +549,6 @@ local L = WeakAuras.L
 	L["If checked, then this separator will include text. Otherwise, it will be just a horizontal line."] = "If checked, then this separator will include text. Otherwise, it will be just a horizontal line."
 	--[[Translation missing --]]
 	L["If checked, then this space will span across multiple lines."] = "If checked, then this space will span across multiple lines."
-	--[[Translation missing --]]
-	L["If this option is enabled, you are no longer able to import auras."] = "If this option is enabled, you are no longer able to import auras."
 	--[[Translation missing --]]
 	L["If Trigger %s"] = "If Trigger %s"
 	--[[Translation missing --]]
@@ -609,6 +611,8 @@ local L = WeakAuras.L
 	L["Loop"] = "Loop"
 	--[[Translation missing --]]
 	L["Low Mana"] = "Low Mana"
+	--[[Translation missing --]]
+	L["Magnetically Align"] = "Magnetically Align"
 	--[[Translation missing --]]
 	L["Main"] = "Main"
 	--[[Translation missing --]]
@@ -680,7 +684,7 @@ local L = WeakAuras.L
 	--[[Translation missing --]]
 	L["Never"] = "Never"
 	--[[Translation missing --]]
-	L["New"] = "New"
+	L["New Aura"] = "New Aura"
 	--[[Translation missing --]]
 	L["New Value"] = "New Value"
 	--[[Translation missing --]]
@@ -719,8 +723,6 @@ local L = WeakAuras.L
 	L["Only match auras cast by the player or his pet"] = "Only match auras cast by the player or his pet"
 	--[[Translation missing --]]
 	L["Operator"] = "Operator"
-	--[[Translation missing --]]
-	L["Option #%i"] = "Option #%i"
 	--[[Translation missing --]]
 	L["Option %i"] = "Option %i"
 	--[[Translation missing --]]
@@ -782,6 +784,8 @@ local L = WeakAuras.L
 	--[[Translation missing --]]
 	L["Preset"] = "Preset"
 	--[[Translation missing --]]
+	L["Press Ctrl+C to copy"] = "Press Ctrl+C to copy"
+	--[[Translation missing --]]
 	L["Processed %i chars"] = "Processed %i chars"
 	--[[Translation missing --]]
 	L["Progress Bar"] = "Progress Bar"
@@ -823,6 +827,8 @@ local L = WeakAuras.L
 	L["Required for Activation"] = "Required for Activation"
 	--[[Translation missing --]]
 	L["Reset all options to their default values."] = "Reset all options to their default values."
+	--[[Translation missing --]]
+	L["Reset Entry"] = "Reset Entry"
 	--[[Translation missing --]]
 	L["Reset to Defaults"] = "Reset to Defaults"
 	--[[Translation missing --]]
@@ -919,6 +925,8 @@ local L = WeakAuras.L
 	L["Shows a border"] = "Shows a border"
 	--[[Translation missing --]]
 	L["Shows a custom texture"] = "Shows a custom texture"
+	--[[Translation missing --]]
+	L["Shows a glow"] = "Shows a glow"
 	--[[Translation missing --]]
 	L["Shows a model"] = "Shows a model"
 	--[[Translation missing --]]
@@ -1094,6 +1102,8 @@ local L = WeakAuras.L
 	--[[Translation missing --]]
 	L["Top Right"] = "Top Right"
 	--[[Translation missing --]]
+	L["Total Time"] = "Total Time"
+	--[[Translation missing --]]
 	L["Total Time Precision"] = "Total Time Precision"
 	--[[Translation missing --]]
 	L["Trigger"] = "Trigger"
@@ -1127,6 +1137,8 @@ local L = WeakAuras.L
 	L["Update in Group"] = "Update in Group"
 	--[[Translation missing --]]
 	L["Update this Aura"] = "Update this Aura"
+	--[[Translation missing --]]
+	L["Use Custom Color"] = "Use Custom Color"
 	--[[Translation missing --]]
 	L["Use Display Info Id"] = "Use Display Info Id"
 	--[[Translation missing --]]
