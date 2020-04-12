@@ -2,6 +2,7 @@
 
 local Grid2 = Grid2
 local min = min
+local wipe = wipe
 local pairs = pairs
 local ipairs = ipairs
 local format = string.format
@@ -28,8 +29,7 @@ local function Icon_OnFrameUpdate(f)
 	for _, status in ipairs(self.statuses) do
 		if status:IsActive(unit) then
 			if status.GetIcons then
-				local auras = f.auras
-				local k, textures, counts, expirations, durations, colors = status:GetIcons(unit)
+				local k, textures, counts, expirations, durations, colors = status:GetIcons(unit,max)
 				for j=1,k do
 					local aura = auras[i]
 					aura.icon:SetTexture(textures[j])
@@ -47,8 +47,8 @@ local function Icon_OnFrameUpdate(f)
 					end
 					aura:Show()
 					i = i + 1
-					if i>max then break end
 				end
+				max = max - k
 			else
 				local aura = auras[i]
 				aura.icon:SetTexture(status:GetIcon(unit))
@@ -68,8 +68,9 @@ local function Icon_OnFrameUpdate(f)
 				end
 				aura:Show()
 				i = i + 1
+				max = max - 1
 			end
-			if i>max then break end
+			if max<=0 then break end
 		end
 	end
 	for j=i,f.visibleCount do
@@ -80,12 +81,10 @@ local function Icon_OnFrameUpdate(f)
 end
 
 -- Delayed updates
-local count = 0
 local updates = {}
 local EnableDelayedUpdates = function()
 	CreateFrame("Frame", nil, Grid2LayoutFrame):SetScript("OnUpdate", function()
 		for i=1,#updates do
-			count = count + 1
 			Icon_OnFrameUpdate(updates[i])
 		end
 		wipe(updates)
@@ -103,11 +102,13 @@ local function Icon_Layout(self, parent)
 	local ux,uy = self.ux,self.uy
 	local vx,vy = self.vx,self.vy
 	local size  = self.iconTotSize
+	local borderSize = self.borderSize
 	local frameName
 	if not self.dbx.disableOmniCC then
 		local i,j  = parent:GetName():match("Grid2LayoutHeader(%d+)UnitButton(%d+)")
-		frameName  = format( "Grid2Icons%s%02d%02d", self.name:gsub("%-","") , i, j ) 
+		frameName  = format( "Grid2Icons%s%02d%02d", self.name:gsub("%-","") , i, j )
 	end
+	f:SetParent(parent)
 	f:ClearAllPoints()
 	f:SetPoint(self.anchor, parent.container, self.anchorRel, self.offsetx, self.offsety)
 	f:SetFrameLevel(parent:GetFrameLevel() + self.frameLevel)
@@ -118,19 +119,17 @@ local function Icon_Layout(self, parent)
 		if not frame then
 			frame = CreateFrame("Frame", nil, f)
 			frame.icon = frame:CreateTexture(nil, "ARTWORK")
-			frame.text = frame:CreateFontString(nil, "OVERLAY")			
+			frame.text = frame:CreateFontString(nil, "OVERLAY")
 			frame.cooldown = CreateFrame("Cooldown", frameName and frameName..i or nil, frame, "CooldownFrameTemplate")
 			frame.cooldown:SetHideCountdownNumbers(true)
 			auras[i] = frame
 		end
 		frame:SetSize( self.iconSize, self.iconSize )
 		-- frame container
-		if self.borderSize>0 then
+		Grid2:SetFrameBackdrop(frame, self.backdrop)
+		if borderSize>0 then
 			local c = self.colorBorder
-			frame:SetBackdrop(self.backdrop)
 			frame:SetBackdropBorderColor(c.r,c.g,c.b,c.a)
-		else
-			frame:SetBackdrop(nil)
 		end
 		frame:ClearAllPoints()
 		frame:SetPoint( self.anchorIcon, f, self.anchorIcon, (x*ux+y*vx)*size, (x*uy+y*vy)*size )
@@ -141,15 +140,8 @@ local function Icon_Layout(self, parent)
 			text:SetFont(self.font, self.fontSize, self.fontFlags )
 			local c = self.colorStack
 			text:SetTextColor(c.r, c.g, c.b, c.a)
-			local justifyH = self.dbx.fontJustifyH or "CENTER"
-			local justifyV = self.dbx.fontJustifyV or "MIDDLE"
-			text:SetJustifyH( justifyH )
-			text:SetJustifyV( justifyV  )
 			text:ClearAllPoints()
-			text:SetPoint("TOP")
-			text:SetPoint("BOTTOM")
-			text:SetPoint("LEFT" , justifyH=="LEFT"  and 0 or -self.iconSize, 0)
-			text:SetPoint("RIGHT", justifyH=="RIGHT" and 2 or  self.iconSize+2, 0)
+			text:SetPoint(self.fontPoint, self.fontOffsetX, self.fontOffsetY)
 			text:Show()
 		else
 			frame.text:Hide()
@@ -157,7 +149,7 @@ local function Icon_Layout(self, parent)
 		-- cooldown animation
 		if self.showCooldown then
 			frame.cooldown:SetDrawEdge(self.dbx.disableOmniCC~=nil)
-			frame.cooldown.noCooldownCount = self.dbx.disableOmniCC		
+			frame.cooldown.noCooldownCount = self.dbx.disableOmniCC
 			frame.cooldown:SetReverse(self.dbx.reverseCooldown)
 			frame.cooldown:SetAllPoints()
 			frame.cooldown:Show()
@@ -165,8 +157,8 @@ local function Icon_Layout(self, parent)
 			frame.cooldown:Hide()
 		end
 		-- icon texture
-		frame.icon:SetPoint("TOPLEFT",     frame ,"TOPLEFT",  self.borderSize, -self.borderSize)
-		frame.icon:SetPoint("BOTTOMRIGHT", frame ,"BOTTOMRIGHT", -self.borderSize, self.borderSize)
+		frame.icon:SetPoint("TOPLEFT",     frame ,"TOPLEFT",  borderSize, -borderSize)
+		frame.icon:SetPoint("BOTTOMRIGHT", frame ,"BOTTOMRIGHT", -borderSize, borderSize)
 		frame.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 		--
 		frame:Hide()
@@ -176,16 +168,17 @@ local function Icon_Layout(self, parent)
 end
 
 local function Icon_Disable(self, parent)
-	parent[self.name]:Hide()
-	self.Layout = nil
-	self.Update = nil
+	local f = parent[self.name]
+	f:Hide()
+	f:SetParent(nil)
+	f:ClearAllPoints()
 end
 
 local pointsX = { TOPLEFT =  1,	TOPRIGHT = -1, BOTTOMLEFT = 1, BOTTOMRIGHT = -1 }
 local pointsY = { TOPLEFT = -1, TOPRIGHT = -1, BOTTOMLEFT = 1, BOTTOMRIGHT =  1 }
-local function Icon_UpdateDB(self, dbx)
-	dbx = dbx or self.dbx
-	self.dbx = dbx
+local function Icon_UpdateDB(self)
+	local dbx = self.dbx
+	local theme = Grid2Frame.db.profile
 	-- location
 	local l = dbx.location
 	self.anchor     = l.point
@@ -197,9 +190,9 @@ local function Icon_UpdateDB(self, dbx)
 	self.borderSize     = dbx.borderSize or 0
 	self.orientation    = dbx.orientation or "HORIZONTAL"
 	self.frameLevel     = dbx.level or 1
-	self.iconSize       = dbx.iconSize or 12
+	self.iconSize       = dbx.iconSize or theme.iconSize or 14
 	self.iconSpacing    = dbx.iconSpacing or 1
-	self.maxIcons       = dbx.maxIcons or 6
+	self.maxIcons       = dbx.maxIcons or 3
 	self.maxIconsPerRow = dbx.maxIconsPerRow or 3
 	self.iconTotSize    = self.iconSize + self.iconSpacing
 	local maxRows = math.floor(self.maxIcons/self.maxIconsPerRow) + (self.maxIcons%self.maxIconsPerRow==0 and 0 or 1)
@@ -220,33 +213,28 @@ local function Icon_UpdateDB(self, dbx)
 	self.borderOpacity   = dbx.borderOpacity  or 1
 	self.colorBorder     = Grid2:MakeColor(dbx.color1, "WHITE")
 	self.colorStack      = Grid2:MakeColor(dbx.colorStack, "WHITE")
+	-- stacks text
+	local jV,jH = dbx.fontJustifyV or 'MIDDLE', dbx.fontJustifyH or 'CENTER'
+	self.fontPoint       = (jV=='MIDDLE' and jH) or (jH=='CENTER' and jV) or jV..jH
+	self.fontOffsetX     = dbx.fontOffsetX or 0
+	self.fontOffsetY     = dbx.fontOffsetY or 0
 	self.fontFlags       = dbx.fontFlags or "OUTLINE"
 	self.fontSize        = dbx.fontSize or 9
-	self.font            = Grid2:MediaFetch("font", dbx.font or Grid2Frame.db.profile.font) or STANDARD_TEXT_FONT
+	self.font            = Grid2:MediaFetch("font", dbx.font or theme.font) or STANDARD_TEXT_FONT
 	-- backdrop
-	if self.borderSize>0 then
-		local backdrop         = self.backdrop   or {}
-		backdrop.insets        = backdrop.insets or {}
-		backdrop.edgeFile      = "Interface\\Addons\\Grid2\\media\\white16x16"
-		backdrop.edgeSize      = self.borderSize
-		backdrop.insets.left   = self.borderSize
-		backdrop.insets.right  = self.borderSize
-		backdrop.insets.top    = self.borderSize
-		backdrop.insets.bottom = self.borderSize
-		self.backdrop          = backdrop
-	end
-	-- methods
-	self.Create        = Icon_Create
-	self.Layout        = Icon_Layout
-	self.OnUpdate      = Icon_OnUpdate
-	self.Disable       = Icon_Disable
-	self.Update        = Icon_Update
-	self.UpdateDB      = Icon_UpdateDB
+	self.backdrop = self.borderSize>0 and Grid2:GetBackdropTable("Interface\\Addons\\Grid2\\media\\white16x16", self.borderSize) or nil
 end
 
 Grid2.setupFunc["icons"] = function(indicatorKey, dbx)
 	local indicator = Grid2.indicators[indicatorKey] or Grid2.indicatorPrototype:new(indicatorKey)
-	Icon_UpdateDB(indicator, dbx)
+	indicator.dbx      = dbx
+	indicator.Create   = Icon_Create
+	indicator.Layout   = Icon_Layout
+	indicator.OnUpdate = Icon_OnUpdate
+	indicator.Disable  = Icon_Disable
+	indicator.Update   = Icon_Update
+	indicator.UpdateDB = Icon_UpdateDB
+	Icon_UpdateDB(indicator)
 	EnableDelayedUpdates()
 	Grid2:RegisterIndicator(indicator, { "icon", "icons" })
 	return indicator

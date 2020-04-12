@@ -2,6 +2,7 @@
 	Miscelaneous/shared functions and variables
 --]]
 
+local Grid2Options = Grid2Options
 local L  = Grid2Options.L
 local LG = Grid2Options.LG
 
@@ -73,14 +74,44 @@ Grid2Options.pointValueListExtra = {
 	["9"] = L["BOTTOMRIGHT"],
 }
 
-Grid2Options.fontFlagsValues = {
-	["NONE"] = L["Soft"],
-	["OUTLINE"] = string.format( "%s, %s", L["Soft"], L["Thin"] ),
-	["THICKOUTLINE"] = string.format( "%s, %s", L["Soft"], L["Thick"] ),
-	["MONOCHROME"] = L["Sharp"],
-	["MONOCHROME, OUTLINE"] = string.format( "%s, %s", L["Sharp"], L["Thin"] ),
-	["MONOCHROME, THICKOUTLINE"] = string.format( "%s, %s", L["Sharp"], L["Thick"] ),
-}
+-- Font Flags and Shadow
+do
+	local soft   = L["Soft"]
+	local sharp  = L["Sharp"]
+	local thin   = L["Thin"]
+	local thick  = L["Thick"]
+	local shadow = L["Shadow"]
+	local fontFlagsValues = {
+		["NONE"] = soft,
+		["OUTLINE"] = string.format( "%s,%s", soft, thin ),
+		["THICKOUTLINE"] = string.format( "%s,%s", soft, thick ),
+		["MONOCHROME"] = sharp,
+		["MONOCHROME, OUTLINE"] = string.format( "%s,%s", sharp, thin ),
+		["MONOCHROME, THICKOUTLINE"] = string.format( "%s,%s", sharp, thick ),
+	}
+	local fontFlagsShadowValues = {
+		["0;NONE"] = soft,
+		["0;OUTLINE"] = string.format( "%s,%s", soft, thin ),
+		["0;THICKOUTLINE"] = string.format( "%s,%s", soft, thick ),
+		["0;MONOCHROME"] = sharp,
+		["0;MONOCHROME, OUTLINE"] = string.format( "%s,%s", sharp, thin ),
+		["0;MONOCHROME, THICKOUTLINE"] = string.format( "%s,%s", sharp, thick ),
+		["1;NONE"] = string.format( "%s+%s", soft, shadow ),
+		["1;OUTLINE"] = string.format( "%s,%s+%s", soft, thin, shadow ),
+		["1;THICKOUTLINE"] = string.format( "%s,%s+%s", soft, thick, shadow ),
+		["1;MONOCHROME"] = string.format( "%s+%s", sharp, shadow ),
+		["1;MONOCHROME, OUTLINE"] = string.format( "%s,%s+%s", sharp, thin, shadow ),
+		["1;MONOCHROME, THICKOUTLINE"] = string.format( "%s,%s+%s", sharp, thick, shadow ),
+	}
+	local FONT_FLAGS_DEFAULT = '0'
+	local fontFlagsShadowDefValues = Grid2.CopyTable(fontFlagsShadowValues)
+	fontFlagsShadowDefValues[FONT_FLAGS_DEFAULT] = string.format( "*%s*", L["Default"] )
+	-- public
+	Grid2Options.fontFlagsValues          = fontFlagsValues
+	Grid2Options.fontFlagsShadowValues    = fontFlagsShadowValues
+	Grid2Options.fontFlagsShadowDefValues = fontFlagsShadowDefValues
+	Grid2Options.FONT_FLAGS_DEFAULT       = FONT_FLAGS_DEFAULT
+end
 
 -- Grid2Options:EnableLoadOnDemand()
 -- Delays the creation of indicators and statuses options, until the user clicks on each option,
@@ -89,33 +120,34 @@ Grid2Options.fontFlagsValues = {
 -- of our "description" option is called, and at this point the module creates the real options.
 -- This function can be safety removed, Grid2Option will continue working without this feature.
 do
-	local openManager = {
-		type = "description",
-		name = "",
+	local methods = {
+		themes      = "MakeThemesOptions",
+		indicators  = "MakeIndicatorsOptions",
+		statuses    = "MakeStatusesOptions",
+		statuses_   = "MakeStatusChildOptions",
+		indicators_ = "MakeIndicatorChildOptions",
+	}
+	local option = {
+		type = "description", order = 0, name = "",
 		hidden = function(info)
-			local self = Grid2Options
-			local key = info[#info-1]
-			if key == "statuses" then
-				self:MakeStatusesOptions_()
-			elseif key == "indicators" then
-				self:MakeIndicatorsOptions_()
-			elseif info[1] == "statuses" then
-				self:MakeStatusChildOptions_( Grid2.statuses[key] )
-			elseif info[1] == "indicators" then
-				self:MakeIndicatorChildOptions_( Grid2.indicators[key] )
+			local typ, key = info[1], info[#info-1]
+			if methods[key] then
+				methods[key]( Grid2Options )
+			else
+				methods[typ..'_']( Grid2Options, Grid2[typ][key] )
 			end
 			LibStub("AceConfigRegistry-3.0"):NotifyChange("Grid2")
 		end
 	}
+	local function hook(self, options, extraOptions)
+		options = extraOptions or options
+		wipe(options)
+		options._openmanager_ = option
+	end
 	function Grid2Options:EnableLoadOnDemand(enabled)
 		if enabled then
-			local Hook = function(self, options, extraOptions)
-				options = extraOptions or options; wipe(options)
-				options.openManager = openManager
-			end
-			for _,f in ipairs({"MakeIndicatorsOptions", "MakeStatusesOptions", "MakeIndicatorChildOptions", "MakeStatusChildOptions"}) do
-				self[ f.."_" ] = self[ f ]
-				self[ f ] = Hook
+			for key,method in pairs(methods) do
+				methods[key], self[method] = self[method], hook
 			end
 		end
 		self.EnableLoadOnDemand = nil
@@ -143,8 +175,10 @@ do
 		-- shared headers
 		Delete     = { type = "header", order = 250, name = "" },
 		-- indicators headers
+		General    = { type = "header", order = 1.9, name = L["General"]   },
 		Location   = { type = "header", order = 2,   name = L["Location"]   },
 		Appearance = { type = "header", order = 10,  name = L["Appearance"] },
+		Icon	   = { type = "header", order = 10,  name = L["Icon"] },
 		Border     = { type = "header", order = 20,  name = L["Border"]     },
 		Display    = { type = "header", order = 80,  name = L["Display"]    },
 		StackText  = { type = "header", order = 90,  name = L["Stack Text"] },
@@ -153,7 +187,8 @@ do
 		-- statuses headers
 		Colors	     = { type = "header", order = 10,  name = L["Colors"]      },
 		Thresholds   = { type = "header", order = 50,  name = L["Thresholds"], },
-		Value        = { type = "header", order = 90,  name = L["Value Track"] },
+		Value        = { type = "header", order = 90,  name = L["Value"] },
+		Text         = { type = "header", order = 95,  name = L["Text"] },
 		Misc         = { type = "header", order = 100, name = L["Misc"]        },
 		Auras	     = { type = "header", order = 150, name = L["Auras"]       },
 		DebuffFilter = { type = "header", order = 175, name = L["Filtered debuffs"] },
@@ -177,19 +212,19 @@ do
 	end
 end
 
--- Grid2:MakeTitleOptions(options, title, subtitle, desc, icon, coords)
+-- Grid2:MakeTitleOptions(options, title, subtitle, desc, icon, coords, order)
 do
 	local titleCoords = { 0.05, 0.95, 0.05, 0.95 }
 	local titleMask   = NORMAL_FONT_COLOR_CODE .. "%s|r\n%s"
-	local titleSep    = { type = "header",	order = 1.5, width = "full", name = "" }
+	local titleSep    = { type = "header",	order = 0.5, width = "full", name = "" }
 	function Grid2Options:MakeTitleOptions(options, title, subtitle, desc, icon, coords)
 		options.title = {
-			type  = "description", order = 1, width = "full", fontSize = "large",
+			type  = "description", order = 0, width = "full", fontSize = "large",
 			image = icon, imageWidth  = 30, imageHeight = 30, imageCoords = coords or titleCoords,
 			name  = string.format(titleMask, title, subtitle),
 		}
 		if desc then
-			options.titleDesc = { type = "description", order = 1.2, fontSize = "small", name = desc }
+			options.titleDesc = { type = "description", order = 0.2, fontSize = "small", name = desc }
 		end
 		options.titleSep = titleSep
 	end
@@ -258,7 +293,7 @@ do
 end
 
 -- Grid2Options.LocalizeIndicator()
-function Grid2Options:LocalizeIndicator(indicator)
+function Grid2Options:LocalizeIndicator(indicator, all)
 	local icon, suffix
 	local type = indicator.dbx.type
 	local name = indicator.name
@@ -270,7 +305,8 @@ function Grid2Options:LocalizeIndicator(indicator)
 		icon = self.indicatorIconPath .. (self.indicatorTypesOrder[type] and type or "default")
 		suffix = ''
 	end
-	return string.format( type == 'multibar' and "|T%s:0|t|cFF808080%s%s|r" or "|T%s:0|t%s%s", icon, self.LI[name] or L[name], suffix )
+
+	return string.format( (all or type~='multibar') and "|T%s:0|t%s%s" or "|T%s:0|t|cFF808080%s%s|r", icon, self.LI[name] or L[name], suffix )
 end
 
 -- checking that the status provides at least one of the required indicator types
@@ -291,7 +327,7 @@ function Grid2Options:GetAvailableStatusValues(indicator, statusAvailable, statu
 	statusAvailable = statusAvailable or {}
 	wipe(statusAvailable)
 	for statusKey, status in Grid2:IterateStatuses() do
-		if (self:IsCompatiblePair(indicator, status) and status.name~="test") then
+		if self:IsCompatiblePair(indicator, status) and status.name~="test" and not status:IsSuspended() then
 			statusAvailable[statusKey] = self.LocalizeStatus(status)
 		end
 	end
@@ -325,36 +361,43 @@ function Grid2Options:GetAvailableIndicatorColorValues(status, indicatorAvailabl
 	return indicatorAvailable
 end
 
--- Reload indicator database configuration and refresh the indicator frames.
--- indicator:UpdateDB() is always called to reload indicator database config
--- method = "Create" | "Update" | key | nil
--- 	"Create" > Recreate the indicator
---  "Update" > Update all indicators in all registered frame units
---  nil      > Only indicator:UpdateDB() is called
---  key      > method defined inside indicator to execute after loading config
--- extraAction
--- 	"Update" > Update all indicators in all registered frame units
-function Grid2Options:RefreshIndicator(indicator, method, extraAction )
-	if method == "Create" then
-		Grid2Frame:WithAllFrames(indicator, "Disable")
-	end
+
+-- Grid2Options:UpdateIndicatorDB()
+function Grid2Options:UpdateIndicatorDB(indicator)
 	if indicator.UpdateDB then
 		indicator:UpdateDB()
 		if indicator.sideKick and indicator.sideKick.UpdateDB then
 			indicator.sideKick:UpdateDB()
 		end
 	end
-	if method and method ~= "Update" then
-		Grid2Frame:WithAllFrames(indicator, method)
-	end
-	if method == "Create" then
-		Grid2Frame:WithAllFrames(indicator, "Layout")
-	end
-	if method == "Create" or method == "Update" or extraAction == "Update" then
-		Grid2Frame:UpdateIndicators()
-	end
 end
 
+-- Reload indicator database configuration and refresh the indicator frames.
+-- indicator:UpdateDB() is always called to reload indicator database config
+-- method = "Create" | "Update" | key | nil
+-- 	"Create" > Recreate the indicator
+--  "Update"|nil > Update all indicators in all registered frame units
+--  key > method defined inside indicator to be executed
+function Grid2Options:RefreshIndicator(indicator, method)
+	self:UpdateIndicatorDB(indicator)
+	if method == "Create" then
+		Grid2Frame:WithAllFrames(indicator, "Disable")
+		Grid2Frame:WithAllFrames(indicator, "Create")
+		Grid2Frame:WithAllFrames(indicator, 'Layout')
+	elseif method ~= 'Update' then
+		Grid2Frame:WithAllFrames(indicator, method)
+	end
+	Grid2Frame:UpdateIndicators()
+end
+
+-- Update all indicators of all frames
+function Grid2Options:UpdateIndicators(typ)
+	for _, indicator in Grid2:IterateIndicators() do
+		if (not typ) or indicator.dbx.type == typ then
+			self:RefreshIndicator(indicator, "Layout")
+		end
+	end
+end
 
 -- Grid2Options:GetLayouts()
 function Grid2Options:GetLayouts( meta )
@@ -390,39 +433,66 @@ function Grid2Options:CopyOptionsTable(src, dst)
 	return dst
 end
 
--- Grid2Options:ConfirmDialog()
-function Grid2Options:ConfirmDialog(message, funcAccept, funcCancel)
-	local t
-	if StaticPopupDialogs["GRID2OPTIONS_CONFIRM_DIALOG"] then
-		t = StaticPopupDialogs["GRID2OPTIONS_CONFIRM_DIALOG"]
-		wipe(t)
-	else
-		t= {}
-		StaticPopupDialogs["GRID2OPTIONS_CONFIRM_DIALOG"] = t
-	end
-	t.preferredIndex = STATICPOPUP_NUMDIALOGS
-	t.text = message
-	t.button1 = ACCEPT
-	t.button2 = CANCEL
-	local dialog, oldstrata
-	t.OnAccept = function()
-		if funcAccept then (funcAccept)() end
-		if dialog and oldstrata then
-			dialog:SetFrameStrata(oldstrata)
+-- Goto the specified options section.
+function Grid2Options:SelectGroup( ... )
+	LibStub("AceConfigDialog-3.0"):SelectGroup( "Grid2", ... )
+end
+
+-- Grid2Options.MEDIA_FONT_DEFAULT
+-- Grid2Options.MEDIA_VALUE_DEFAULT
+-- Grid2Options.GetFontsValues()
+-- Grid2Optoins.GetStatusBarValues()
+do
+	local fonts
+	local bars
+	local self = Grid2Options
+	local media = LibStub("LibSharedMedia-3.0", true)
+	-- Calculate and save libSharedMedia font key for STANDARD_TEXT_FONT
+	for key, font in pairs( media:HashTable('font') or {} ) do
+		if font == STANDARD_TEXT_FONT then
+			Grid2Options.MEDIA_FONT_DEFAULT = key
+			break
 		end
 	end
-	t.OnCancel = function()
-		if funcCancel then (funcCancel)() end
-		if dialog and oldstrata then
-			dialog:SetFrameStrata(oldstrata)
-		end
+	Grid2Options.MEDIA_VALUE_DEFAULT = string.format( "*%s*", L["Default"] )
+	Grid2Options.GetFontValues = function()
+		fonts = fonts or self:CopyOptionsTable(AceGUIWidgetLSMlists.font)
+		fonts[ self.MEDIA_VALUE_DEFAULT ] = media:Fetch('font', Grid2Frame.db.profile.font or self.MEDIA_FONT_DEFAULT) or STANDARD_TEXT_FONT
+		return fonts
 	end
-	t.timeout = 0
-	t.whileDead = 1
-	t.hideOnEscape = 1
-	dialog = StaticPopup_Show("GRID2OPTIONS_CONFIRM_DIALOG")
-	if dialog then
-		oldstrata = dialog:GetFrameStrata()
-		dialog:SetFrameStrata("TOOLTIP")
+	Grid2Options.GetStatusBarValues = function()
+		bars = bars or self:CopyOptionsTable(AceGUIWidgetLSMlists.statusbar)
+		bars[ self.MEDIA_VALUE_DEFAULT ] = media:Fetch('statusbar', Grid2Frame.db.profile.barTexture or 'Gradient') or 'Gradient'
+		return bars
+	end
+end
+
+-- Grid2Options:ConfirmDialog(), Grid2Options:ShowEditDialog()
+do
+	StaticPopupDialogs["GRID2OPTIONS_GENERAL_DIALOG"] = { timeout = 0, whileDead = 1, hideOnEscape = 1, button1 = ACCEPT, button2 = CANCEL }
+
+	local function ShowDialog(message, textDefault, funcAccept, funcCancel, textAccept, textCancel)
+		local t = StaticPopupDialogs["GRID2OPTIONS_GENERAL_DIALOG"]
+		t.OnShow = function (self)	if textDefault then self.editBox:SetText(textDefault) end; self:SetFrameStrata("TOOLTIP") end
+		t.OnHide = function(self) self:SetFrameStrata("DIALOG")	end
+		t.hasEditBox = textDefault and true or nil
+		t.text = message
+		t.button1 = funcAccept and (textAccept or ACCEPT) or nil
+		t.button2 = funcCancel and (textCancel or CANCEL) or nil
+		t.OnCancel = funcCancel
+		t.OnAccept = funcAccept and function (self)	funcAccept( textDefault and self.editBox:GetText() ) end or nil
+		StaticPopup_Show ("GRID2OPTIONS_GENERAL_DIALOG")
+	end
+
+	function Grid2Options:MessageDialog(message, funcAccept)
+		ShowDialog(message, nil, funcAccept or Grid2.Dummy)
+	end
+
+	function Grid2Options:ConfirmDialog(message, funcAccept, funcCancel, textAccept, textCancel)
+		ShowDialog(message, nil, funcAccept, funcCancel or Grid2.Dummy, textAccept, textCancel )
+	end
+
+	function Grid2Options:ShowEditDialog(message, text, funcAccept, funcCancel)
+		ShowDialog(message, text or "", funcAccept, funcCancel or Grid2.Dummy)
 	end
 end

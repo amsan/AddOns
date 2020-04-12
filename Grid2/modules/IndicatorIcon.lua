@@ -1,4 +1,4 @@
---[[ Icon indicator, created by Grid2 original authors, modified by Michael ]]-- 
+--[[ Icon indicator, created by Grid2 original authors, modified by Michael ]]--
 
 local Grid2 = Grid2
 local GetTime = GetTime
@@ -6,19 +6,17 @@ local fmt = string.format
 
 local function Icon_Create(self, parent)
 	local f = self:CreateFrame("Frame", parent)
-	if not f:IsShown() then	f:Show() end
-	
 	local Icon = f.Icon or f:CreateTexture(nil, "ARTWORK")
 	f.Icon = Icon
 	Icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 	Icon:SetAllPoints()
-	if not Icon:IsShown() then Icon:Show() end
-	
+	Icon:Show()
+
 	if not self.disableCooldown then
 		local Cooldown
 		if self.dbx.disableOmniCC then
 			Cooldown = f.Cooldown or CreateFrame("Cooldown", nil, f, "CooldownFrameTemplate")
-			Cooldown.noCooldownCount = true 
+			Cooldown.noCooldownCount = true
 		else
 			local name = self.name:gsub("%-","")
 			local i,j = parent:GetName():match("Grid2LayoutHeader(%d+)UnitButton(%d+)")
@@ -31,7 +29,7 @@ local function Icon_Create(self, parent)
 		Cooldown:Hide()
 		f.Cooldown = Cooldown
 	end
-	
+
 	if not self.disableStack then
 		local TextFrame
 		if self.disableCooldown then
@@ -41,18 +39,16 @@ local function Icon_Create(self, parent)
 			TextFrame = f.TextFrame or CreateFrame("Frame", nil, f)
 			TextFrame:SetAllPoints()
 			TextFrame:Show()
-			f.TextFrame = TextFrame	
+			f.TextFrame = TextFrame
 		end
-		local CooldownText = f.CooldownText or f:CreateFontString(nil, "OVERLAY")	
+		local CooldownText = f.CooldownText or f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		CooldownText:SetParent(TextFrame)
-		CooldownText:SetFontObject(GameFontHighlightSmall)
 		CooldownText:SetFont(self.textfont, self.dbx.fontSize, self.dbx.fontFlags or "OUTLINE" )
 		local c = self.dbx.stackColor
-		if c then CooldownText:SetTextColor(c.r, c.g, c.b, c.a) end	
+		if c then CooldownText:SetTextColor(c.r, c.g, c.b, c.a) end
 		CooldownText:Hide()
 		f.CooldownText = CooldownText
-	end	
-
+	end
 end
 
 local function Icon_GetBlinkFrame(self, parent)
@@ -77,28 +73,33 @@ end
 
 local function Icon_OnUpdate(self, parent, unit, status)
 	local Frame = parent[self.name]
-	if not status then Frame:Hide()	return end
-	
+	if not status then Frame:Hide() return end
+
 	local Icon = Frame.Icon
-	
-	Icon:SetTexture(status:GetIcon(unit))
+	local r,g,b,a = status:GetColor(unit)
+
+	if self.disableIcon then
+		Icon:SetColorTexture(r,g,b)
+	else
+		Icon:SetTexture(status:GetIcon(unit))
+	end
 	Icon:SetTexCoord(status:GetTexCoord(unit))
 	Icon:SetVertexColor(status:GetVertexColor(unit))
 
-	local r,g,b,a = status:GetColor(unit)
-	if self.useStatusColor or status:GetBorder(unit) then
-		Frame:SetBackdropBorderColor(r,g,b,a) 
-	elseif self.borderSize then
+	local border = status:GetBorder()
+	if border==1 or self.useStatusColor then 	-- border=1 => always draw a border with the status color
+		Frame:SetBackdropBorderColor(r,g,b,a)
+	elseif border and self.borderSize then   	-- border=0 => status supports a border
 		local c = self.color
-		Frame:SetBackdropBorderColor(c.r, c.g, c.b, c.a) 
-	else
+		Frame:SetBackdropBorderColor(c.r, c.g, c.b, c.a)
+	else										-- border=nil => never draw a border for the status
 		Frame:SetBackdropBorderColor(0,0,0,0)
 	end
 	Icon:SetAlpha(a or 1)
 
 	if not self.disableStack then
 		local count = status:GetCount(unit)
-		if count>1 then 
+		if count>1 then
 			Frame.CooldownText:SetText(count)
 			Frame.CooldownText:Show()
 		else
@@ -112,23 +113,23 @@ local function Icon_OnUpdate(self, parent, unit, status)
 			Frame.Cooldown:SetCooldown(expiration - duration, duration)
 			Frame.Cooldown:Show()
 		else
-			Frame.Cooldown:Hide()	
+			Frame.Cooldown:Hide()
 		end
-	end	
+	end
 
-	if self.animEnabled and (not Frame.animElapsed) then
+	if self.animEnabled and (not Frame.animElapsed) and (self.animOnUpdate or not Frame:IsVisible()) then
 		Frame.status = self
 		Frame.animElapsed = 0
 		Frame:SetScript("OnUpdate", Icon_AnimationOnUpdate )
 	end
-	
+
 	Frame:Show()
 end
 
 local function Icon_Layout(self, parent)
 	local f = parent[self.name]
-
 	local level = parent:GetFrameLevel() + self.frameLevel
+	f:SetParent(parent)
 	f:ClearAllPoints()
 	f:SetPoint(self.anchor, parent.container, self.anchorRel, self.offsetx, self.offsety)
 	f:SetFrameLevel(level)
@@ -137,46 +138,33 @@ local function Icon_Layout(self, parent)
 	local r,g,b,a = f:GetBackdropBorderColor()
 	local borderSize = self.borderSize
 	if borderSize then
-		Icon:SetPoint("TOPLEFT", f ,"TOPLEFT", borderSize, -borderSize)
-		Icon:SetPoint("BOTTOMRIGHT", f ,"BOTTOMRIGHT", -borderSize, borderSize)
+		Icon:SetPoint("TOPLEFT", borderSize, -borderSize)
+		Icon:SetPoint("BOTTOMRIGHT", -borderSize, borderSize)
 	else
 		Icon:SetAllPoints(f)
 	end
-	f:SetBackdrop(self.backdrop)
+	Grid2:SetFrameBackdrop(f, self.backdrop)
 	f:SetBackdropBorderColor(r, g, b, a)
-	
-	local size = self.dbx.size
+	local size = self.iconSize
 	f:SetSize(size,size)
-	
+
 	if not self.disableStack then
-		if f.TextFrame then	f.TextFrame:SetFrameLevel(level+1) end
-		local CooldownText = f.CooldownText
-		local justifyH = self.dbx.fontJustifyH or "CENTER"
-		local justifyV = self.dbx.fontJustifyV or "MIDDLE"
-		CooldownText:SetJustifyH( justifyH )
-		CooldownText:SetJustifyV( justifyV  )
-		CooldownText:ClearAllPoints()
-		CooldownText:SetPoint("TOP")
-		CooldownText:SetPoint("BOTTOM")
-		CooldownText:SetPoint("LEFT" , justifyH=="LEFT"  and 0 or -size, 0)
-		CooldownText:SetPoint("RIGHT", justifyH=="RIGHT" and 2 or  size+2, 0)
+		if f.TextFrame then	f.TextFrame:SetFrameLevel(level+2) end
+		f.CooldownText:ClearAllPoints()
+		f.CooldownText:SetPoint(self.textPoint, self.textOffsetX, self.textOffsetY)
 	end
-	
 end
 
 local function Icon_Disable(self, parent)
 	local f = parent[self.name]
 	f:Hide()
-	f.Icon:Hide()
-	if f.Cooldown then f.Cooldown:Hide() end
-	if f.CooldownText then f.CooldownText:Hide() end
-	self.GetBlinkFrame = nil
-	self.Layout = nil
-	self.OnUpdate = nil
+	f:SetParent(nil)
+	f:ClearAllPoints()
 end
 
-local function Icon_UpdateDB(self, dbx)
-	dbx = dbx or self.dbx
+local function Icon_UpdateDB(self)
+	local dbx = self.dbx
+	local theme = Grid2Frame.db.profile
 	-- location
 	local l = dbx.location
 	self.anchor    = l.point
@@ -189,42 +177,38 @@ local function Icon_UpdateDB(self, dbx)
 	self.frameLevel      = dbx.level
 	self.borderSize      = dbx.borderSize
 	self.useStatusColor  = dbx.useStatusColor
+	self.iconSize        = dbx.size or theme.iconSize or 14
 	self.color           = Grid2:MakeColor(dbx.color1)
-	self.textfont        = Grid2:MediaFetch("font", dbx.font or Grid2Frame.db.profile.font) or STANDARD_TEXT_FONT
+	-- stacks text
+	local jV,jH = dbx.fontJustifyV or 'MIDDLE', dbx.fontJustifyH or 'CENTER'
+	self.textPoint = (jV=='MIDDLE' and jH) or (jH=='CENTER' and jV) or jV..jH
+	self.textOffsetX = dbx.fontOffsetX or 0
+	self.textOffsetY = dbx.fontOffsetY or 0
+	self.textfont    = Grid2:MediaFetch("font", dbx.font or theme.font) or STANDARD_TEXT_FONT
 	-- animation
 	self.animEnabled  = dbx.animEnabled
 	if dbx.animEnabled then
 		self.animScale    = ((dbx.animScale or 1.5)-1) * 2
 		self.animDuration = dbx.animDuration or 0.7
-	end	
+		self.animOnUpdate = not dbx.animOnEnabled
+	end
+	-- ignore icon and use a solid square texture
+	self.disableIcon  = dbx.disableIcon
 	-- backdrop
-	local backdrop    = self.backdrop   or {}
-	backdrop.insets   = backdrop.insets or {}
-	local borderSize  = self.borderSize or 1
-	backdrop.edgeFile = "Interface\\Addons\\Grid2\\media\\white16x16"
-	backdrop.edgeSize = borderSize
-	local insets      = backdrop.insets
-	insets.left       = borderSize
-	insets.right      = borderSize
-	insets.top        = borderSize
-	insets.bottom     = borderSize
-	self.backdrop     = backdrop
-	-- methods
-	self.Create        = Icon_Create
-	self.GetBlinkFrame = Icon_GetBlinkFrame
-	self.Layout        = Icon_Layout
-	self.OnUpdate      = Icon_OnUpdate
-	self.Disable       = Icon_Disable
-	self.UpdateDB      = Icon_UpdateDB
-	--
-	self.dbx = dbx
+	self.backdrop = Grid2:GetBackdropTable("Interface\\Addons\\Grid2\\media\\white16x16", self.borderSize or 1)
 end
 
 
 local function CreateIcon(indicatorKey, dbx)
-	local existingIndicator = Grid2.indicators[indicatorKey]
-	local indicator = existingIndicator or Grid2.indicatorPrototype:new(indicatorKey)
-	Icon_UpdateDB(indicator, dbx)
+	local indicator = Grid2.indicators[indicatorKey] or Grid2.indicatorPrototype:new(indicatorKey)
+	indicator.dbx 			= dbx
+	indicator.Create        = Icon_Create
+	indicator.GetBlinkFrame = Icon_GetBlinkFrame
+	indicator.Layout        = Icon_Layout
+	indicator.OnUpdate      = Icon_OnUpdate
+	indicator.Disable       = Icon_Disable
+	indicator.UpdateDB      = Icon_UpdateDB
+	Icon_UpdateDB(indicator)
 	Grid2:RegisterIndicator(indicator, { "icon" })
 	return indicator
 end

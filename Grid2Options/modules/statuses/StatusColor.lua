@@ -15,7 +15,7 @@ local function MakeClassColorOption(status, options, type, translation)
 			local colorKey = status.dbx.colors[type] and type or translation
 			local c = status.dbx.colors[colorKey]
 			c.r, c.g, c.b, c.a = r, g, b, a
-			status:UpdateAllIndicators()
+			status:UpdateAllUnits()
 		end,
 	}
 end
@@ -29,7 +29,7 @@ local function MakeCharmedToggleOption(status, options)
 		order = 105,
 		tristate = false,
 		get = function () return status.dbx.colorHostile end,
-		set = function (_, v) status.dbx.colorHostile = v or nil end,
+		set = function (_, v) status.dbx.colorHostile = v end,
 	}
 end
 

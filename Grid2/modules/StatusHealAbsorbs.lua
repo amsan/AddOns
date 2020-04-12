@@ -1,4 +1,5 @@
 -- Heals absorb status, created by Michael
+if Grid2.isClassic then return end
 
 local Shields = Grid2.statusPrototype:new("heal-absorbs")
 
@@ -6,22 +7,15 @@ local Grid2 = Grid2
 local min   = math.min
 local fmt   = string.format
 local UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs
-local UnitHealthMax = Grid2.Globals.UnitHealthMax
-
-function Shields:UpdateHealthMax(_, func)
-	UnitHealthMax = func
-	self:UpdateAllIndicators()
-end
+local UnitHealthMax = UnitHealthMax
 
 function Shields:OnEnable()
 	self:UpdateDB()
 	self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
-	self:RegisterMessage("Grid2_Update_UnitHealthMax", "UpdateHealthMax")	
 end
 
 function Shields:OnDisable()
 	self:UnregisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
-	self:UnregisterMessage("Grid2_Update_UnitHealthMax")	
 end
 
 function Shields:UNIT_HEAL_ABSORB_AMOUNT_CHANGED(_,unit)
@@ -48,7 +42,7 @@ local function GetPercentCustomMax(self, unit)
 end
 -- Use unit maximum health as max shield value (used by bar indicators)
 local function GetPercentHealthMax(_, unit)
-	return (UnitGetTotalHealAbsorbs(unit) or 0) / UnitHealthMax(unit) 
+	return (UnitGetTotalHealAbsorbs(unit) or 0) / UnitHealthMax(unit)
 end
 
 function Shields:GetText(unit)
@@ -61,7 +55,7 @@ end
 
 function Shields:UpdateDB()
 	self.maxShieldValue = self.dbx.maxShieldValue
-	self.GetPercent = self.maxShieldValue and GetPercentCustomMax or GetPercentHealthMax	
+	self.GetPercent = self.maxShieldValue and GetPercentCustomMax or GetPercentHealthMax
 end
 
 local function Create(baseKey, dbx)

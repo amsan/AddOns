@@ -2,6 +2,60 @@
 
 local L = Grid2Options.L
 
+-- Grid2Options:MakeStatusEnabledOptions()
+do
+	local ClassesValues = { [''] = L["All Classes"] }
+	for class, translation in pairs(LOCALIZED_CLASS_NAMES_MALE) do
+		ClassesValues[class] = translation
+	end
+	local function StatusSetPlayerClass(status, playerClass)
+		local suspended = status:IsSuspended()
+		status.dbx.playerClass = playerClass~='' and playerClass or nil
+		if suspended ~= status:IsSuspended() then
+			local name = status.name
+			for key, map in pairs(Grid2.db.profile.statusMap) do
+				local indicator = Grid2.indicators[key]
+				if indicator then
+					local priority = map[name]
+					if priority then
+						if suspended then
+							indicator:RegisterStatus(status, priority)
+						else
+							indicator:UnregisterStatus(status)
+						end
+						Grid2Frame:WithAllFrames(indicator, "Update")
+						Grid2Options:RefreshIndicatorOptions(indicator)
+					end
+				end
+			end
+			local group = Grid2Options:GetStatusGroup(status)
+			if suspended then
+				group.order = group.order - 500
+				group.name  = strsub(group.name,11,-3)	
+			else
+				group.order = group.order + 500
+				group.name  = string.format('|cFF808080%s|r',group.name)	
+			end
+			status:Refresh()
+		end
+	end
+	function Grid2Options:MakeStatusEnabledOptions(status, options, optionParams, headerKey)
+		options.playerClass = {
+			type    = "select",
+			width   = "full",
+			name    = L["Enabled for"],
+			desc    = L["Enable the status only if your toon belong to the specified class."],
+			order   = 1.5,
+			get     = function() return status.dbx.playerClass or '' end,
+			set     = function(_,v)	StatusSetPlayerClass(status, v) end,
+			values  = ClassesValues,
+		}
+		if headerKey~=false then 
+			self:MakeHeaderOptions( options, headerKey or "General" )
+		end	
+	end
+end
+
 -- Grid2Options:MakeStatusDeleteOptions()
 do
 	local function DeleteStatus(info)
@@ -11,6 +65,7 @@ do
 		Grid2:UnregisterStatus(status)
 		Grid2Frame:UpdateIndicators()
 		Grid2Options:DeleteStatusOptions(category, status)
+		Grid2Options:SelectGroup('statuses', category)
 	end
 	function Grid2Options:MakeStatusDeleteOptions(status, options, optionParams)
 		self:MakeHeaderOptions( options, "Delete")
@@ -22,12 +77,12 @@ do
 			desc = L["Delete this element"],
 			func = DeleteStatus,
 			confirm = function() return "Are you sure you want to delete this status ?" end,
-			disabled = function() return next(status.indicators)~=nil end,
+			disabled = function() return next(status.indicators)~=nil or status:IsSuspended() end,
 			arg = { status = status },
 		}
 		options.deletemsg = {
-			type = "description", order = 510, fontSize = "small", width = "double", name = L["There are indicators linked to this status. Assigned indicators must be unchecked to be able to delete this status."],
-			hidden = function() return next(status.indicators)==nil end,
+			type = "description", order = 510, fontSize = "small", width = "double", name = L["There are indicators linked to this status or the status is not enabled for this character."],
+			hidden = function() return next(status.indicators)==nil and not status:IsSuspended() end,
 		}
 	end
 end
@@ -43,7 +98,7 @@ do
 		local c = status.dbx["color"..(info.arg.colorIndex)]
 		c.r, c.g, c.b, c.a = r, g, b, a
 		status:UpdateDB()
-		status:UpdateAllIndicators()
+		status:UpdateAllUnits()
 	end
 	function Grid2Options:MakeStatusColorOptions(status, options, optionParams)
 		local colorCount = status.dbx.colorCount or 1
@@ -63,7 +118,7 @@ do
 			elseif colorCount > 1 then
 				desc = name
 			end
-			options[colorKey] = {
+			options[optionParams and optionParams.optionKey or colorKey] = {
 				type = "color",
 				order = (10 + i),
 				width = width,
@@ -81,30 +136,26 @@ end
 -- Grid2Options:MakeStatusColorThresholdOptions()
 function Grid2Options:MakeStatusColorThresholdOptions(status, options, optionParams)
 	self:MakeStatusColorOptions(status, options, optionParams)
-	self:MakeStatusThresholdOptions(status, options, optionParams)
+	self:MakeStatusThresholdOptions(status, options, optionParams, nil, nil, nil, true)
 end
 
 -- Grid2Options:MakeStatusThresholdOptions()
-function Grid2Options:MakeStatusThresholdOptions(status, options, optionParams, min, max, step)
-	min = min or 0
-	max = max or 1
-	step = step or 0.01
-	local name = optionParams and optionParams.threshold or L["Threshold"]
-	local desc = optionParams and optionParams.thresholdDesc or L["Threshold at which to activate the status."]
+function Grid2Options:MakeStatusThresholdOptions(status, options, optionParams, min, max, step, percent)
 	options.threshold = {
 		type = "range",
 		order = 20,
-		name = name,
-		desc = desc,
-		min = min,
-		max = max,
-		step = step,
+		name = optionParams and optionParams.threshold or L["Threshold"],
+		desc = optionParams and optionParams.thresholdDesc or L["Threshold at which to activate the status."],
+		min = min or 0,
+		max = max or 1,
+		step = step or 0.01,
+		isPercent = percent or nil,
 		get = function ()
 			return status.dbx.threshold
 		end,
 		set = function (_, v)
 			status.dbx.threshold = v
-			status:UpdateAllIndicators()
+			status:UpdateAllUnits()
 		end,
 	}
 end
@@ -121,7 +172,7 @@ function Grid2Options:MakeStatusMissingOptions(status, options, optionParams)
 		set = function (_, v)
 			status.dbx.missing = v or nil
 			status:UpdateDB()
-			status:UpdateAllIndicators()
+			status:UpdateAllUnits()
 		end,
 	}
 end
@@ -138,7 +189,7 @@ function Grid2Options:MakeStatusToggleOptions(status, options, optionParams, tog
 		set = function (_, v)
 			status.dbx[toggleKey] = v or nil
 			status:UpdateDB()
-			status:UpdateAllIndicators()
+			status:UpdateAllUnits()
 		end,
 	}
 end

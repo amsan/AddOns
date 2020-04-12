@@ -1,4 +1,4 @@
---[[ afk status, created by Potje, modified by Michael ]]--
+﻿--[[ afk status, created by Potje, modified by Michael ]]--
 
 local L = LibStub("AceLocale-3.0"):GetLocale("Grid2")
 
@@ -8,7 +8,6 @@ local Grid2 = Grid2
 local UnitIsAFK = UnitIsAFK
 
 AFK.GetColor = Grid2.statusLibrary.GetColor
-AFK.UpdateAllUnits = Grid2.statusLibrary.UpdateAllUnits
 
 function AFK:UpdateUnit(_, unit)
 	if unit then

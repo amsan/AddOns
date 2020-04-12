@@ -3,6 +3,8 @@ Created by Grid2 original authors, modified by Michael
 --]]
 
 local Grid2 = Grid2
+local pairs = pairs
+local ipairs = ipairs
 
 function Grid2:SetupShutdown()
 	-- remove indicators
@@ -58,7 +60,7 @@ function Grid2:SetupStatusMap(setup)
 		if indicator then
 			for statusKey, priority in pairs(map) do
 				local status = self.statuses[statusKey]
-				if status and tonumber(priority) then
+				if tonumber(priority) and status and not status:IsSuspended() then
 					indicator:RegisterStatus(status, priority)
 				else
 					Grid2:Debug("Grid2:SetupStatusMap failed mapping:", statusKey, "status:", status, "priority:", priority, "indicator:", baseKey)

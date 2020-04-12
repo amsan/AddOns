@@ -68,13 +68,17 @@ end
 local function SerializeCurrentProfile(Hex, exportCustomLayouts )
 	local config= { ["Grid2"] = Grid2.db.profile }
 	for name, module in Grid2:IterateModules() do
-		if module.db.profile then
-			config[name]= module.db.profile
+		local data = Grid2.db:GetNamespace(name,true)
+		if data then
+			config[name] = data.profile
 		end
 	end
 	config["@Grid2Options"] = Grid2Options.db.profile
 	if exportCustomLayouts then -- Special ugly case for Custom Layouts
-		config["@Grid2Layout"] = Grid2:GetModule("Grid2Layout").db.global
+		local data = Grid2.db:GetNamespace('Grid2Layout',true)
+		if data then
+			config["@Grid2Layout"] = data.global
+		end
 	end
 	local Serializer = LibStub:GetLibrary("AceSerializer-3.0")
 	local Compresor = LibStub:GetLibrary("LibCompress")
@@ -181,7 +185,7 @@ local function ImportProfile(sender, data, Hex, importCustomLayouts)
 	end
 	Grid2.db:SetProfile(profileName)
 	if importCustomLayouts then
-		Grid2Options:RefreshCustomLayoutsOptions()
+		Grid2Options:AddNewCustomLayoutsOptions()
 	end
 	return true
 end
@@ -193,11 +197,7 @@ local function ShowSerializeFrame(title,subtitle,data)
 	frame:SetTitle(L["Profile import/export"])
 	frame:SetStatusText(subtitle)
 	frame:SetLayout("Flow")
-	frame:SetCallback("OnClose",
-		function(widget)
-			AceGUI:Release(widget)
-			collectgarbage()
-		end)
+	frame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) end)
 	frame:SetWidth(525)
 	frame:SetHeight(375)
 	local editbox = AceGUI:Create("MultiLineEditBox")
@@ -216,9 +216,9 @@ local function ShowSerializeFrame(title,subtitle,data)
 	else
 		editbox:DisableButton(false)
 		editbox.button:SetScript("OnClick",
-								function(widget)
-									ImportProfile(nil,editbox:GetText(),true, includeCustomLayouts)
-									AceGUI:Release(frame)
+								function()
+									frame:Hide()
+									ImportProfile(nil, editbox:GetText(), true, includeCustomLayouts)
 									collectgarbage()
 								end)
 	end
@@ -231,8 +231,8 @@ function Comm:Enable(receive)
 	if not self.RegisterComm then
 		LibStub("AceComm-3.0"):Embed(self)
 	end
-	if not IsAddonMessagePrefixRegistered("Grid2") then
-		RegisterAddonMessagePrefix("Grid2")
+	if not C_ChatInfo.IsAddonMessagePrefixRegistered("Grid2") then
+		C_ChatInfo.RegisterAddonMessagePrefix("Grid2")
 	end
 	if receive then
 		self.listening= true
@@ -313,7 +313,7 @@ local function CleanStatusMap(setup)
 end
 
 -- {{ Create profile advanced options
-Grid2Options.AdvancedProfileOptions = { type = "group", order= 200, name = L["Advanced"], desc = L["Options for %s."]:format(L["Advanced"]), args = {
+Grid2Options.AdvancedProfileOptions = { type = "group", order= 200, name = L["Import&Export"], desc = L["Options for %s."]:format(L["Import&Export"]), args = {
 	header1 ={
 		type = "header",
 		order = 60,

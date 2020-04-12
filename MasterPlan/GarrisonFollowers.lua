@@ -2,7 +2,6 @@ local _, T = ...
 if T.Mark ~= 50 then return end
 local G, L, EV = T.Garrison, T.L, T.Evie
 local countFreeFollowers = G.countFreeFollowers
-local GameTooltip = AltGameTooltip or GameTooltip
 
 local function HookOnShow(self, OnShow)
 	self:HookScript("OnShow", OnShow)
@@ -204,7 +203,7 @@ HookOnShow(GarrisonMissionFrame.FollowerTab, function(self)
 	mechanicsFrame:Show()
 end)
 HookOnShow(GarrisonLandingPage.FollowerTab, function(self)
-	if GarrisonLandingPage.garrTypeID == 3 then
+	if GarrisonLandingPage.garrTypeID >= 3 then
 		if mechanicsFrame:GetParent() == self then
 			mechanicsFrame:Hide()
 		end
@@ -795,7 +794,7 @@ end)
 local function Portrait_OnShow(self)
 	local p = self:GetParent()
 	if p:IsVisible() and SpecAffinityFrame:GetParent() ~= self then
-		if self == GarrisonLandingPage.FollowerTab.PortraitFrame and GarrisonLandingPage.garrTypeID == 3 then
+		if self == GarrisonLandingPage.FollowerTab.PortraitFrame and GarrisonLandingPage.garrTypeID >= 3 then
 			SpecAffinityFrame:ReleaseFor(p)
 			return
 		end
@@ -1323,7 +1322,7 @@ do -- Equipment
 			end
 			return
 		end
-		local pf, ef = CreateFrame("Button", nil, nil, "SecureActionButtonTemplate"), owner
+		local pf, ef = CreateFrame("Button", nil, nil, "InsecureActionButtonTemplate"), owner
 		pf:Hide()
 		pf:SetScript("PreClick", CP_PreClick)
 		pf:SetScript("PostClick", CP_PostClick)

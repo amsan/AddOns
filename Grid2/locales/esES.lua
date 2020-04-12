@@ -4,7 +4,7 @@ if not L then return end
 --{{{ Actually used
 L["Border"] = "Borde"
 L["Charmed"] = "Controlado"
-L["Default"] = "Default"
+L["Default"] = "Predeterminado"
 L["Grid2"] = "Grid2"
 L["Beast"] = "Bestia"
 L["Demon"] = "Demonio"
@@ -68,6 +68,10 @@ L["Revived"] = "Revivido"
 L["Me"] = "Yo"
 ---}}}
 
+--{{{ Combat
+L["combat"] = "Combate"
+--}}
+
 --Layouts
 L["None"] = "Ninguno"
 L["Solo"] = "Solo"
@@ -76,6 +80,7 @@ L["Party"] = "Grupo"
 L["Party w/Pets"] = "Grupo c/Pets"
 L["By Role"] = "Por Rol"
 L["By Role w/Pets"] = "Por Rol c/Pets"
+L["By Role | 10x4"] = "Por Rol | 10x4"
 L["By Group"] = "Por Grupo"
 L["By Group w/Pets"] = "Por Grupo c/Pets"
 L["By Group w/Tanks"] = "Por Grupo c/Tanques"

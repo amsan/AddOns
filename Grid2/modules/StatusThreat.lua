@@ -1,10 +1,10 @@
+if Grid2.isClassic then return end
+
 local Threat = Grid2.statusPrototype:new("threat")
 
 local Grid2 = Grid2
 local UnitExists = UnitExists
 local UnitThreatSituation = UnitThreatSituation
-
-Threat.UpdateAllUnits = Grid2.statusLibrary.UpdateAllUnits
 
 function Threat:UpdateUnit(_, unit)
 	if unit then -- unit can be nil which is so wtf

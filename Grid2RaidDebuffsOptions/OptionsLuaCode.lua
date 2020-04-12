@@ -4,6 +4,9 @@
 local RDO = Grid2Options.RDO
 local RDDB = RDO.RDDB
 
+local EJ_GetInstanceInfo = EJ_GetInstanceInfo or Grid2.Dummy
+
+-- Generates lua code containing the instances/bosses/raid debuffs of the especified module.
 function RDO:GenerateModuleLuaCode(moduleName)
 
 	local function GenerateZoneLuaCode(moduleName, zoneName)
@@ -38,7 +41,7 @@ function RDO:GenerateModuleLuaCode(moduleName)
 			if not tonumber(bossName) then
 				local code, index = GenerateBossCode(bossName,bossdata)
 				bosses[#bosses+1], order[code] = code, index
-			end	
+			end
 		end
 		if moduleName ~= "[Custom Debuffs]" then
 			local zone = self.db.profile.debuffs[zoneName]
@@ -70,3 +73,38 @@ function RDO:GenerateModuleLuaCode(moduleName)
 
 end
 
+-- Extracts Instances & Bosses from the Game Encounter journal, generates lua code with raid debuffs module format.
+function RDO:GenerateEncounterJournalData(isRaid)
+
+	local lines = ""
+
+	local function println(line)
+		lines  = lines .. line .. "\n"
+	end
+
+	println('local RDDB = Grid2Options:GetRaidDebuffsTable()')
+	println('RDDB["Battle for Azeroth"] = {')
+	println( isRaid and "\t-- Raid instances" or "\t-- 5 man instances" )
+
+	EJ_SelectTier(8)
+	for index=1,100 do
+		local instanceID, name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceByIndex(index, isRaid)
+		if not instanceID then break end
+		println( string.format( '\t[%d] = {', instanceID ) )
+		println( string.format('\t\t{ id = %d, name = "%s"%s },',instanceID, name, isRaid and ", raid = true" or "") )
+		EJ_SelectInstance(instanceID)
+		for index=1,100 do
+		local encounterName, _, encounterID = EJ_GetEncounterInfoByIndex(index, instanceID)
+		if not encounterName then break end
+		println( string.format('\t\t["%s"] = {',encounterName) )
+		println( string.format('\t\torder = %d, ejid = %d,', index, encounterID ) )
+		println('\t\t},')
+		end
+		println('\t},')
+	end
+
+	println("}")
+
+	return lines
+
+end

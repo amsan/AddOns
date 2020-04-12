@@ -4,63 +4,53 @@ local ReadyCheck = Grid2.statusPrototype:new("ready-check")
 
 local L = LibStub:GetLibrary("AceLocale-3.0"):GetLocale("Grid2")
 
-local readyChecking, timerClearStatus
+local Grid2 = Grid2
+local GetReadyCheckStatus = GetReadyCheckStatus
+
+local readyChecking
+local readyCount = 0
 local readyStatuses = {}
 
-function ReadyCheck:READY_CHECK(event, originator)
-	if timerClearStatus then
-		Grid2:CancelTimer(timerClearStatus, true)
-		timerClearStatus = nil
-	end
-	readyChecking = true
+function ReadyCheck:ClearStatusDelayed()
+	readyCount = readyCount + 1
+	local timerIndex = readyCount
+	C_Timer.After( self.dbx.threshold or 0.01, function() 
+		if timerIndex==readyCount then -- do nothing if a new timer or readycheck was launched
+			readyChecking = nil
+			wipe(readyStatuses)
+			self:UpdatePlayerUnits()
+		end 
+	end ) 
+end
 
-	for unit in Grid2:IterateRosterUnits() do
-		readyStatuses[unit] = GetReadyCheckStatus(unit)
-		if not Grid2:UnitIsPet(unit) then
-			self:UpdateIndicators(unit)
-		end
+function ReadyCheck:UpdatePlayerUnits()
+	local units, count = Grid2:GetNonPetUnits()
+	for i=1,count do
+		self:UpdateIndicators(units[i])
 	end
 end
 
-function ReadyCheck:READY_CHECK_CONFIRM(event, unit)
-	if readyChecking then
-		self:UpdateIndicators(unit)
-	end
+function ReadyCheck:READY_CHECK()
+	readyChecking = true
+	readyCount = readyCount + 1
+	self:UpdatePlayerUnits()
+end
+
+function ReadyCheck:READY_CHECK_CONFIRM(_, unit)
+	-- warning do not remove the line below (without this line Icons indicator fails for the last player because it delays the update 
+	-- to the next frame OnUpdate() when ReadyCheck has already finished and GetReadyCheckStatus() inside GetIcon() or GetText() returns nil 
+	readyStatuses[unit] = GetReadyCheckStatus(unit) 
+	self:UpdateIndicators(unit)
 end
 
 function ReadyCheck:READY_CHECK_FINISHED()
-	for unit in Grid2:IterateRosterUnits() do
-		if not Grid2:UnitIsPet(unit) then
-			self:UpdateIndicators(unit)
-		end
-	end
-	timerClearStatus = Grid2:ScheduleTimer(self.ClearStatus, ReadyCheck.dbx.threshold or 0, self)
+	self:UpdatePlayerUnits()
+	self:ClearStatusDelayed()
 end
 
-function ReadyCheck:GROUP_ROSTER_UPDATE()
-  if readyChecking then
-		for unit in Grid2:IterateRosterUnits() do
-			if not Grid2:UnitIsPet(unit) then
-				self:UpdateIndicators(unit)
-			end
-		end
-  end
-end
-
-function ReadyCheck:CheckClearStatus()
-	-- Unfortunately, GetReadyCheckTimeLeft() only returns integral values.
-	if readyChecking and GetReadyCheckTimeLeft() <= 0 then
-		self:ClearStatus()
-	end
-end
-
-function ReadyCheck:ClearStatus()
+function ReadyCheck:Grid_UnitUpdated(_, unit)
 	if readyChecking then
-		readyChecking = nil
-		for unit in Grid2:IterateRosterUnits() do
-			self:UpdateIndicators(unit)
-		end
-		timerClearStatus = nil
+		readyStatuses[unit] = nil
 	end
 end
 
@@ -68,17 +58,17 @@ function ReadyCheck:OnEnable()
 	self:RegisterEvent("READY_CHECK")
 	self:RegisterEvent("READY_CHECK_CONFIRM")
 	self:RegisterEvent("READY_CHECK_FINISHED")
-	self:RegisterEvent("GROUP_ROSTER_UPDATE")
-	self:RegisterMessage("Grid_GroupTypeChanged", "CheckClearStatus")
+	self:RegisterMessage("Grid_UnitUpdated")
 end
 
 function ReadyCheck:OnDisable()
-	self:ClearStatus()
 	self:UnregisterEvent("READY_CHECK")
 	self:UnregisterEvent("READY_CHECK_CONFIRM")
 	self:UnregisterEvent("READY_CHECK_FINISHED")
-	self:UnregisterEvent("GROUP_ROSTER_UPDATE")
-	self:UnregisterMessage("Grid_GroupTypeChanged")
+	self:UnregisterMessage("Grid_UnitUpdated")
+	wipe(readyStatuses)
+	readyCount = readyCount + 1	
+	readyChecking = nil
 end
 
 function ReadyCheck:IsActive(unit)
@@ -86,55 +76,36 @@ function ReadyCheck:IsActive(unit)
 end
 
 function ReadyCheck:GetReadyCheckStatus(unit)
-	if not readyChecking then return nil end
 	local state = GetReadyCheckStatus(unit)
-	if not state then
-		--we're in the window where we need to persist the readystate
-		state = readyStatuses[unit]
-		--with the blizz UI, if a player is AFK then they will display blank
-		-- while everyone else is tick / cross. Emulate that here
-		if state == "waiting" then state = "afk" end
-	else
+	if state then
 		readyStatuses[unit] = state
+	else
+		state = readyStatuses[unit] 
+		if state == "waiting" then state = "afk" end
 	end
 	return state
 end
 
-local colors = {
-	waiting =  "color1",
-	ready = "color2",
-	notready = "color3",
-	afk = "color4",
-}
-function ReadyCheck:GetColor(unitid)
-	local state = self:GetReadyCheckStatus(unitid)
+local colors = { waiting = "color1", ready = "color2", notready = "color3", afk = "color4" }
+function ReadyCheck:GetColor(unit)
+	local state = self:GetReadyCheckStatus(unit)
 	if state then
 		local color = self.dbx[colors[state]]
 		return color.r, color.g, color.b, color.a
 	end
 end
 
-local icons = {
-	waiting =  READY_CHECK_WAITING_TEXTURE,
-	ready = READY_CHECK_READY_TEXTURE,
-	notready = READY_CHECK_NOT_READY_TEXTURE,
-	afk = READY_CHECK_AFK_TEXTURE,
-}
-function ReadyCheck:GetIcon(unitid)
-	local state = self:GetReadyCheckStatus(unitid)
+local icons = { waiting = READY_CHECK_WAITING_TEXTURE, ready = READY_CHECK_READY_TEXTURE, notready = READY_CHECK_NOT_READY_TEXTURE, afk = READY_CHECK_AFK_TEXTURE }
+function ReadyCheck:GetIcon(unit)
+	local state = self:GetReadyCheckStatus(unit)
 	if state then
 		return icons[state]
 	end
 end
 
-local texts = {
-	waiting =  L["?"],
-	ready = L["R"],
-	notready = L["X"],
-	afk = L["AFK"],
-}
-function ReadyCheck:GetText(unitid)
-	local state = self:GetReadyCheckStatus(unitid)
+local texts = { waiting = L["?"], ready = L["R"], notready = L["X"], afk = L["AFK"] }
+function ReadyCheck:GetText(unit)
+	local state = self:GetReadyCheckStatus(unit)
 	if state then
 		return texts[state]
 	end

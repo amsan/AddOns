@@ -1,19 +1,38 @@
 local L = Grid2Options.L
 
-Grid2Options:RegisterStatusCategoryOptions("health", {
-	specialVelhariFix = {
-		type = "toggle",
-		name = L["HFC Tyrant Velhari Encounter maximum health Fix"],
-		desc = L["Adjust players maximum health according to Aura of Contempt debuff in HellFire Citadel Tyrant Velhari Encounter. This adjust affects statuses displayed in bar indicators."],
-		width = "full",
-		order = 200,
-		get = function () return Grid2.db.profile.HfcVelhariHealthFix end,
-		set = function (_, v)
-			Grid2.db.profile.HfcVelhariHealthFix = v or nil
-			Grid2Utils:FixVelhariEncounterHealth(v)
-		end,
-	}
-} )
+if Grid2.isClassic then
+	local TIME_VALUES = { [0] = L['None'] }
+	for i=1,5 do TIME_VALUES[i] = string.format(L["%d seconds"], i)	end
+	function Grid2Options:MakeStatusHealsClassicOptions(status, options)
+		local LHC = LibStub("LibHealComm-4.0")
+		options.classicTimeBand = {
+			type = "select",
+			name = L["Heals Time Band"],
+			desc = L["Show only heals that are going to land within the selected time period. Select None to display all heals."],
+			order = 290,
+			get = function() return status.dbx.healTimeBand or 0 end,
+			set = function(_, v)
+				status.dbx.healTimeBand = v~=0 and v or nil
+				status:UpdateDB()
+			end,
+			values = TIME_VALUES
+		}
+		options.classicHealTypes = {
+			type = "multiselect",
+			order = 300,
+			name = L["Heal Types"],
+			get = function(info, value)
+				return bit.band(status.dbx.healTypeFlags or LHC.ALL_HEALS, value) ~= 0
+			end,
+			set = function(info, value)
+				status.dbx.healTypeFlags = bit.bxor(status.dbx.healTypeFlags or LHC.ALL_HEALS, value)
+				if status.dbx.healTypeFlags == LHC.ALL_HEALS then status.dbx.healTypeFlags = nil end
+				status:UpdateDB()
+			end,
+			values = { [LHC.DIRECT_HEALS] = L['Casted'], [LHC.CHANNEL_HEALS] = L['Channeled'], [LHC.HOT_HEALS]=L['HOTs'], [LHC.BOMB_HEALS] = L['Bomb'] }
+		}
+	end
+end
 
 Grid2Options:RegisterStatusOptions("health-current", "health", function(self, status, options, optionParams)
 	self:MakeStatusColorOptions(status, options, optionParams)
@@ -23,24 +42,18 @@ Grid2Options:RegisterStatusOptions("health-current", "health", function(self, st
 		order = 35,
 		name  = L["Update frequency"],
 		desc  = L["Select the health update frequency."],
-		get   = function ()
-			return  (status.dbx.quickHealth and "q") or
-					(status.dbx.frequentHealth and "p") or
-					"n"
-		end,
+		get   = function ()	return status.dbx.quickHealth and "q" or "n" end,
 		set   = function (_, v)
-			status.dbx.frequentHealth = (v=="p") or nil
 			status.dbx.quickHealth = (v=="q") or nil
 			status:UpdateDB()
-			status:UpdateAllIndicators()
+			status:UpdateAllUnits()
 		end,
-		values= { n = L["Normal"],  p = L["Fast"], q = L["Instant"] },
+		values= { n = L["Normal"], q = L["Instant"] },
 	}
 	self:MakeStatusToggleOptions(status, options, optionParams, "deadAsFullHealth")
 end, {
 	deadAsFullHealth = L["Show dead as having Full Health"],
 	quickHealth = L["Instant Updates"],
-	frequentHealth = L["Frequent Updates"],
 	color1 = L["Full Health"],
 	color2 = L["Medium Health"],
 	color3 = L["Low Health"],
@@ -50,32 +63,37 @@ end, {
 
 Grid2Options:RegisterStatusOptions("heals-incoming", "health", function(self, status, options, optionParams)
 	self:MakeStatusStandardOptions(status, options, optionParams)
+	if Grid2.isClassic then
+		self:MakeStatusHealsClassicOptions(status, options)
+	else
+		options.includeHealAbsorbs = {
+			type = "toggle",
+			order = 115,
+			name = L["Substract heal absorbs"],
+			desc = L["Substract heal absorbs shields from the incoming heals"],
+			tristate = false,
+			get = function () return status.dbx.includeHealAbsorbs end,
+			set = function (_, v)
+				status:OnDisable()
+				status.dbx.includeHealAbsorbs = v or nil
+				status:OnEnable()
+			end,
+		}
+	end
 	options.includePlayerHeals = {
 		type = "toggle",
 		order = 110,
 		name = L["Include player heals"],
-		desc = L["Include player heals"],
+		desc = L["Include heals casted by me, if unchecked only other players heals are displayed."],
 		tristate = false,
 		get = function () return status.dbx.includePlayerHeals end,
 		set = function (_, v)
-			status.dbx.includePlayerHeals = v or nil
-			status:UpdateDB()
-		end,
-	}
-	options.includeHealAbsorbs = {
-		type = "toggle",
-		order = 115,
-		name = L["Substract heal absorbs"],
-		desc = L["Substract heal absorbs shields from the incoming heals"],
-		tristate = false,
-		get = function () return status.dbx.includeHealAbsorbs end,
-		set = function (_, v)
 			status:OnDisable()
-			status.dbx.includeHealAbsorbs = v or nil
+			status.dbx.includePlayerHeals = v or nil
 			status:OnEnable()
 		end,
 	}
-	options.healTypes = {
+	options.minimumValue = {
 		type = "input",
 		order = 120,
 		width = "full",
@@ -105,12 +123,12 @@ Grid2Options:RegisterStatusOptions("heals-incoming", "health", function(self, st
 		end,
 	}
 end, {
-	titleIcon ="Interface\\Icons\\Spell_Holy_DivineProvidence"
+	titleIcon = Grid2.isClassic and "Interface\\Icons\\Spell_Holy_Heal" or "Interface\\Icons\\Spell_Holy_DivineProvidence"
 })
 
 Grid2Options:RegisterStatusOptions("my-heals-incoming", "health", function(self, status, options, optionParams)
 	self:MakeStatusStandardOptions(status, options, optionParams)
-	options.healTypes = {
+	options.minimumValue = {
 		type = "input",
 		order = 120,
 		width = "full",
@@ -139,18 +157,43 @@ Grid2Options:RegisterStatusOptions("my-heals-incoming", "health", function(self,
 			status:UpdateDB()
 		end,
 	}
+	if Grid2.isClassic then
+		self:MakeStatusHealsClassicOptions(status, options)
+	end
 end, {
-	titleIcon ="Interface\\Icons\\Spell_Holy_DivineProvidence"
+	titleIcon = Grid2.isClassic and "Interface\\Icons\\Spell_Holy_Heal" or "Interface\\Icons\\Spell_Holy_DivineProvidence"
+})
+
+Grid2Options:RegisterStatusOptions("overhealing", "health", function(self, status, options, optionParams)
+	self:MakeStatusStandardOptions(status, options, optionParams)
+	options.minimumOver = {
+		type = "input",
+		order = 120,
+		width = "full",
+		name = L["Minimum value"],
+		desc = L["Incoming overheals below the specified value will not be shown."],
+		get = function ()
+			return tostring(status.dbx.minimum or 0)
+		end,
+		set = function (_, v)
+			v = tonumber(v) or 0
+			status.dbx.minimum = v>0 and v or nil
+			status:UpdateDB()
+		end,
+	}
+end, {
+	title = L["display heals above max hp"],
+	titleIcon = Grid2.isClassic and "Interface\\Icons\\Spell_Holy_Heal" or "Interface\\Icons\\Spell_Holy_DivineProvidence"
 })
 
 
 Grid2Options:RegisterStatusOptions("health-low", "health", function(self, status, options, optionParams)
-	local min,max,step
+	local per,min,max,step = true
 	if status.dbx.threshold>10 then
-		min,max,step = 1000, 250000, 500
+		min,max,step,per = 1000, 250000, 500, nil
 	end
 	self:MakeStatusColorOptions(status, options, optionParams)
-	self:MakeStatusThresholdOptions(status, options, optionParams, min, max, step)
+	self:MakeStatusThresholdOptions(status, options, optionParams, min, max, step, per)
 	options.useAbsoluteHealth = {
 		type = "toggle",
 		order = 110,
@@ -165,7 +208,7 @@ Grid2Options:RegisterStatusOptions("health-low", "health", function(self, status
 		end,
 	}
 end, {
-	titleIcon = "Interface\\Icons\\Ability_rogue_bloodyeye"
+	titleIcon = Grid2.isClassic and "Interface\\Icons\\Ability_Rogue_Rupture" or "Interface\\Icons\\Ability_rogue_bloodyeye"
 })
 
 Grid2Options:RegisterStatusOptions("health-deficit", "health", Grid2Options.MakeStatusColorThresholdOptions, {
@@ -173,7 +216,7 @@ Grid2Options:RegisterStatusOptions("health-deficit", "health", Grid2Options.Make
 })
 
 Grid2Options:RegisterStatusOptions( "death", "combat", Grid2Options.MakeStatusColorOptions,{
-	titleIcon = "Interface\\ICONS\\Ability_creature_cursed_05.png",
+	titleIcon = "Interface\\ICONS\\Ability_creature_cursed_05",
 } )
 
 Grid2Options:RegisterStatusOptions( "feign-death", "combat", Grid2Options.MakeStatusColorOptions,{

@@ -1,11 +1,11 @@
+if Grid2.isClassic then return end
+
 local Vehicle = Grid2.statusPrototype:new("vehicle")
 
 local L = LibStub:GetLibrary("AceLocale-3.0"):GetLocale("Grid2")
 
 local Grid2 = Grid2
 local UnitHasVehicleUI = UnitHasVehicleUI
-
-Vehicle.UpdateAllUnits = Grid2.statusLibrary.UpdateAllUnits
 
 function Vehicle:UpdateUnit(_, unit)
 	self:UpdateIndicators(unit)
